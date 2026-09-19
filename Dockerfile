@@ -17,6 +17,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY vendor/agent-prism ./vendor/agent-prism
 COPY app/frontend/agents ./app/frontend/agents
+COPY app/javascript/live_updates.js ./app/javascript/live_updates.js
 COPY config/agent_prism_tailwind.cjs ./config/agent_prism_tailwind.cjs
 COPY script/build-agents.mjs ./script/build-agents.mjs
 COPY tsconfig.agents.json ./
