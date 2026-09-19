@@ -11,7 +11,7 @@
 ARG RUBY_VERSION=4.0.7
 
 # Node нужен только для сборки закрытого просмотрщика трасс.
-FROM docker.io/library/node:24.21.0-slim AS agent-assets
+FROM docker.io/library/node:26.8.2-slim AS agent-assets
 WORKDIR /build
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
