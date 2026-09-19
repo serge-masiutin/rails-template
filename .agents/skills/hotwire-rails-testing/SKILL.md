@@ -4,7 +4,7 @@ description: "Тестировать StarterApp: Rails Minitest, ViewComponent, 
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "11"
+  version: "12"
 ---
 
 # hotwire-rails-testing
@@ -31,6 +31,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 - Integration tests проверяют статусы, redirect, cookies, доступ, HTML и Turbo Stream targets.
 - В system tests зарегистрируй используемые пулы БД до открытия fixtures; подключение пула в потоке Puma нарушает учёт транзакций Isolator при teardown. Сохраняй раннюю регистрацию SolidQueue::Record в application_system_test_case.rb; не подавляй предупреждение отключением Isolator.
 - ViewComponent tests проверяют смысловой DOM и варианты. System tests запускают реальный Chrome через Cuprite.
+- Параметры Cuprite передавай через `driven_by ... options:`: Rails перезаписывает ручную регистрацию `:cuprite`. Проверяй фактические параметры через `BrowserDriverTest`; `process_timeout` относится к запуску Chrome, а не к ожиданию DOM.
 - Для Turbo проверь успешную отправку, validation 422, history, reconnect Stimulus. Не синхронизируй тесты sleep-вызовами.
 - Для изменений WebSocket запускай `bin/realtime-test`: реальный Go-сервер и Chrome проверяют доставку, recovery, потерю истории, чужую подписку и отзыв сессии. Обычные Rails tests перехватывают broadcasts и не доказывают доставку.
 - HTTP/WebSocket-нагрузку проверяй через `bin/load-test smoke|load`. Стенд использует локальную test-БД, временного пользователя, CSRF, приватную подписку и настоящую доставку; не запускай его параллельно другим тестам. Ошибки и отсутствие доставки должны нарушать thresholds. Проверяй cleanup и отчёты k6/Yabeda; локальный результат не доказывает production capacity.
