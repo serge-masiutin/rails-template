@@ -7,7 +7,7 @@ gem "rails", "8.1.3.1"
 gem "json", "< 3"
 gem "propshaft"
 gem "pg", "~> 1.6"
-gem "puma", "~> 7.0"
+gem "puma", "~> 8.0"
 gem "importmap-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
@@ -33,7 +33,9 @@ gem "yabeda-prometheus", "~> 0.9"
 gem "bootsnap", ">= 1.24.4", require: false
 gem "kamal", "~> 2.12", require: false
 gem "thruster", require: false
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.1"
+# ImageProcessing 2 требует явного адаптера для анализа изображений Active Storage.
+gem "ruby-vips", "~> 2.3"
 gem "imgproxy-rails", "~> 0.3"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

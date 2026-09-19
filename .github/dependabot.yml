@@ -3,6 +3,10 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }
+    # AgentPrism upstream использует PanelGroup/PanelResizeHandle из v3; см. docs/agents.md.
+    ignore:
+      - dependency-name: react-resizable-panels
+        update-types: ["version-update:semver-major"]
     groups:
       agent-prism:
         patterns: ["react", "react-dom", "@types/react*", "@radix-ui/*", "react-json-pretty", "react-resizable-panels", "lucide-react"]
@@ -19,6 +23,13 @@ updates:
   - package-ecosystem: gradle
     directory: /native/android
     schedule: { interval: weekly }
+    groups:
+      android-build:
+        patterns: ["com.android.*", "org.jetbrains.kotlin:*"]
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }
+    # Node обновляется в рамках LTS; новую ветку меняем вместе с mise.toml/package.json.
+    ignore:
+      - dependency-name: library/node
+        update-types: ["version-update:semver-major"]

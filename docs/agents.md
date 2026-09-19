@@ -88,6 +88,9 @@ AgentPrism UI/data/types скопированы из одного commit в `ven
 и SHA-256 в `source.json`: npm-релиз data отстаёт от текущих компонентов.
 При обновлении меняй эти три части вместе, сохраняй manifest и проверяй сборку/браузерные тесты.
 Стили адаптированы к Tailwind 4 отдельным конфигом без изменения исходников компонентов.
+`react-resizable-panels` остаётся на v3: текущий upstream импортирует `PanelGroup` и `PanelResizeHandle`,
+которых нет в v4. Dependabot продолжает обновлять v3; запрет major снимается вместе с совместимым
+обновлением AgentPrism и проверкой desktop/mobile UI. Lucide обновляется независимо.
 
 ```sh
 mise exec -- npm run check:agents

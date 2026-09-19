@@ -3,6 +3,9 @@
 `mise exec -- bin/setup --skip-server` устанавливает gems, npm-пакеты и pre-commit
 Lefthook в этом репозитории. Версии Ruby и Node.js закреплены в `mise.toml`,
 Node.js также указан в `package.json` для npm и GitHub Actions.
+Используется Node.js 24 LTS. Docker, `mise.toml` и `package.json` должны задавать одну версию;
+переход на следующую LTS выполняется согласованно. Dependabot обновляет Docker Node в пределах
+выбранной major-ветки. [Статус релизов Node.js](https://nodejs.org/en/about/previous-releases).
 Node.js нужен Herb и сборке закрытого просмотрщика AgentPrism. Продуктовые экраны используют importmap.
 Команды просмотра трасс и сборки — в [agents.md](agents.md#agentprism).
 
