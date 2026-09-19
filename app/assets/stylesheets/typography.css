@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "Martian Mono";
+  src: url("martian-mono-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 800;
+  font-stretch: 75% 112.5%;
+  font-display: swap;
+}
+
+:root {
+  --font-ui: "Martian Mono", monospace;
+}
+
+html, body, button, input, optgroup, select, textarea, code, kbd, pre, samp,
+.font-sans, .font-serif, .font-mono, .font-ui, [data-component="prose"] {
+  font-family: var(--font-ui);
+  font-stretch: normal;
+}
+
+/* Сохраняет стандартную ширину variable-шрифта и в стилях внешних панелей. */
+html {
+  font-variation-settings: "wdth" 100;
+}

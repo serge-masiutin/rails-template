@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+Dir.chdir File.expand_path("..", __dir__) do
+  exec "node", "node_modules/.bin/herb-language-server", "--stdio", *ARGV
+end

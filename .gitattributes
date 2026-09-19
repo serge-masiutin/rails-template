@@ -1,0 +1,4 @@
+# Сохраняем оригинальные байты vendored-источников, лицензий и Windows wrapper.
+vendor/** -whitespace
+native/android/app/src/main/assets/licenses/** -whitespace
+native/android/gradlew.bat whitespace=cr-at-eol

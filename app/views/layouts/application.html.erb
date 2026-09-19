@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title><%= content_for(:title) || "StarterApp" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <meta name="action-cable-url" content="<%= realtime_url %>">
+    <meta name="realtime-session" content="<%= authenticated? ? Current.session.id : "guest" %>" data-turbo-track="reload">
+    <%= yield :head %>
+    <%= stylesheet_link_tag "application", "tailwind", "data-turbo-track": "reload" %>
+    <%= render "shared/typography" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="min-h-screen antialiased">
+    <% if authenticated? %>
+      <%= turbo_stream_from Current.user.updates_stream_name, channel: "UserUpdatesChannel" %>
+    <% end %>
+    <a href="#main" class="sr-only focus:not-sr-only">Перейти к содержимому</a>
+    <% unless hotwire_native_app? %>
+      <header class="border-b border-line bg-surface">
+        <nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5" aria-label="Основная навигация">
+          <%= link_to "StarterApp", root_path, class: "text-xl font-semibold tracking-tight" %>
+          <% if authenticated? %>
+            <%= link_to "Профиль", account_path, class: "text-sm font-medium text-accent" %>
+          <% end %>
+        </nav>
+      </header>
+    <% end %>
+    <main id="main" class="mx-auto max-w-5xl px-6 py-10">
+      <div id="flash" class="mb-6 space-y-3" data-turbo-temporary>
+        <% flash.each do |type, message| %>
+          <%= render Ui::NoticeComponent.new(message: message, variant: type.to_sym) %>
+        <% end %>
+      </div>
+      <%= yield %>
+    </main>
+  </body>
+</html>

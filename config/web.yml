@@ -1,0 +1,11 @@
+development:
+  host: localhost
+  protocol: http
+  port: 3000
+test:
+  host: www.example.com
+  protocol: http
+  port: 80
+production:
+  protocol: https
+  port: 443

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "configured": false,
+  "name": "starter_app",
+  "module_name": "StarterApp",
+  "prefix": "starterapp",
+  "android_id": "com.example.starterapp"
+}

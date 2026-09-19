@@ -1,0 +1,143 @@
+service: starterapp
+image: <%= ENV.fetch("KAMAL_IMAGE") %>
+minimum_version: 2.12.0
+servers:
+  web:
+    - <%= ENV.fetch("DEPLOY_HOST") %>
+  job:
+    hosts:
+      - <%= ENV.fetch("DEPLOY_HOST") %>
+    cmd: bin/jobs
+proxy:
+  ssl: true
+  host: <%= ENV.fetch("WEB_HOST") %>
+  app_port: 80
+  healthcheck:
+    path: /up
+registry:
+  server: ghcr.io
+  username: <%= ENV.fetch("KAMAL_REGISTRY_USERNAME") %>
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+env:
+  clear:
+    WEB_HOST: <%= ENV.fetch("WEB_HOST") %>
+    DB_HOST: starterapp-db
+    SMTP_ADDRESS: <%= ENV.fetch("SMTP_ADDRESS") %>
+    MAIL_FROM: <%= ENV.fetch("MAIL_FROM") %>
+    LLM_PROVIDER: <%= ENV.fetch("LLM_PROVIDER", "").inspect %>
+    LLM_MODEL: <%= ENV.fetch("LLM_MODEL", "").inspect %>
+  secret:
+    - SECRET_KEY_BASE
+    - DB_PASSWORD
+    - SMTP_USERNAME
+    - SMTP_PASSWORD
+    - OPERATIONS_USERNAME
+    - OPERATIONS_PASSWORD
+    - OPERATIONS_METRICS_TOKEN
+    - LLM_API_KEY
+    - ANYCABLE_SECRET
+    - IMGPROXY_KEY
+    - IMGPROXY_SALT
+logging:
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: "5"
+ssh:
+  user: <%= ENV.fetch("DEPLOY_USER", "root") %>
+volumes:
+  - starterapp_storage:/rails/storage
+asset_path: /rails/public/assets
+builder:
+  arch: <%= ENV.fetch("DEPLOY_ARCH", "amd64") %>
+accessories:
+  imgproxy:
+    image: ghcr.io/imgproxy/imgproxy:v4.0.15
+    host: <%= ENV.fetch("DEPLOY_HOST") %>
+    proxy:
+      host: <%= ENV.fetch("WEB_HOST") %>
+      ssl: true
+      app_port: 8080
+      path_prefix: /images
+      strip_path_prefix: false
+      healthcheck:
+        path: /images/health
+    volumes:
+      - starterapp_storage:/images:ro
+    env:
+      clear:
+        IMGPROXY_PATH_PREFIX: /images
+        IMGPROXY_LOCAL_FILESYSTEM_ROOT: /images
+        IMGPROXY_ALLOWED_SOURCES: local:///
+        IMGPROXY_WORKERS: 2
+        IMGPROXY_REQUESTS_QUEUE_SIZE: 16
+        IMGPROXY_MAX_CLIENTS: 32
+        IMGPROXY_TIMEOUT: 10
+        IMGPROXY_MAX_SRC_FILE_SIZE: 20971520
+        IMGPROXY_MAX_SRC_RESOLUTION: 25
+        IMGPROXY_MAX_RESULT_DIMENSION: 4096
+        IMGPROXY_MAX_ANIMATION_FRAMES: 1
+        IMGPROXY_TTL: 60
+        IMGPROXY_PROMETHEUS_BIND: ":8081"
+        IMGPROXY_PROMETHEUS_NAMESPACE: imgproxy
+        IMGPROXY_LOG_FORMAT: json
+        IMGPROXY_LOG_LEVEL: error
+        IMGPROXY_FAIL_ON_DEPRECATION: "true"
+      secret:
+        - IMGPROXY_KEY
+        - IMGPROXY_SALT
+  anycable:
+    image: anycable/anycable-go:1.6.16-alpine
+    host: <%= ENV.fetch("DEPLOY_HOST") %>
+    proxy:
+      host: <%= ENV.fetch("WEB_HOST") %>
+      ssl: true
+      app_port: 8080
+      path_prefix: /cable
+      strip_path_prefix: false
+      healthcheck:
+        path: /health
+    env:
+      clear:
+        ANYCABLE_HOST: 0.0.0.0
+        ANYCABLE_PORT: 8080
+        ANYCABLE_RPC_HOST: https://<%= ENV.fetch("WEB_HOST") %>/_anycable
+        ANYCABLE_RPC_CONCURRENCY: 2
+        ANYCABLE_RPC_REQUEST_TIMEOUT: 3000
+        ANYCABLE_HEADERS: cookie,origin
+        ANYCABLE_PROXY_COOKIES: session_id
+        ANYCABLE_ALLOWED_ORIGINS: <%= ENV.fetch("WEB_HOST") %>
+        ANYCABLE_BROADCAST_ADAPTER: http
+        ANYCABLE_HTTP_BROADCAST_PORT: 8090
+        ANYCABLE_BROKER: memory
+        ANYCABLE_HISTORY_TTL: 300
+        ANYCABLE_HISTORY_LIMIT: 100
+        ANYCABLE_SESSIONS_TTL: 0
+        ANYCABLE_METRICS_HTTP: /metrics
+        ANYCABLE_METRICS_PORT: 8091
+        ANYCABLE_LOG_FORMAT: json
+        # Warn может содержать подписанные stream names и payload команд.
+        ANYCABLE_LOG_LEVEL: error
+        ANYCABLE_DISABLE_TELEMETRY: "true"
+      secret:
+        - ANYCABLE_SECRET
+  db:
+    image: postgres:18.6
+    host: <%= ENV.fetch("DEPLOY_HOST") %>
+    env:
+      clear:
+        POSTGRES_USER: starter_app
+      secret:
+        - POSTGRES_PASSWORD:DB_PASSWORD
+    directories:
+      - data:/var/lib/postgresql
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  web-logs: app logs -f --roles web
+  job-logs: app logs -f --roles job
+  cable-logs: accessory logs anycable -f
+  image-logs: accessory logs imgproxy -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole"

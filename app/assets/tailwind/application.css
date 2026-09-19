@@ -1,0 +1,24 @@
+@import "tailwindcss" source(none);
+@source "../../views";
+@source "../../components";
+@source "../../../test/components/previews";
+
+@theme {
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-ui);
+  --font-mono: var(--font-ui);
+  --color-canvas: #f7f7f2;
+  --color-surface: #ffffff;
+  --color-ink: #17251e;
+  --color-muted: #536258;
+  --color-accent: #276749;
+  --color-line: #dce2d9;
+  --color-success: #226c43;
+  --color-danger: #b42318;
+}
+
+@layer base {
+  body { background: var(--color-canvas); color: var(--color-ink); }
+  button, a, input { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 4px; }
+}

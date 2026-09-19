@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      agent-prism:
+        patterns: ["react", "react-dom", "@types/react*", "@radix-ui/*", "react-json-pretty", "react-resizable-panels", "lucide-react"]
+      tailwind:
+        patterns: ["tailwindcss", "@tailwindcss/*"]
+      herb:
+        patterns: ["@herb-tools/*"]
+  - package-ecosystem: bundler
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: gradle
+    directory: /native/android
+    schedule: { interval: weekly }
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly }

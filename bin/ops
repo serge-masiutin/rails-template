@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require "securerandom"
+require "yaml"
+
+Dir.chdir File.expand_path("..", __dir__) do
+  case ARGV
+  when [ "setup" ]
+    path = "config/operations.local.yml"
+    if File.exist?(path)
+      puts "Локальный доступ уже настроен: #{path}"
+    else
+      File.open(path, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
+        file.write({ "username" => "starterapp", "password" => SecureRandom.hex(32), "metrics_token" => SecureRandom.hex(32) }.to_yaml)
+      end
+      puts "Доступ к /ops/jobs и /ops/agents: имя и пароль в #{path}. Файл исключён из Git и Docker."
+    end
+  when [ "monitoring" ]
+    system("bin/rails", "runner", "script/prepare_monitoring.rb", exception: true)
+    exec "docker", "compose", "--profile", "monitoring", "up", "--detach", "prometheus", "grafana"
+  when [ "queue" ]
+    exec "bin/rails", "runner", "puts JSON.pretty_generate(Operations::QueueSnapshot.capture)"
+  else
+    abort "Использование: bin/ops setup | queue | monitoring"
+  end
+end

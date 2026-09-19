@@ -1,0 +1,17 @@
+version: 0.10.4
+framework: actionview
+template_engine: erubi
+files:
+  exclude:
+    - vendor/**/*
+    - node_modules/**/*
+    - public/**/*
+    - tmp/**/*
+    - native/**/*
+linter:
+  enabled: true
+  failLevel: warning
+formatter:
+  enabled: true
+  indentWidth: 2
+  maxLineLength: 120

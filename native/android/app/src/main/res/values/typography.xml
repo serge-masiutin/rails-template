@@ -1,0 +1,67 @@
+<resources>
+    <style name="TextAppearance.StarterApp.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">300</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">300</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Headline4" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+    <style name="TextAppearance.StarterApp.Overline" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="fontFamily">@font/martian_mono</item>
+        <item name="android:fontFamily">@font/martian_mono</item>
+        <item name="android:textFontWeight">400</item>
+    </style>
+</resources>

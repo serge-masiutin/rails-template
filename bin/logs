@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+request_id="" job_id="" level="" follow=true input="log/${RAILS_ENV:-development}.jsonl"
+while (($#)); do
+  case "$1" in
+    --request-id|--job-id|--level|--input)
+      (($# >= 2)) || { echo "Нужно значение для $1" >&2; exit 1; }
+      case "$1" in
+        --request-id) request_id="$2" ;;
+        --job-id) job_id="$2" ;;
+        --level) level="$2" ;;
+        --input) input="$2" ;;
+      esac
+      shift 2 ;;
+    --no-follow) follow=false; shift ;;
+    --help)
+      echo "bin/logs [--request-id ID] [--job-id ID] [--level LEVEL] [--no-follow] [--input FILE|-]"
+      exit 0 ;;
+    *) echo "Неизвестный параметр: $1" >&2; exit 1 ;;
+  esac
+done
+case "$level" in
+  ""|trace|debug|info|warn|error|fatal) ;;
+  *) echo "Уровень: trace, debug, info, warn, error или fatal" >&2; exit 1 ;;
+esac
+command -v jq >/dev/null || { echo "Установите jq: brew bundle" >&2; exit 1; }
+read_logs() {
+  if [[ "$input" == "-" ]]; then
+    cat
+  elif $follow; then
+    tail -n 200 -F -- "$input"
+  else
+    cat -- "$input"
+  fi
+}
+read_logs | jq --unbuffered --arg request_id "$request_id" --arg job_id "$job_id" --arg level "$level" '
+  select($request_id == "" or .named_tags.request_id == $request_id) |
+  select($job_id == "" or .named_tags.job_id == $job_id or .payload.job_id == $job_id) |
+  select($level == "" or .level == $level)'

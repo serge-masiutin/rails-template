@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+require "json"
+require "yaml"
+require "digest"
+
+abort "Использование: bin/skills check" unless ARGV == [ "check" ]
+root = File.expand_path("..", __dir__)
+manifest = JSON.parse(File.read(File.join(root, "config/agent_skills.json")))
+entries = manifest.fetch("skills")
+project_names = manifest.fetch("project_skills")
+names = entries.map { |entry| entry.fetch("local_name") } + project_names
+raise "Повторяющиеся имена skills" unless names.uniq == names
+directories = Dir.children(File.join(root, ".agents/skills")).select { |name| File.directory?(File.join(root, ".agents/skills", name)) }
+raise "Состав .agents/skills не совпадает с реестром" unless directories.sort == names.sort
+sources = entries.to_h { |entry| [ entry.fetch("local_name"), entry.fetch("name") ] }
+entries.each do |entry|
+  source = File.join(root, "vendor/agent-skills/evilmartians", entry.fetch("name"))
+  actual = Dir.glob("**/*", base: source).select { |path| File.file?(File.join(source, path)) }.sort
+  raise "Изменён состав upstream #{entry.fetch('name')}" unless actual == entry.fetch("files").keys.sort
+  entry.fetch("files").each do |path, digest|
+    raise "Изменён upstream #{path}" unless Digest::SHA256.file(File.join(source, path)).hexdigest == digest
+  end
+end
+names.each do |name|
+  path = File.join(root, ".agents/skills", name, "SKILL.md")
+  content = File.read(path)
+  header = content.match(/\A---\n(.*?)\n---\n/m) or raise "Нет frontmatter: #{path}"
+  metadata = YAML.safe_load(header[1])
+  raise "Некорректное имя: #{path}" unless metadata.fetch("name") == name
+  raise "Пустое описание: #{path}" if metadata.fetch("description").strip.empty?
+  details = metadata.fetch("metadata")
+  raise "Некорректная версия: #{path}" unless /\A[1-9]\d*\z/.match?(details.fetch("version"))
+  if project_names.include?(name)
+    raise "Некорректное происхождение: #{path}" unless details.fetch("origin") == "project"
+  else
+    raise "Потерян источник: #{path}" unless details.fetch("upstream") == sources.fetch(name)
+  end
+end
+puts "Skills: адаптаций — #{entries.size}, проектных — #{project_names.size}; структура и upstream SHA-256 проверены"

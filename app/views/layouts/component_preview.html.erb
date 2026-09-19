@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Компоненты StarterApp</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <meta name="action-cable-url" content="<%= realtime_url %>">
+    <%= stylesheet_link_tag "application", "tailwind", "data-turbo-track": "reload" %>
+    <%= render "shared/typography" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="min-h-screen p-6 antialiased">
+    <%= yield %>
+  </body>
+</html>

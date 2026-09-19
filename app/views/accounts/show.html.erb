@@ -1,0 +1,9 @@
+<% content_for :title, "Профиль · StarterApp" %>
+<section class="max-w-xl space-y-6">
+  <h1 class="text-3xl font-semibold">Профиль</h1>
+  <dl class="rounded-2xl border border-line bg-surface p-6">
+    <dt class="text-sm text-muted">Email</dt>
+    <dd class="mt-2 break-words font-medium"><%= Current.user.email_address %></dd>
+  </dl>
+  <%= button_to "Выйти", session_path, method: :delete, class: "rounded-xl border border-line px-5 py-3 font-medium" %>
+</section>

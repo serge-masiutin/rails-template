@@ -1,0 +1,6 @@
+web: bin/rails server -b 0.0.0.0 -p 3000
+css: bin/rails tailwindcss:watch
+jobs: bin/jobs
+cable: bin/cable start
+images: bin/images start
+agents: npm run watch:agents

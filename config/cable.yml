@@ -1,0 +1,8 @@
+development:
+  adapter: any_cable
+
+test:
+  adapter: <%= ENV["ANYCABLE_SYSTEM_TEST"] == "1" ? "any_cable" : "test" %>
+
+production:
+  adapter: any_cable

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@evilmartians/agent-prism-data": [
+        "./vendor/agent-prism/data/index.ts"
+      ],
+      "@evilmartians/agent-prism-types": [
+        "./vendor/agent-prism/types/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "app/frontend/agents/**/*.ts",
+    "app/frontend/agents/**/*.tsx",
+    "vendor/agent-prism/components"
+  ]
+}

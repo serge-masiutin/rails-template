@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+require_relative "../config/boot"
+require "fileutils"
+require "net/http"
+require "securerandom"
+require "timeout"
+require "yaml"
+
+Signal.trap("TERM") { raise Interrupt, "Тест imgproxy остановлен" }
+
+# rubocop:disable ThreadSafety/DirChdir -- CLI задаёт cwd до запуска дочерних процессов.
+Dir.chdir File.expand_path("..", __dir__) do
+  abort "Использование: bin/image-test" unless ARGV.empty?
+  service = YAML.safe_load_file("compose.yml").fetch("services").fetch("imgproxy")
+  name = "starterapp-image-test-#{Process.pid}"
+  environment = { "RAILS_ENV" => "test", "IMGPROXY_KEY" => SecureRandom.hex(32),
+    "IMGPROXY_SALT" => SecureRandom.hex(32) }
+  server_env = service.fetch("environment").transform_values(&:to_s).merge(environment.except("RAILS_ENV"))
+  FileUtils.mkdir_p("tmp/storage")
+  FileUtils.mkdir_p("tmp/images")
+  system(environment, "bin/rails", "db:prepare", exception: true)
+  begin
+    system(server_env, "docker", "run", "--detach", "--name", name,
+      "-p", "127.0.0.1:8382:8080", "-p", "127.0.0.1:8383:8081",
+      "-v", "#{Dir.pwd}/tmp/storage:/images:ro",
+      *server_env.keys.flat_map { |key| [ "-e", key ] }, service.fetch("image"), exception: true)
+    Timeout.timeout(20) do
+      loop do
+        begin
+          break if Net::HTTP.get_response(URI("http://127.0.0.1:8382/images/health")).code == "200"
+        rescue Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
+          # Listener ещё запускается; общий deadline ограничивает ожидание.
+        end
+        sleep 0.1
+      end
+    end
+    system(environment, "bundle", "exec", "ruby", "-Itest", "test/images/imgproxy_scenario.rb", exception: true)
+    metrics = Net::HTTP.get_response(URI("http://127.0.0.1:8383/metrics"))
+    raise "imgproxy metrics: #{metrics.code}" unless metrics.code == "200"
+    File.binwrite("tmp/images/imgproxy.prom", metrics.body)
+  ensure
+    system("docker", "logs", name, out: [ "tmp/images/imgproxy.log", "w" ], err: :out)
+    system("docker", "rm", "--force", name)
+  end
+end
+# rubocop:enable ThreadSafety/DirChdir

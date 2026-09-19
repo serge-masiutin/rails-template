@@ -1,0 +1,31 @@
+<resources>
+  <style name="Theme.StarterApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <item name="colorPrimary">#276749</item>
+    <item name="colorPrimaryVariant">#17251E</item>
+    <item name="colorOnPrimary">#FFFFFF</item>
+    <item name="fontFamily">@font/martian_mono</item>
+    <item name="android:fontFamily">@font/martian_mono</item>
+    <item name="textAppearanceHeadline1">@style/TextAppearance.StarterApp.Headline1</item>
+    <item name="textAppearanceHeadline2">@style/TextAppearance.StarterApp.Headline2</item>
+    <item name="textAppearanceHeadline3">@style/TextAppearance.StarterApp.Headline3</item>
+    <item name="textAppearanceHeadline4">@style/TextAppearance.StarterApp.Headline4</item>
+    <item name="textAppearanceHeadline5">@style/TextAppearance.StarterApp.Headline5</item>
+    <item name="textAppearanceHeadline6">@style/TextAppearance.StarterApp.Headline6</item>
+    <item name="textAppearanceSubtitle1">@style/TextAppearance.StarterApp.Subtitle1</item>
+    <item name="textAppearanceSubtitle2">@style/TextAppearance.StarterApp.Subtitle2</item>
+    <item name="textAppearanceBody1">@style/TextAppearance.StarterApp.Body1</item>
+    <item name="textAppearanceBody2">@style/TextAppearance.StarterApp.Body2</item>
+    <item name="textAppearanceButton">@style/TextAppearance.StarterApp.Button</item>
+    <item name="textAppearanceCaption">@style/TextAppearance.StarterApp.Caption</item>
+    <item name="textAppearanceOverline">@style/TextAppearance.StarterApp.Overline</item>
+    <item name="android:textAppearance">@style/TextAppearance.StarterApp.Body1</item>
+    <item name="android:textAppearanceLarge">@style/TextAppearance.StarterApp.Headline6</item>
+    <item name="android:textAppearanceMedium">@style/TextAppearance.StarterApp.Subtitle1</item>
+    <item name="android:textAppearanceSmall">@style/TextAppearance.StarterApp.Body2</item>
+    <item name="toolbarStyle">@style/Widget.StarterApp.Toolbar</item>
+  </style>
+  <style name="Widget.StarterApp.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+    <item name="titleTextAppearance">@style/TextAppearance.StarterApp.Headline6</item>
+    <item name="subtitleTextAppearance">@style/TextAppearance.StarterApp.Subtitle1</item>
+  </style>
+</resources>

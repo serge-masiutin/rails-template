@@ -1,0 +1,32 @@
+# Стиль Rails Omakase и проверки потокобезопасности.
+inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+
+plugins:
+  - rubocop-thread_safety
+  - rubocop-md
+
+AllCops:
+  Exclude:
+    - "vendor/**/*"
+    - ".agents/**/*"
+    - "node_modules/**/*"
+    - ".ruby-lsp/**/*"
+    - "native/**/*"
+
+Markdown:
+  WarnInvalid: true
+  Autodetect: false
+
+ThreadSafety/ActiveSupportCallbacks:
+  Enabled: true
+ThreadSafety/MethodRedefinition:
+  Enabled: true
+ThreadSafety/LazySynchronizationPrimitive:
+  Enabled: true
+
+# Во время обработки запросов и заданий ENV общий для всех потоков.
+ThreadSafety/EnvMutation:
+  Enabled: true
+  Include:
+    - "app/**/*.rb"
+    - "lib/**/*.rb"

@@ -1,0 +1,17 @@
+default: &default
+  broadcast_adapter: http
+  http_broadcast_url: http://127.0.0.1:8090/_broadcast
+  http_rpc: true
+  websocket_url: /cable
+  access_logs_disabled: true
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+  secret: test-only-anycable-secret-not-for-deployment-0000000000000000000000
+
+production:
+  <<: *default
+  http_broadcast_url: http://starterapp-anycable:8090/_broadcast

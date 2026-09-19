@@ -1,0 +1,93 @@
+name: Deploy production
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'setup — первый деплой, deploy — обновление'
+        type: choice
+        options: [deploy, setup]
+        default: deploy
+permissions:
+  contents: read
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+jobs:
+  checks:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: read
+      packages: write
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_ARCH: ${{ vars.DEPLOY_ARCH }}
+      WEB_HOST: ${{ vars.WEB_HOST }}
+      SMTP_ADDRESS: ${{ vars.SMTP_ADDRESS }}
+      MAIL_FROM: ${{ vars.MAIL_FROM }}
+      KAMAL_IMAGE: ${{ vars.KAMAL_IMAGE }}
+      KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      OPERATIONS_USERNAME: ${{ secrets.OPERATIONS_USERNAME }}
+      OPERATIONS_PASSWORD: ${{ secrets.OPERATIONS_PASSWORD }}
+      OPERATIONS_METRICS_TOKEN: ${{ secrets.OPERATIONS_METRICS_TOKEN }}
+      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+      LLM_MODEL: ${{ vars.LLM_MODEL }}
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      ANYCABLE_SECRET: ${{ secrets.ANYCABLE_SECRET }}
+      IMGPROXY_KEY: ${{ secrets.IMGPROXY_KEY }}
+      IMGPROXY_SALT: ${{ secrets.IMGPROXY_SALT }}
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073
+        with:
+          bundler-cache: true
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - name: Check deployment configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          for key in DEPLOY_HOST DEPLOY_USER DEPLOY_ARCH WEB_HOST SMTP_ADDRESS MAIL_FROM KAMAL_IMAGE SECRET_KEY_BASE DB_PASSWORD SMTP_USERNAME SMTP_PASSWORD OPERATIONS_USERNAME OPERATIONS_PASSWORD OPERATIONS_METRICS_TOKEN ANYCABLE_SECRET IMGPROXY_KEY IMGPROXY_SALT; do
+            test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }
+          done
+          # Необязательная интеграция, но частичная конфигурация недопустима.
+          if [[ -n "$LLM_PROVIDER$LLM_MODEL$LLM_API_KEY" ]]; then
+            for key in LLM_PROVIDER LLM_MODEL LLM_API_KEY; do
+              test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }
+            done
+          fi
+      - name: SSH credentials
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_PRIVATE_KEY" && test -n "$SSH_KNOWN_HOSTS"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+      - name: Deploy
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          set -euo pipefail
+          case "$OPERATION" in
+            setup|deploy) bin/kamal "$OPERATION" ;;
+            *) exit 1 ;;
+          esac
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_ed25519

@@ -1,0 +1,22 @@
+{
+  "rubyLsp.rubyVersionManager": { "identifier": "mise" },
+  "rubyLsp.formatter": "rubocop",
+  "rubyLsp.linters": ["rubocop"],
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.formatOnSave": true
+  },
+  "[erb]": {
+    "editor.defaultFormatter": "marcoroth.herb-lsp",
+    "editor.formatOnSave": false
+  },
+  "languageServerHerb.linter.fixOnSave": false,
+  "languageServerHerb.trace.server": "off",
+  "files.watcherExclude": {
+    "**/vendor/bundle/**": true,
+    "**/vendor/agent-skills/**": true,
+    "**/log/**": true,
+    "**/tmp/**": true,
+    "**/native/android/**/build/**": true
+  }
+}

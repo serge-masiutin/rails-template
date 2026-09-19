@@ -1,0 +1,52 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= Rails.configuration.x.concurrency.db_pool %>
+  host: <%= ENV.fetch("PGHOST", "127.0.0.1") %>
+  port: <%= Integer(ENV.fetch("PGPORT", 5433)) %>
+  username: <%= ENV.fetch("PGUSER", "starter_app") %>
+  password: <%= ENV.fetch("PGPASSWORD", "starter_app_local") %>
+
+development:
+  primary:
+    <<: *default
+    database: starter_app_development
+  queue:
+    <<: *default
+    database: starter_app_development_queue
+    max_connections: <%= Rails.configuration.x.concurrency.queue_db_pool %>
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *default
+    database: starter_app_development_cache
+    migrations_paths: db/cache_migrate
+
+test:
+  primary:
+    <<: *default
+    database: starter_app_test
+  queue:
+    <<: *default
+    database: starter_app_test_queue
+    max_connections: <%= Rails.configuration.x.concurrency.queue_db_pool %>
+    migrations_paths: db/queue_migrate
+
+production:
+  primary: &production
+    adapter: postgresql
+    encoding: unicode
+    max_connections: <%= Rails.configuration.x.concurrency.db_pool %>
+    host: <%= ENV["DB_HOST"] %>
+    port: 5432
+    username: starter_app
+    password: <%= ENV["DB_PASSWORD"] %>
+    database: starter_app_production
+  queue:
+    <<: *production
+    database: starter_app_production_queue
+    max_connections: <%= Rails.configuration.x.concurrency.queue_db_pool %>
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *production
+    database: starter_app_production_cache
+    migrations_paths: db/cache_migrate

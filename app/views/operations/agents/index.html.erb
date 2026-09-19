@@ -1,0 +1,8 @@
+<header class="ops-header">
+  <div><strong>StarterApp · AgentPrism</strong><p>Трассы за 7 дней. Содержимое промптов, ответов и инструментов не сохраняется.</p></div>
+  <nav aria-label="Диагностика"><%= link_to "Очередь", "/ops/jobs" %><%= link_to "Приложение", root_path %></nav>
+</header>
+<main id="agent-prism" data-url="<%= operations_agents_path(format: :json) %>">
+  <p role="status">Загрузка трасс…</p>
+</main>
+<noscript>Для просмотра трасс включите JavaScript.</noscript>

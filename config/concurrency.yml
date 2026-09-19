@@ -1,0 +1,4 @@
+production:
+  rails_max_threads: 5
+  queue_db_pool: 5
+  solid_queue_supervisor_mode: fork

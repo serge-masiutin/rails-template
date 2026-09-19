@@ -1,0 +1,6 @@
+brew "mise"
+brew "overmind"
+brew "tmux"
+brew "vips"
+brew "openjdk@21"
+brew "jq"

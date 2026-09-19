@@ -1,0 +1,66 @@
+name: Test diagnostics
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'sql — события БД, cpu — профиль Ruby, load — нагрузка HTTP/WS'
+        type: choice
+        options: [sql, cpu, load]
+        default: sql
+permissions:
+  contents: read
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: starter_app
+          POSTGRES_PASSWORD: starter_app_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U starter_app -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      RAILS_ENV: test
+      PGUSER: starter_app
+      PGPORT: 5432
+      PGPASSWORD: starter_app_ci
+      DIAGNOSTIC_TASK: ${{ inputs.task }}
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - run: sudo apt-get update && sudo apt-get install -y libpq-dev libvips
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073
+        with:
+          bundler-cache: true
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - run: npm run build:agents
+      - run: bin/rails db:prepare
+      - run: bin/rails tailwindcss:build
+      - name: Profile or load test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tmp/test_prof
+          case "$DIAGNOSTIC_TASK" in
+            sql|cpu) bin/test-profile "$DIAGNOSTIC_TASK" | tee "tmp/test_prof/$DIAGNOSTIC_TASK.log" ;;
+            load) bin/load-test load ;;
+            *) exit 1 ;;
+          esac
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: test-diagnostics-${{ inputs.task }}
+          path: |
+            tmp/test_prof
+            tmp/load-test/load/k6.json
+            tmp/load-test/load/rails.prom
+            tmp/load-test/load/anycable.prom
+          retention-days: 7
+          if-no-files-found: ignore

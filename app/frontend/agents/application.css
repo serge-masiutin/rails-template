@@ -1,0 +1,26 @@
+@import "tailwindcss" source(none);
+@import "../../../vendor/agent-prism/components/theme/theme.css";
+@source "../../../vendor/agent-prism/components";
+@source "./";
+@config "../../../config/agent_prism_tailwind.cjs";
+@custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
+
+@theme {
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-ui);
+  --font-mono: var(--font-ui);
+}
+
+body { margin: 0; background: oklch(var(--agentprism-background)); color: oklch(var(--agentprism-foreground)); }
+.ops-header { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid oklch(var(--agentprism-border)); }
+.ops-header p { font-size: .8rem; margin-top: .25rem; color: oklch(var(--agentprism-muted-foreground)); }
+.ops-header nav, .ops-toolbar { display: flex; align-items: center; gap: 1rem; }
+.ops-header a { text-decoration: underline; }
+.ops-toolbar { padding: .75rem 1.5rem; flex-wrap: wrap; }
+.ops-toolbar h1 { font-weight: 600; margin-right: auto; }
+.ops-toolbar button { padding: .35rem .75rem; border: 1px solid oklch(var(--agentprism-border)); border-radius: .375rem; cursor: pointer; }
+.ops-message { margin: 2rem 1.5rem; }
+:focus-visible { outline: 2px solid oklch(var(--agentprism-brand)); outline-offset: 2px; }
+@media (max-width: 640px) { .ops-header { flex-direction: column; } }
+
+.ops-viewer > div { height: calc(100dvh - 8.5rem); min-height: 24rem; }

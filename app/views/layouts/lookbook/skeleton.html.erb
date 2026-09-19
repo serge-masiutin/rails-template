@@ -1,0 +1,51 @@
+<%# lookbook-2.3.15: исходный layout с общим шрифтом; сверять при обновлении gem. %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+  <%= csrf_meta_tags %>
+
+  <link href="<%= lookbook_asset_path("/css/lookbook.css") %>" rel="stylesheet">
+  <link href="<%= lookbook_asset_path("/css/themes/#{@config.ui_theme}.css") %>" rel="stylesheet">
+
+  <%- if @theme_overrides.present? %>
+    <style media="all">
+      <%== @theme_overrides %>
+    </style>
+  <% end %>
+
+  <% unless @config.ui_favicon == false %>
+    <link rel="icon" href="<%= @config.ui_favicon_dark %>" media="(prefers-color-scheme: dark)">
+    <link rel="icon" href="<%= @config.ui_favicon_light %>" media="(prefers-color-scheme: light)">
+  <% end %>
+
+  <script nonce="<%= request.content_security_policy_nonce %>">
+    window.LOG_LEVEL = <%= raw json_escape(@config.log_level.to_json) %>;
+    window.APP_NAME = <%= raw json_escape(@engine.app_name.to_json) %>;
+  </script>
+  <% if @engine.websocket.mounted? %>
+    <script nonce="<%= request.content_security_policy_nonce %>">
+      window.SOCKET_PATH = <%= raw json_escape(@engine.websocket.full_mount_path.to_json) %>;
+    </script>
+  <% end %>
+
+  <script src="<%= lookbook_asset_path("/js/index.js") %>" nonce="<%= request.content_security_policy_nonce %>" defer></script>
+
+  <% if @embed %>
+    <%= render "lookbook/partials/iframe_content_scripts" %>
+  <% else %>
+    <script src="<%= lookbook_asset_path("/js/lookbook.js") %>" nonce="<%= request.content_security_policy_nonce %>" defer></script>
+  <% end %>
+
+  <%= content_for :scripts %>
+
+  <title><%= [@title, @config.project_name || "Lookbook"].compact.join(" :: ") %></title>
+  <%= render "shared/typography" %>
+</head>
+<body>
+  <%= content_for?(:body) ? yield(:body) : yield %>
+</body>
+</html>

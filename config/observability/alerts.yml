@@ -1,0 +1,72 @@
+groups:
+  - name: starterapp
+    rules:
+      - alert: StarterAppAgentTraceFailures
+        expr: sum(increase(starterapp_agent_trace_failures[10m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Не удалось сохранить трассы Active Agent"
+      - alert: StarterAppJobMetricsUnavailable
+        expr: up{job="starterapp_jobs"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Процесс jobs не отдаёт метрики"
+      - alert: StarterAppImagesUnavailable
+        expr: up{job="imgproxy"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "imgproxy не отдаёт метрики"
+      - alert: StarterAppRealtimeUnavailable
+        expr: up{job="anycable"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "AnyCable не отдаёт метрики"
+      - alert: StarterAppRealtimeRpcErrors
+        expr: sum(rate(anycable_go_rpc_error_total[5m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "AnyCable получает ошибки от Rails RPC"
+      - alert: StarterAppUnavailable
+        expr: up{job="starterapp"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "StarterApp не отдаёт метрики"
+      - alert: StarterAppWorkerMissing
+        expr: starterapp_queue_processes{kind=~"worker|dispatcher"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Нет активного процесса очереди {{ $labels.kind }}"
+      - alert: StarterAppFailedJobs
+        expr: starterapp_queue_jobs{state="failed"} > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "В очереди есть упавшие задания"
+      - alert: StarterAppQueueDelayed
+        expr: starterapp_queue_oldest_ready_age_seconds > 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Очередь ждёт обработки больше минуты"
+      - alert: StarterAppHttpErrors
+        expr: sum(rate(rails_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(rails_requests_total[5m])), 0.001) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Доля HTTP 5xx превышает 5%"

@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require "securerandom"
+require "yaml"
+
+Dir.chdir File.expand_path("..", __dir__) do
+  case ARGV
+  when [ "setup" ]
+    path = "config/anycable.local.yml"
+    unless File.exist?(path)
+      File.open(path, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
+        file.write({ "secret" => SecureRandom.hex(32) }.to_yaml)
+      end
+    end
+    puts "Локальный AnyCable настроен: #{path}. Секрет исключён из Git и Docker."
+  when [ "start" ]
+    # Один локальный секрет используют Rails и Go; значение не попадает в аргументы процесса.
+    ENV["ANYCABLE_SECRET"] ||= YAML.safe_load_file("config/anycable.local.yml").fetch("secret")
+    exec "docker", "compose", "run", "--rm", "--no-deps", "--service-ports", "anycable"
+  else
+    abort "Использование: bin/cable setup | start"
+  end
+end

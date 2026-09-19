@@ -1,0 +1,15 @@
+{
+  "name": "Martian Mono",
+  "version": "1.1.0",
+  "license": "OFL-1.1",
+  "repository": "https://github.com/evilmartians/mono",
+  "commit": "8ffa86c2998677256252336f3662d60997e74b05",
+  "archive": "https://github.com/evilmartians/mono/releases/download/v1.1.0/martian-mono-1.1.0-variable.zip",
+  "archive_sha256": "b87730975931dc2dbf0129ecf392ccaf8d29f46bc05e995703da4155db510867",
+  "files": {
+    "app/assets/fonts/martian-mono-variable.woff2": "7cdf8e985a4872246d8c2a19333bcc5e8cbcf512746128823f35c1c43aac238a",
+    "native/android/app/src/main/res/font/martian_mono_variable.ttf": "60e0eee102be3f96b3c2c6431e6bb7101ff20735baee480e091af1765d7d49c7",
+    "vendor/fonts/martian-mono/OFL.txt": "ddafd2c3f37ef1d83ef284ca63e159befd3820850c5e9eded14ca52eee92c256",
+    "native/android/app/src/main/assets/licenses/martian-mono-OFL.txt": "ddafd2c3f37ef1d83ef284ca63e159befd3820850c5e9eded14ca52eee92c256"
+  }
+}

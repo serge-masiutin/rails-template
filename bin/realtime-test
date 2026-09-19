@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+require "yaml"
+require "net/http"
+require "timeout"
+
+Dir.chdir File.expand_path("..", __dir__) do
+  service = YAML.safe_load_file("compose.yml").fetch("services").fetch("anycable")
+  name = "starterapp-cable-test-#{Process.pid}"
+  secret = "test-only-anycable-secret-not-for-deployment-0000000000000000000000"
+  server_env = service.fetch("environment").transform_values(&:to_s).merge(
+    "ANYCABLE_SECRET" => secret,
+    "ANYCABLE_RPC_HOST" => "http://host.docker.internal:3100/_anycable",
+    "ANYCABLE_ALLOWED_ORIGINS" => "127.0.0.1:3100,localhost:3100",
+    "ANYCABLE_HISTORY_LIMIT" => "2"
+  )
+  client_env = {
+    "RAILS_ENV" => "test", "ANYCABLE_SYSTEM_TEST" => "1", "ANYCABLE_SECRET" => secret,
+    "ANYCABLE_WEBSOCKET_URL" => "ws://127.0.0.1:8180/cable",
+    "ANYCABLE_HTTP_BROADCAST_URL" => "http://127.0.0.1:8190/_broadcast"
+  }
+
+  begin
+    system("docker", "run", "--detach", "--rm", "--name", name,
+      "--add-host", "host.docker.internal:host-gateway",
+      "-p", "127.0.0.1:8180:8080", "-p", "127.0.0.1:8190:8090",
+      *server_env.flat_map { |key, value| [ "-e", "#{key}=#{value}" ] }, service.fetch("image"), exception: true)
+    Timeout.timeout(20) do
+      loop do
+        begin
+          break if Net::HTTP.get_response(URI("http://127.0.0.1:8180/health")).code == "200"
+        rescue Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
+          # Go ещё не открыл listener; общий deadline ограничивает ожидание.
+        end
+        sleep 0.1
+      end
+    end
+    system(client_env, "bin/rails", "db:prepare", exception: true)
+    system(client_env, "bin/rails", "tailwindcss:build", exception: true)
+    system(client_env, "bundle", "exec", "ruby", "-Itest", "test/realtime/anycable_scenario.rb", exception: true)
+  ensure
+    system("docker", "logs", name) if $!
+    system("docker", "stop", "--timeout", "3", name)
+  end
+end

@@ -1,0 +1,103 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: starter_app
+          POSTGRES_PASSWORD: starter_app_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U starter_app -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      RAILS_ENV: test
+      PGUSER: starter_app
+      PGPORT: 5432
+      PGPASSWORD: starter_app_ci
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - name: System dependencies
+        run: sudo apt-get update && sudo apt-get install -y libpq-dev libvips
+      - uses: ruby/setup-ruby@a0102e0972be65f351c307e2d64b9314a57c8073
+        with:
+          bundler-cache: true
+      - name: Initialize template example
+        run: |
+          configured=$(ruby -rjson -e 'puts JSON.parse(File.read("config/template.json")).fetch("configured")')
+          if [ "$configured" = false ]; then
+            bin/configure --name example_portal --android-id com.example.portal
+          fi
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - run: bin/ci
+      - name: Production assets
+        run: bin/rails assets:precompile
+        env:
+          RAILS_ENV: production
+          WEB_HOST: build.invalid
+          SECRET_KEY_BASE_DUMMY: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: rails-test-artifacts
+          path: |
+            tmp/screenshots
+            tmp/images/imgproxy.prom
+            tmp/load-test/smoke/k6.json
+            tmp/load-test/smoke/rails.prom
+            tmp/load-test/smoke/anycable.prom
+          retention-days: 7
+          if-no-files-found: ignore
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - uses: actions/setup-java@1aa87b638dacaa70f1c903fa9ec9cbd91058e2ff
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@035682743ab223ec9c6169af09811dff8247e520
+      - name: Android SDK
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Build and lint
+        run: ./gradlew assembleDebug lintDebug --no-daemon
+        working-directory: native/android
+      - name: Release compilation
+        run: ./gradlew assembleRelease -Pstarterapp.productionUrl=https://build.invalid --no-daemon
+        working-directory: native/android
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: starterapp-android-debug
+          path: native/android/app/build/outputs/apk/debug/*.apk
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@f548e57e544e1ff5a4c46bf1e1b8685f8e4a348a
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - run: docker build --check .
+      - run: docker build --tag starterapp:ci .
+      - name: Monitoring configuration and alerts
+        run: |
+          mkdir -p tmp/observability
+          printf '%s' 'ci-validation-token' > tmp/observability/metrics_token
+          docker compose --profile monitoring run --rm --no-deps --entrypoint promtool prometheus check config /etc/prometheus/prometheus.yml
+          docker compose --profile monitoring run --rm --no-deps --entrypoint promtool prometheus test rules /etc/prometheus/alerts.test.yml

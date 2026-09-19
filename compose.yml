@@ -1,0 +1,122 @@
+name: starterapp
+services:
+  imgproxy:
+    image: ghcr.io/imgproxy/imgproxy:v4.0.15
+    profiles: [images]
+    ports:
+      - "${IMGPROXY_BIND_ADDRESS:-127.0.0.1}:8082:8080"
+      - "127.0.0.1:8083:8081"
+    volumes:
+      - ./storage:/images:ro
+    environment:
+      IMGPROXY_KEY: ${IMGPROXY_KEY:-}
+      IMGPROXY_SALT: ${IMGPROXY_SALT:-}
+      IMGPROXY_PATH_PREFIX: /images
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /images
+      IMGPROXY_ALLOWED_SOURCES: local:///
+      IMGPROXY_WORKERS: 2
+      IMGPROXY_REQUESTS_QUEUE_SIZE: 16
+      IMGPROXY_MAX_CLIENTS: 32
+      IMGPROXY_TIMEOUT: 10
+      IMGPROXY_MAX_SRC_FILE_SIZE: 20971520
+      IMGPROXY_MAX_SRC_RESOLUTION: 25
+      IMGPROXY_MAX_RESULT_DIMENSION: 4096
+      IMGPROXY_MAX_ANIMATION_FRAMES: 1
+      IMGPROXY_TTL: 60
+      IMGPROXY_PROMETHEUS_BIND: ":8081"
+      IMGPROXY_PROMETHEUS_NAMESPACE: imgproxy
+      IMGPROXY_LOG_FORMAT: json
+      IMGPROXY_LOG_LEVEL: error
+      IMGPROXY_FAIL_ON_DEPRECATION: "true"
+  k6:
+    image: grafana/k6:2.2.0
+    profiles: [testing]
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_USER: starter_app
+      POSTGRES_PASSWORD: starter_app_local
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starter_app -d postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    profiles: [monitoring]
+    ports:
+      - "127.0.0.1:9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.size=1GB
+    volumes:
+      - ./config/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./config/observability/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - ./config/observability/alerts.test.yml:/etc/prometheus/alerts.test.yml:ro
+      - type: bind
+        source: ./tmp/observability/metrics_token
+        target: /etc/prometheus/metrics_token
+        read_only: true
+        bind:
+          create_host_path: false
+      - prometheus_data:/prometheus
+  anycable:
+    image: anycable/anycable-go:1.6.16-alpine
+    profiles: [realtime]
+    ports:
+      - "${ANYCABLE_BIND:-127.0.0.1}:8080:8080"
+      - "127.0.0.1:8090:8090"
+      - "127.0.0.1:8091:8091"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      ANYCABLE_SECRET: ${ANYCABLE_SECRET:-}
+      ANYCABLE_HOST: 0.0.0.0
+      ANYCABLE_PORT: 8080
+      ANYCABLE_RPC_HOST: http://host.docker.internal:3000/_anycable
+      ANYCABLE_RPC_CONCURRENCY: 2
+      ANYCABLE_RPC_REQUEST_TIMEOUT: 3000
+      ANYCABLE_HEADERS: cookie,origin
+      ANYCABLE_PROXY_COOKIES: session_id
+      ANYCABLE_ALLOWED_ORIGINS: localhost:3000,127.0.0.1:3000,10.0.2.2:3000,${WEB_HOST:-localhost}:3000
+      ANYCABLE_BROADCAST_ADAPTER: http
+      ANYCABLE_HTTP_BROADCAST_PORT: 8090
+      ANYCABLE_BROKER: memory
+      ANYCABLE_HISTORY_TTL: 300
+      ANYCABLE_HISTORY_LIMIT: 100
+      # Каждое переподключение повторно проверяет Rails-сессию.
+      ANYCABLE_SESSIONS_TTL: 0
+      ANYCABLE_METRICS_HTTP: /metrics
+      ANYCABLE_METRICS_PORT: 8091
+      ANYCABLE_LOG_FORMAT: json
+      # Go включает содержимое команд в warn; ошибки RPC видны в Rails.error и метриках.
+      ANYCABLE_LOG_LEVEL: error
+      ANYCABLE_DISABLE_TELEMETRY: "true"
+  grafana:
+    image: grafana/grafana:13.2.2
+    profiles: [monitoring]
+    ports:
+      - "127.0.0.1:3001:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+    volumes:
+      - ./config/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+volumes:
+  prometheus_data:
+  grafana_data:
+  postgres_data:

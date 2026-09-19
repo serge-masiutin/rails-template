@@ -1,0 +1,108 @@
+rule_files:
+  - /etc/prometheus/alerts.yml
+evaluation_interval: 1m
+tests:
+  - name: AnyCable недоступен дольше двух минут
+    interval: 1m
+    input_series:
+      - series: 'up{job="anycable",instance="test"}'
+        values: '0 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StarterAppRealtimeUnavailable
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: StarterAppRealtimeUnavailable
+        exp_alerts:
+          - exp_labels:
+              job: anycable
+              instance: test
+              severity: critical
+            exp_annotations:
+              summary: AnyCable не отдаёт метрики
+  - name: Короткий сбой не вызывает тревогу, устойчивый вызывает
+    interval: 1m
+    input_series:
+      - series: 'up{job="starterapp",instance="test"}'
+        values: '0 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StarterAppUnavailable
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: StarterAppUnavailable
+        exp_alerts:
+          - exp_labels:
+              job: starterapp
+              instance: test
+              severity: critical
+            exp_annotations:
+              summary: StarterApp не отдаёт метрики
+  - name: Worker пропал, dispatcher продолжает работать
+    interval: 1m
+    input_series:
+      - series: 'starterapp_queue_processes{kind="worker"}'
+        values: '0 0 0 0'
+      - series: 'starterapp_queue_processes{kind="dispatcher"}'
+        values: '1 1 1 1'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: StarterAppWorkerMissing
+        exp_alerts:
+          - exp_labels:
+              kind: worker
+              severity: critical
+            exp_annotations:
+              summary: Нет активного процесса очереди worker
+  - name: imgproxy недоступен дольше двух минут
+    interval: 1m
+    input_series:
+      - series: 'up{job="imgproxy",instance="test"}'
+        values: '0 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StarterAppImagesUnavailable
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: StarterAppImagesUnavailable
+        exp_alerts:
+          - exp_labels:
+              job: imgproxy
+              instance: test
+              severity: critical
+            exp_annotations:
+              summary: imgproxy не отдаёт метрики
+  - name: Метрики jobs недоступны дольше двух минут
+    interval: 1m
+    input_series:
+      - series: 'up{job="starterapp_jobs",instance="test"}'
+        values: '0 0 0 0'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StarterAppJobMetricsUnavailable
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: StarterAppJobMetricsUnavailable
+        exp_alerts:
+          - exp_labels:
+              job: starterapp_jobs
+              instance: test
+              severity: warning
+            exp_annotations:
+              summary: Процесс jobs не отдаёт метрики
+  - name: Потеря трасс видна в alert
+    interval: 1m
+    input_series:
+      - series: 'starterapp_agent_trace_failures{stage="storage"}'
+        values: '0 0 1 1'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: StarterAppAgentTraceFailures
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: StarterAppAgentTraceFailures
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: Не удалось сохранить трассы Active Agent

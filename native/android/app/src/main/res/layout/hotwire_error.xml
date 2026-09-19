@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HotwireWebFragment 1.3.1 создаёт этот layout из SDK. Непрозрачный фон закрывает WebView при ошибке. -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedResources,Overdraw"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground">
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextAppearance.StarterApp.Headline6"
+        android:id="@+id/hotwire_error_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center_horizontal"
+        android:text="@string/hotwire_error_message"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".40" />
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/TextAppearance.StarterApp.Caption"
+        android:id="@+id/hotwire_error_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/hotwire_error_title" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
