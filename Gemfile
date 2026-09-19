@@ -33,7 +33,7 @@ gem "yabeda-prometheus", "~> 0.9"
 gem "bootsnap", ">= 1.24.4", require: false
 gem "kamal", "~> 2.12", require: false
 gem "thruster", require: false
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.1"
 gem "imgproxy-rails", "~> 0.3"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
