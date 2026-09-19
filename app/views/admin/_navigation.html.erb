@@ -8,4 +8,12 @@
     <% end %>
     <%= link_to t("admin.navigation.app"), main_app.root_path, class: "admin-navigation__app", data: { turbo: false } %>
   </nav>
+  <% if Rails.env.development? %>
+    <nav class="admin-navigation__development" aria-label="<%= t("admin.navigation.development") %>">
+      <span class="admin-navigation__heading"><%= t("admin.navigation.development") %></span>
+      <% [["Lookbook", "/lookbook"], [t("admin.navigation.mail_previews"), "/rails/mailers"], [t("admin.navigation.routes"), "/rails/info/routes"], ["Alloy", "http://localhost:12345"]].each do |label, path| %>
+        <%= link_to "#{label} ↗", path, target: "_blank", rel: "noopener noreferrer", data: { turbo: false } %>
+      <% end %>
+    </nav>
+  <% end %>
 </aside>

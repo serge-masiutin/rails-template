@@ -9,6 +9,17 @@ Dependabot keeps the Docker image within the selected major.
 Node runs Herb and builds the isolated AgentPrism viewer. Product pages use importmap.
 See [AgentPrism commands](agents.md#agentprism).
 
+## Development tools
+
+The admin sidebar links to Lookbook (`/lookbook`), Mail previews (`/rails/mailers`),
+Rails routes (`/rails/info/routes`) and local Alloy diagnostics (`http://localhost:12345`).
+These links appear only in development. Lookbook is the ViewComponent catalog; Storybook is not installed.
+The main navigation also links to Mission Control, AgentPrism and Monitoring, which contains Grafana, Prometheus and Logs.
+Health and metrics endpoints are machine interfaces with separate credentials, not browser tools.
+
+The standalone worker retains its loaded classes until restart. After changing Ruby code used by jobs,
+run `overmind restart jobs`. Web requests retain normal development reloading.
+
 ## Editor
 
 `.vscode/extensions.json` recommends Ruby LSP, Herb, Tailwind CSS IntelliSense, and EditorConfig

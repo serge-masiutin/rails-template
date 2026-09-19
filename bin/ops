@@ -34,7 +34,7 @@ Dir.chdir File.expand_path("..", __dir__) do
   when [ "logs" ]
     FileUtils.mkdir_p("tmp/observability/alloy", mode: 0o700)
     exec({ "ALLOY_LOG_PATH" => File.expand_path("log/development.jsonl"),
-           "ALLOY_LOKI_URL" => "http://127.0.0.1:3100/loki/api/v1/push" },
+           "ALLOY_LOKI_URL" => "http://127.0.0.1:13100/loki/api/v1/push" },
       "alloy", "run", "--disable-reporting", "--storage.path=tmp/observability/alloy",
       "--server.http.listen-addr=127.0.0.1:12345", "config/observability/config.alloy")
   when [ "queue" ]

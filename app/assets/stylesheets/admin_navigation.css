@@ -1,6 +1,6 @@
 /* Shared layout for Tailwind, AgentPrism and Mission Control. */
 .admin-shell { --admin-line: #dce2d9; --admin-muted: #637168; min-height: 100dvh; background: #f7f7f2; color: #17251e; }
-.admin-navigation { position: fixed; inset: 0 auto 0 0; width: 224px; padding: 28px 18px; background: #fff; border-right: 1px solid var(--admin-line); z-index: 20; }
+.admin-navigation { position: fixed; inset: 0 auto 0 0; width: 224px; padding: 28px 18px; background: #fff; border-right: 1px solid var(--admin-line); z-index: 20; overflow-y: auto; }
 .admin-navigation__brand { display: flex; align-items: center; gap: 12px; padding: 0 10px 32px; color: #17251e; font-size: 16px; font-weight: 600; text-decoration: none; }
 .admin-navigation__mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #276749; color: #fff; }
 .admin-navigation nav { display: flex; flex-direction: column; gap: 5px; }
@@ -8,6 +8,8 @@
 .admin-navigation nav a:hover { background: #f0f4ef; color: #17251e; }
 .admin-navigation nav a[aria-current="page"] { background: #eaf2e9; color: #1d563a; font-weight: 600; }
 .admin-navigation__app { margin-top: 24px; border-top: 1px solid var(--admin-line); }
+.admin-navigation__development { margin-top: 24px; }
+.admin-navigation__heading { padding: 8px 12px; color: var(--admin-muted); font-size: 10px; }
 .admin-navigation a:focus-visible { outline: 2px solid #276749; outline-offset: 2px; }
 .admin-main { margin-left: 224px; padding: 40px; max-width: 1400px; }
 .admin-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
@@ -48,6 +50,8 @@
   .admin-navigation nav { flex-direction: row; overflow-x: auto; gap: 4px; }
   .admin-navigation nav a { flex-shrink: 0; font-size: 11px; padding: 8px 10px; }
   .admin-navigation__app { margin-top: 0; border-top: 0; }
+  .admin-navigation__development { margin-top: 8px; }
+  .admin-navigation__heading { align-self: center; flex-shrink: 0; }
   .admin-main, .admin-shell--agents #agent-prism, .admin-shell--agents noscript { margin-left: 0; }
   .admin-main { padding: 24px 16px; }
   .admin-page-heading { align-items: flex-start; margin-bottom: 24px; }

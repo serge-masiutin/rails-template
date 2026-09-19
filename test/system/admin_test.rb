@@ -29,17 +29,23 @@ class AdminNavigationTest < ApplicationSystemTestCase
   end
 
   test "Native opens admin from account and narrow screens have no horizontal overflow" do
+    previous_environment = Rails.env
+    Rails.env = "development"
     page.current_window.resize_to(390, 844)
     page.driver.add_headers("User-Agent" => "Hotwire Native Android")
     sign_in_through_form(users(:admin))
     click_link "Open profile"
     click_link "Open admin"
     assert_selector "h1", text: "Overview"
+    assert_link "Lookbook ↗", href: "/lookbook"
+    assert_link "Mail previews ↗", href: "/rails/mailers"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
     page.save_screenshot(Rails.root.join("tmp/screenshots/admin-mobile.png"))
     within('nav[aria-label="Administration"]') { click_link "Monitoring" }
     assert_selector "h1", text: "Monitoring"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
+  ensure
+    Rails.env = previous_environment
   end
   test "overview updates the queue automatically and closes after role revocation" do
     sign_in_through_form(users(:admin))

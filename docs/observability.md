@@ -78,6 +78,8 @@ Links do not proxy services or pass the app session/Bearer token; each service n
 Empty values show “Not configured”. A configured link does not prove service availability.
 GitHub Environment variables are passed through the deployment workflow and Kamal.
 
+Development-only tools and worker restart commands are listed in [Development](development.md#development-tools).
+
 ## Local development
 
 `bin/setup` creates ignored `config/operations.local.yml` with health Basic credentials and a separate metrics token.
@@ -111,7 +113,8 @@ Development links are set in `config/operations.yml`. Grafana and Prometheus bin
 localhost links refer to the host computer, not a separate Android device.
 Prometheus scrapes every 15 seconds and retains up to seven days/1 GB.
 Grafana dashboards refresh every five seconds; rate graphs need multiple samples.
-Loki binds to `127.0.0.1:3100`; Alloy diagnostics bind to `127.0.0.1:12345`.
+Port 3100 remains reserved for the AnyCable test server.
+Loki binds to `127.0.0.1:13100`; Alloy diagnostics bind to `127.0.0.1:12345`.
 These ports are not exposed externally. This profile is for development, not production.
 
 Alloy stops with Overmind. Stop monitoring containers with
