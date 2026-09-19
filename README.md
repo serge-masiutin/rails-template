@@ -10,7 +10,7 @@ Ruby/Rails, PostgreSQL, Turbo/Stimulus, Tailwind и ViewComponent; версии 
 
 ## Создать проект
 
-1. Нажми **Use this template → Create a new repository**, выбери имя и видимость.
+1. [Создай репозиторий из шаблона](https://github.com/serge-masiutin/rails-hotwire-android-template/generate), выбери имя и видимость.
 2. Клонируй созданный репозиторий и перейди в его каталог.
 3. Установи Homebrew, Docker и Chrome для браузерных тестов. Запусти Docker, затем выполни:
 

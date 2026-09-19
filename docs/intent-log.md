@@ -13,3 +13,5 @@
   Actionlint, Prometheus config и 10 alert rules. Локальные ссылки и сохранность vendor проверены.
 - GitHub runners, production deploy, внешний SMTP/LLM и Android на устройстве этим запуском не проверялись.
   Перед выпуском нового приложения выполни проверки и настрой эксплуатацию по [деплою](deployment.md).
+- Опубликован [GitHub Template](https://github.com/serge-masiutin/rails-hotwire-android-template):
+  публичный репозиторий с отдельной историей и основной веткой `main`; первый Actions CI запущен.
