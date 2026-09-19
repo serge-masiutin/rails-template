@@ -57,6 +57,9 @@ en:
       label: Administration
       observability: Monitoring
       app: Back to app ↗
+      development: Development tools
+      mail_previews: Mail previews
+      routes: Rails routes
     live:
       live: Live
       offline: Connection interrupted

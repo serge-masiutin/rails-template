@@ -4,7 +4,7 @@ description: "Maintain the development-only ViewComponent/Lookbook catalog."
 metadata:
   upstream: sb-setup
   adapted-for: StarterApp
-  version: "5"
+  version: "6"
 ---
 
 # ui-catalog-setup

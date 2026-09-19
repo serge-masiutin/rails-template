@@ -49,6 +49,7 @@ class AdminTest < ActionDispatch::IntegrationTest
       assert_select 'nav[aria-label="Administration"] a', 5
       assert_select 'nav[aria-label="Administration"] a', text: "AgentPrism"
       assert_select 'nav[aria-label="Administration"] a', text: "Mission Control"
+      assert_select 'nav[aria-label="Development tools"]', 0
       assert_equal "no-store", response.headers.fetch("Cache-Control")
       assert_select 'meta[name="turbo-cache-control"][content="no-cache"]'
     end
@@ -57,6 +58,22 @@ class AdminTest < ActionDispatch::IntegrationTest
       get path
       assert_response :forbidden
     end
+  end
+
+  test "all admin screens link to development tools in development" do
+    previous_environment = Rails.env
+    sign_in_as(users(:admin))
+    Rails.env = "development"
+    PAGES.each do |path|
+      get path
+      follow_redirect! while response.redirect?
+      assert_response :success
+      [ "/lookbook", "/rails/mailers", "/rails/info/routes", "http://localhost:12345" ].each do |url|
+        assert_select 'nav[aria-label="Development tools"] a[href=?][target="_blank"][rel="noopener noreferrer"]', url
+      end
+    end
+  ensure
+    Rails.env = previous_environment
   end
 
   test "panel shows real heartbeat and reports a stopped queue" do

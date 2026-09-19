@@ -4,7 +4,7 @@ description: "Maintain Rails/Hotwire setup, local processes, assets and environm
 metadata:
   upstream: inertia-rails-setup
   adapted-for: StarterApp
-  version: "11"
+  version: "12"
 ---
 
 # hotwire-rails-setup

@@ -15,3 +15,9 @@ Keep operational instructions in their respective guides; Git history and PRs ho
 - Production authentication, alert delivery, SMTP/LLM credentials and device validation remain deployment tasks; local checks do not establish production readiness. See [deployment](deployment.md).
 
 - Local Alloy runs on the host under Overmind, avoiding stale open-file reads across Docker Desktop mounts. Mise pins its version; Loki is bound to loopback.
+
+## 2026-09-19 — developer navigation and worker reload
+
+- Added development-only links to Lookbook, mail previews, Rails routes and Alloy; mail previews use an unsaved example account.
+- Reproduced stale Solid Queue models/callbacks after Active Job reload. The standalone worker now keeps its classes until restart; web reloading remains enabled.
+- `test/lib/jobs_boot_test.rb` checks the real development worker boot and reload boundary in a separate process.

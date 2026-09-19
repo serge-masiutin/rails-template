@@ -8,7 +8,11 @@ require "prometheus/client/data_stores/direct_file_store"
 # Forked workers inherit the supervisor directory; each run starts fresh counters.
 Dir.mktmpdir("starterapp-job-metrics-") do |directory|
   Prometheus::Client.config.data_store = Prometheus::Client::DataStores::DirectFileStore.new(dir: directory)
-  require_relative "../config/environment"
+  require_relative "../config/application"
+  # The supervisor retains model instances across jobs; Active Job reloads make them stale.
+  # Restart the process after code changes: overmind restart jobs.
+  Rails.application.config.before_initialize { |app| app.config.enable_reloading = false }
+  Rails.application.initialize!
   require "solid_queue/cli"
 
   metrics_server = nil
