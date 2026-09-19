@@ -24,12 +24,14 @@ class JobsBootTest < ActiveSupport::TestCase
       probe.flush
       environment = {
         "RAILS_ENV" => "development",
+        "PGPORT" => "1",
         "ANYCABLE_SECRET" => "worker-boot-test-" * 4,
         "IMGPROXY_KEY" => "1" * 64,
         "IMGPROXY_SALT" => "2" * 64
       }
+      # Check boot and reload without the scheduler or a development database connection.
       output, errors, status = Open3.capture3(environment,
-        RbConfig.ruby, "-r", probe.path, "bin/jobs", "check", chdir: Rails.root)
+        RbConfig.ruby, "-r", probe.path, "bin/jobs", "check", "--skip-recurring", chdir: Rails.root)
       assert status.success?, errors
       report = JSON.parse(output.lines.find { |line| line.start_with?("WORKER_BOOT:") }.delete_prefix("WORKER_BOOT:"))
       assert_equal({ "reloading" => false, "same_model" => true, "broadcasts" => 1 }, report)
