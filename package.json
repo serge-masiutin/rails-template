@@ -26,11 +26,11 @@
     "@radix-ui/react-collapsible": "1.1.20",
     "@radix-ui/react-tabs": "1.1.21",
     "classnames": "2.5.1",
-    "lucide-react": "0.534.0",
+    "lucide-react": "1.46.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-json-pretty": "2.2.0",
-    "react-resizable-panels": "3.0.6"
+    "react-resizable-panels": "4.12.4"
   },
   "type": "module"
 }
