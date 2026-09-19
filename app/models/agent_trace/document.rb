@@ -1,4 +1,4 @@
-# Граница SDK → БД: разрешены только идентификаторы, время, статусы и числовой usage.
+# SDK → database boundary: allow only IDs, timing, status and numeric usage.
 class AgentTrace::Document
   class InvalidTrace < StandardError; end
 
@@ -37,7 +37,7 @@ class AgentTrace::Document
     record[:totalTokens] = first.fetch(:tokensCount) if first.key?(:tokensCount)
     { trace_id: id, started_at: started, document: { traceRecord: record, spans: spans } }
   rescue KeyError, TypeError, ArgumentError
-    raise InvalidTrace, "Некорректный формат trace Active Agent"
+    raise InvalidTrace, "Invalid Active Agent trace format"
   end
 
   private
@@ -64,7 +64,7 @@ class AgentTrace::Document
     usage.each_value { |value| valid!(value.is_a?(Integer) && value >= 0) }
     if usage.any?
       result[:metadata] = usage
-      # Reasoning уже входит в output; cached input RubyLLM 2 выделяет отдельно.
+      # Reasoning is included in output; RubyLLM 2 reports cached input separately.
       if usage.key?("starterapp.usage.input") && usage.key?("starterapp.usage.output")
         result[:tokensCount] = usage.fetch("starterapp.usage.input") + usage.fetch("starterapp.usage.output") +
           usage.fetch("starterapp.usage.cached", 0) + usage.fetch("starterapp.usage.cache_creation", 0)
@@ -81,6 +81,6 @@ class AgentTrace::Document
   end
 
   def valid!(condition)
-    raise InvalidTrace, "Некорректный формат trace Active Agent" unless condition
+    raise InvalidTrace, "Invalid Active Agent trace format" unless condition
   end
 end

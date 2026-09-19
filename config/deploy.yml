@@ -120,7 +120,7 @@ accessories:
         ANYCABLE_METRICS_HTTP: /metrics
         ANYCABLE_METRICS_PORT: 8091
         ANYCABLE_LOG_FORMAT: json
-        # Warn может содержать подписанные stream names и payload команд.
+        # Warn logs may contain signed stream names and command payloads.
         ANYCABLE_LOG_LEVEL: error
         ANYCABLE_DISABLE_TELEMETRY: "true"
       secret:

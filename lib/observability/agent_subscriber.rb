@@ -15,7 +15,7 @@ module Observability
         metadata[:usage] = {}
         %i[input output].each do |direction|
           count = usage.public_send("#{direction}_tokens")
-          next if count.nil? # Некоторые провайдеры не возвращают usage.
+          next if count.nil? # Some providers omit usage.
 
           Yabeda.starterapp.agent_tokens.increment(payload.slice(:agent, :action).merge(direction: direction), by: count)
           metadata[:usage][direction] = count
@@ -24,7 +24,7 @@ module Observability
 
       SemanticLogger.named_tagged(request_id: Current.request_id) do
         Rails.logger.public_send(error ? :error : :info,
-          message: "Генерация Active Agent", payload: metadata, exception: error)
+          message: "Active Agent generation", payload: metadata, exception: error)
       end
     end
   end

@@ -1,1 +1,1 @@
-# Пользователи и секреты не создаются автоматически. Первый аккаунт создаётся через Rails console.
+# Users and secrets are not created automatically. Create the first account through Rails console.

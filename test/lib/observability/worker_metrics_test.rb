@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Observability::WorkerMetricsTest < ActiveSupport::TestCase
-  test "метрики воркера требуют Bearer и не открывают остальные маршруты" do
+  test "worker metrics require Bearer and expose no other routes" do
     previous = Rails.configuration.x.operations
     Rails.configuration.x.operations = OperationsConfig.new(metrics_token: "worker-metrics-test-credential-32")
     request = Rack::MockRequest.new(Observability::WorkerMetrics)

@@ -1,32 +1,34 @@
 ---
 name: tailwind-best-practices
-description: "Писать и проверять Tailwind 4 в ERB/ViewComponent StarterApp с общими дизайн-токенами."
+description: "Maintain Tailwind styles, shared design tokens and accessible ViewComponent markup."
 metadata:
   upstream: tailwind-best-practices
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
 # tailwind-best-practices
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Источник версии — Gemfile.lock; сборка — tailwindcss-rails, стили — app/assets/tailwind/application.css.
-- Все семейства Tailwind используют `--font-ui` из `app/assets/stylesheets/typography.css`: только локальный Martian Mono. Новый layout подключает `shared/typography`; проверяй кириллицу и длинный текст на узком экране.
-- Объявляй семантические цвета в @theme, используй существующую шкалу spacing/типографики.
-- Повторяемый UI выделяй в ViewComponent; общие компоненты принимают фиксированные варианты.
-- Держи class lists короткими: layout → spacing → typography → color → interaction; используй px/py вместо дублирующих направлений.
-- Классы должны быть полными литералами, включая variants в Ruby maps. Избегай динамической интерполяции имён.
-- Не извлекай компоненты через @apply: шаблон и контракт принадлежат ViewComponent.
-- Проверяй focus-visible, контраст, mobile safe area, длинный текст и production `assets:precompile`.
-- Пример: `VARIANTS.fetch(variant)` возвращает фиксированный набор классов, а не произвольный className.
+- Gemfile.lock owns versions; tailwindcss-rails builds `app/assets/tailwind/application.css`.
+- All font families use `--font-ui` from `app/assets/stylesheets/typography.css`: local Martian Mono only. New layouts include `shared/typography`; test Cyrillic and long text on narrow screens.
+- Define semantic colors in `@theme` and reuse the spacing/typography scale.
+- Extract repeated UI into ViewComponent with fixed variants.
+- Keep class lists readable: layout, spacing, typography, color, interaction; use px/py for paired directions.
+- Use complete class literals, including Ruby variant maps; avoid interpolated class names.
+- Do not extract components through `@apply`; markup and contracts belong in ViewComponent.
+- Check focus-visible, contrast, mobile safe areas, long text and production `assets:precompile`.
+- Use `VARIANTS.fetch(variant)` to select fixed classes instead of accepting arbitrary className values.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/tailwind-best-practices/SKILL.md`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/tailwind-best-practices`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/tailwind-best-practices/SKILL.md).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/tailwind-best-practices`.

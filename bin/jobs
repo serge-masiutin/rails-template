@@ -5,7 +5,7 @@ require "tmpdir"
 require "prometheus/client"
 require "prometheus/client/data_stores/direct_file_store"
 
-# Все fork-воркеры наследуют каталог supervisor; новый запуск начинает новые счётчики.
+# Forked workers inherit the supervisor directory; each run starts fresh counters.
 Dir.mktmpdir("starterapp-job-metrics-") do |directory|
   Prometheus::Client.config.data_store = Prometheus::Client::DataStores::DirectFileStore.new(dir: directory)
   require_relative "../config/environment"
@@ -15,6 +15,6 @@ Dir.mktmpdir("starterapp-job-metrics-") do |directory|
   SolidQueue.on_start { metrics_server = Observability::WorkerMetrics.start }
   SolidQueue.on_exit { metrics_server&.stop(true) }
 
-  # Дефолт из конфига сохраняет штатные команды CLI и приоритет явных флагов.
+  # The configured default preserves CLI commands and explicit flag precedence.
   SolidQueue::Cli.start(ARGV, class_options: { "mode" => Rails.configuration.x.concurrency.solid_queue_supervisor_mode })
 end

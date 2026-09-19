@@ -1,129 +1,125 @@
-# Тестирование
+# Testing
 
-Подготовь окружение через `mise exec -- bin/setup --skip-server`; для браузерных тестов нужен Chrome.
-PostgreSQL и Docker должны быть запущены. Полная проверка — `mise exec -- bin/ci`.
+Run `mise exec -- bin/setup --skip-server` first. PostgreSQL, Docker and Chrome are required.
+Run the full suite with `mise exec -- bin/ci`.
 
-## Набор проверок
-
-| Слой | Инструмент и команда |
+| Layer | Tool and command |
 | --- | --- |
-| Модели, jobs, политики, HTTP и компоненты | Minitest, `mise exec -- bin/rails test` |
-| Веб-интерфейс и Turbo | Capybara/Cuprite, `mise exec -- bin/rails test:system` |
-| Реальная доставка AnyCable | Chrome и Go-сервер, `mise exec -- bin/realtime-test` |
-| Реальная обработка изображений | imgproxy, `mise exec -- bin/image-test` |
-| Короткая нагрузка HTTP/WS | k6, `mise exec -- bin/load-test smoke` |
-| Контракты Android | `mise exec -- bin/native check`; сборки — [Android](native.md) |
+| Models, jobs, policies, HTTP and components | Minitest: `mise exec -- bin/rails test` |
+| Browser and Turbo | Capybara/Cuprite: `mise exec -- bin/rails test:system` |
+| Real AnyCable delivery | Chrome and Go: `mise exec -- bin/realtime-test` |
+| Real image transformations | imgproxy: `mise exec -- bin/image-test` |
+| HTTP/WS load smoke | k6: `mise exec -- bin/load-test smoke` |
+| Android contracts | `mise exec -- bin/native check`; [builds](native.md) |
 
-Minitest запускает тесты в случайном порядке и печатает seed. На Linux обычный набор
-использует два процесса, на macOS — один из-за несовместимости fork/Ruby 4/libpq.
-Cuprite поднимает ошибки JavaScript; для ожидания DOM используй матчеры Capybara, без `sleep`.
-Параметры Cuprite задаются через `driven_by` в `ApplicationSystemTestCase`: Rails перезаписывает
-отдельную регистрацию одноимённого драйвера. Запуск Chrome ограничен 30 секундами, команды — 10.
-`BrowserDriverTest` проверяет параметры реального браузера после регистрации Rails.
-Пулы основной БД и очереди создаются до system fixtures: Isolator отслеживает
-открытие и закрытие тестовых транзакций в одном потоке.
-Скриншоты падений сохраняются в `tmp/screenshots` и артефакты CI.
+## Test boundaries
 
-Внешний HTTP закрыт WebMock; localhost разрешён для браузера и локальных сервисов.
-Мокай сетевую границу и проверяй запрос, ответ, ошибку и число попыток. Пример —
-`test/models/llm_test.rb`; запрет незамоканного HTTP проверяет `test/lib/http_isolation_test.rb`.
+Minitest randomizes order and prints the seed. The regular suite uses two processes on Linux
+and one on macOS because of fork/Ruby 4/libpq compatibility. Cuprite raises JavaScript errors.
+Wait for DOM changes with Capybara assertions rather than sleeps.
 
-Active Agent проверяется в `test/agents/application_agent_test.rb`: шаблоны, usage, очередь,
-ошибки и приватность логов. Критерии качества AI-функций — в [инструкции по агентам](agents.md).
+Set Cuprite options through `driven_by` in `ApplicationSystemTestCase`: Rails overwrites a
+separate registration with the same driver name. Chrome startup has a 30-second timeout;
+commands have 10 seconds. `BrowserDriverTest` checks the actual registered browser options.
+Register primary and queue database pools before system fixtures so Isolator sees test
+transactions open and close in the same thread. Failure screenshots go to `tmp/screenshots`
+and CI artifacts.
 
-Для коллекций используй N+1 Control с растущим набором данных. Рабочий пример —
-`test/models/queue_snapshot_test.rb`. Установка gem сама по себе не проверяет каждую выборку.
-Isolator проверяет побочные эффекты внутри транзакций; не отключай его ради прохождения теста.
+WebMock blocks external HTTP while allowing localhost for the browser and local services.
+Stub network boundaries and verify requests, responses, errors and attempt counts.
+See `test/models/llm_test.rb` and `test/lib/http_isolation_test.rb`.
 
-## Проверки аутентификации
+Active Agent tests cover templates, usage, queueing, failures and log privacy in
+`test/agents/application_agent_test.rb`. Transport tests do not replace [AI quality evaluations](agents.md).
+Use N+1 Control with growing datasets, as in `test/models/queue_snapshot_test.rb`;
+installing the gem alone does not test every query. Keep Isolator enabled when testing side effects.
 
-В test используется MemoryStore: счётчики rate limit действуют, кэш очищается перед каждым тестом.
-`PasswordResetAtomicityTest` проверяет отказ БД при отзыве сессий и rollback пароля;
-тест создаёт и удаляет собственное ограничение внешнего ключа только в тестовой БД.
+Authentication uses MemoryStore in tests so rate limits remain active; clear it between tests.
+`PasswordResetAtomicityTest` creates a temporary foreign-key constraint in the test database
+to verify that session deletion failure also rolls back the password change.
 
-## Профилирование
+## Profiling
 
-TestProf подключён к Minitest 6. Профили запускаются явно и в одном процессе:
+TestProf integrates with Minitest 6. Profiles run explicitly in one process:
 
 ```sh
 mise exec -- bin/test-profile sql
 mise exec -- bin/test-profile sql test/models/queue_snapshot_test.rb
 mise exec -- bin/test-profile cpu
-```
-
-`sql` показывает время и число SQL-событий по наборам и отдельным тестам.
-`cpu` записывает StackProf dump и JSON в `tmp/test_prof`; файл dump можно прочитать локально:
-
-```sh
 mise exec -- bundle exec stackprof tmp/test_prof/stack-prof-report-cpu-raw-total.dump --text --limit 20
 ```
 
-Сначала измерь проблему, затем меняй setup, fixtures или запросы и повтори тот же профиль.
-Проект использует fixtures; FactoryBot и его оптимизации пока не нужны.
-В GitHub workflow **Test diagnostics** выбери `sql` или `cpu`; отчёт сохраняется на семь дней.
+`sql` reports SQL time and event counts by suite and test. `cpu` writes StackProf and JSON
+reports under `tmp/test_prof`. Measure first, change fixtures/setup/queries, then repeat the
+same profile. This project uses fixtures; FactoryBot optimizations are not needed.
+The **Test diagnostics** GitHub workflow accepts `sql` or `cpu` and retains reports for seven days.
 
-## Нагрузка HTTP и WebSocket
+## HTTP and WebSocket load
 
 ```sh
 mise exec -- bin/load-test smoke
 mise exec -- bin/load-test load
 ```
 
-Команда работает только с локальной `starter_app_test`. Она создаёт временного пользователя,
-запускает отдельный Rails/Puma, AnyCable и k6, затем удаляет пользователя, процессы и контейнеры.
-Не запускай одновременно с другими тестами: они используют ту же test-БД.
-Нужны свободные порты 3200, 8290 и 8291. Rails доступен контейнерам через host gateway;
-3200 слушает интерфейсы хоста на время прогона. Development/production-сервер для команды не нужен.
+The harness requires local `starter_app_test`. It creates a temporary user, starts separate
+Rails/Puma, AnyCable and k6 processes, then removes its user, containers and processes.
+Do not run it alongside other tests that share the database. Ports 3200, 8290 and 8291 must
+be free. Rails listens on host interfaces at port 3200 during the run so containers can reach
+it through the host gateway. No development or production server is required.
 
-k6 проходит настоящий вход с CSRF и cookie, читает рабочее пространство и профиль,
-подписывается на приватный канал и проверяет Turbo Streams от Rails broadcaster.
-Origin и авторизация остаются обязательными. Каждое соединение должно получить сообщение;
-пустой прогон или только успешный WebSocket handshake не считаются успехом.
+k6 signs in with CSRF and cookies, reads the workspace/profile, subscribes to a private stream
+and checks actual Rails broadcasts. Origin checks and authorization stay enabled. Every
+connection must receive a message; an empty run or a successful handshake alone cannot pass.
 
-| Режим | HTTP VU | WebSocket VU | Длительность нагрузки |
+| Profile | HTTP VUs | WebSocket VUs | Load duration |
 | --- | --- | --- | --- |
-| `smoke` | 1 | 2 | 8 секунд |
-| `load` | 5 | 20 | 30 секунд |
+| `smoke` | 1 | 2 | 8 seconds |
+| `load` | 5 | 20 | 30 seconds |
 
-Подключение и завершение добавляют время к прогону. Сценарий — `test/load/scenario.js`;
-версии образов — `compose.yml`. Пороги требуют успешных checks, отсутствия HTTP/WS ошибок
-и p95 менее двух секунд для страниц, подписки и доставки. Это исходные проверки стенда,
-а не подтверждённые SLO продукта. Test-окружение, один тестовый пользователь и нагрузка
-с того же компьютера не позволяют оценивать production capacity.
+Startup and shutdown add time. The scenario is `test/load/scenario.js`; image versions live
+in `compose.yml`. Thresholds require successful checks, no HTTP/WS errors and p95 below two
+seconds for pages, subscriptions and delivery. These are harness checks, not product SLOs
+or production capacity measurements: the test uses one account and runs on the same host.
 
-В `tmp/load-test/<режим>/` сохраняются итог k6, метрики Rails/Yabeda и AnyCable,
-а также локальные логи серверов. Новый прогон заменяет отчёты выбранного режима.
-CI запускает `smoke` и сохраняет summary/метрики;
-**Test diagnostics → load** запускает более длительный сценарий. Артефакты хранятся семь дней.
-Для наблюдения за обычным development-окружением используй [Prometheus/Grafana](observability.md).
+Reports under `tmp/load-test/<profile>/` include the k6 JSON summary, Rails/Yabeda and AnyCable
+metrics, and local server logs. Each run replaces that profile's reports. CI runs `smoke`;
+**Test diagnostics → load** runs the longer profile. CI artifacts expire after seven days.
+For development monitoring, see [Prometheus/Grafana](observability.md).
 
-## Нестабильные тесты
+## Flaky tests
 
-Повтори конкретный тест с seed из падения:
+Reproduce the failure with its seed:
 
 ```sh
 PARALLEL_WORKERS=1 mise exec -- bin/rails test test/system/authentication_test.rb --seed 12345
 ```
 
-Проверь общий изменяемый контекст, часы, порядок записей, фоновые операции и ожидание DOM.
-Используй time helpers с блоком, fixtures с явными связями, cleanup в ensure/teardown;
-конкурентность проверяй барьерами и таймаутами. Не скрывай сбой повторным запуском до успеха
-и не добавляй автоматические retries без установленной причины.
+Inspect shared mutable state, clocks, record order, background work and DOM waits. Use scoped
+time helpers, explicit fixture relationships and ensure/teardown cleanup. Test concurrency
+with barriers and timeouts. Fix the cause instead of adding automatic retries or rerunning
+until the suite happens to pass.
 
-Источники: [Testing в стеке Evil Martians](https://evilmartians.com/rails-startup-stack#testing),
+Sources: [Evil Martians testing stack](https://evilmartians.com/rails-startup-stack#testing),
 [TestProf EventProf](https://test-prof.evilmartians.io/guide/profilers/event_prof),
-[AnyCable, k6 и Yabeda](https://evilmartians.com/chronicles/real-time-stress-anycable-k6-websockets-and-yabeda),
-[нестабильные тесты](https://evilmartians.com/chronicles/flaky-tests-be-gone-long-lasting-relief-chronic-ci-retry-irritation).
+[AnyCable, k6 and Yabeda](https://evilmartians.com/chronicles/real-time-stress-anycable-k6-websockets-and-yabeda),
+[flaky tests](https://evilmartians.com/chronicles/flaky-tests-be-gone-long-lasting-relief-chronic-ci-retry-irritation).
 
-Просмотрщик AgentPrism проверяется в `test/system/agent_prism_test.rb`: дерево вызовов,
-атрибуты, RAW, пустое состояние, ошибка загрузки и узкий экран. Backend-тесты проверяют
-роль администратора, пагинацию, срок хранения и удаление чувствительных полей. Перед отдельным запуском
-собери JS/CSS через `npm run build:agents`; `bin/ci` делает это сам.
+## Admin and live updates
 
-## Админка
+`test/integration/admin_test.rb` covers guest/user/admin access, role revocation, Mission Control
+CSRF, Basic/Bearer isolation, heartbeat and real queue SQL failures. System tests cover sign-in
+return paths, shared navigation and narrow screens with a Native User-Agent. Shared HTML tests
+do not replace an Android device run.
 
-`test/integration/admin_test.rb` проверяет гостя, обычного пользователя и администратора,
-отзыв роли, CSRF Mission Control, изоляцию Basic/Bearer от браузерной сессии, heartbeat
-и реальную ошибку SQL очереди. `test/system/admin_test.rb` проходит вход с возвратом,
-общую навигацию четырёх экранов и узкий экран с Native User-Agent.
-Это браузерная проверка общего HTML; она не заменяет запуск Android на устройстве.
+`test/frontend/live_updates_test.mjs` checks event coalescing, a single in-flight request,
+hidden-tab cleanup, reconnects and the absence of idle polling. Queue model tests exercise
+real commits, rollbacks and bulk operations. The real AnyCable harness verifies live queue
+and AgentPrism changes, preserved selection and access revocation through Go and Chrome.
+Ordinary Rails system tests simulate signals; they cannot prove WebSocket delivery.
+
+AgentPrism system tests cover the call tree, attributes, RAW, empty/error states and narrow
+screens. Backend tests cover administrator access, pagination, retention and sensitive-field
+removal. Run `npm run build:agents` before an isolated browser test; `bin/ci` builds it.
+
+`test/integration/localization_test.rb` checks English UI/email, locale validation, links,
+request isolation, adding a locale and failure on missing translations.

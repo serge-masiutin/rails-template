@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Realtime::HttpBroadcasterTest < ActiveSupport::TestCase
-  test "публикация передаёт токен заголовком и не сохраняет payload в логах" do
+  test "broadcast sends the token in a header and keeps payload out of logs" do
     adapter = Realtime::HttpBroadcaster.new(url: "https://cable.example.test/_broadcast", secret: "test-token")
     request = stub_request(:post, "https://cable.example.test/_broadcast")
       .with(headers: { "Authorization" => "Bearer test-token" }, body: '{"private":"message"}')
@@ -17,7 +17,7 @@ class Realtime::HttpBroadcasterTest < ActiveSupport::TestCase
     SemanticLogger.remove_appender(appender) if appender
   end
 
-  test "ошибка сервера не скрывается и не повторяет запрос" do
+  test "server failure remains visible without repeating the request" do
     request = stub_request(:post, "https://cable.example.test/_broadcast").to_return(status: 503, body: "private error")
     adapter = Realtime::HttpBroadcaster.new(url: "https://cable.example.test/_broadcast", secret: "test-token")
     error = assert_raises(Realtime::HttpBroadcaster::Error) { adapter.raw_broadcast("{}") }

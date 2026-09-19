@@ -4,11 +4,11 @@ glob_matcher: doublestar
 pre-commit:
   parallel: true
   jobs:
-    - name: Ruby и примеры в Markdown
+    - name: Ruby and Markdown examples
       glob: ["**/*.rb", "**/*.rake", "**/*.md", "Gemfile", "Gemfile.lock", "Rakefile", "config.ru", "bin/*", ".rubocop.yml"]
       exclude: ["vendor/**", "native/**", "node_modules/**"]
       run: bin/rubocop
-    - name: HTML и ERB
+    - name: HTML and ERB
       glob: ["app/**/*.erb", "test/components/previews/**/*.erb", ".herb.yml", "package*.json", "bin/erb-check"]
       run: bin/erb-check
     - name: AgentPrism

@@ -1,7 +1,8 @@
-# Выделить сложную выборку
+# Extract a complex query
 
-Сохрани authorised scope, параметры и тип результата. Простую цепочку where/order/limit оставь в месте вызова; для повторяемой композиции выдели явный query. Operations::QueueSnapshot показывает отдельный контракт агрегатов. Проверь корректность, отсутствие N+1 и одинаковое чтение web/worker.
+Preserve authorized scope, parameters and result type. Keep simple where/order/limit chains local; extract repeated composition into an explicit query. Operations::QueueSnapshot demonstrates an aggregate contract. Test correctness, N+1 behavior and consistent web/worker reads.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/models/operations/queue_snapshot.rb](../../../../app/models/operations/queue_snapshot.rb), [test/models/queue_snapshot_test.rb](../../../../test/models/queue_snapshot_test.rb).
+Behavior sources: [app/models/operations/queue_snapshot.rb](../../../../app/models/operations/queue_snapshot.rb), [test/models/queue_snapshot_test.rb](../../../../test/models/queue_snapshot_test.rb).

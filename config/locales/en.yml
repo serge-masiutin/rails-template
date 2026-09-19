@@ -1,31 +1,117 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
+---
 en:
-  hello: "Hello world"
+  app:
+    name: StarterApp
+  layout:
+    direction: ltr
+    page_title: "%{title} · %{app}"
+    admin_title: "%{title} · %{app} Admin"
+    components_title: "%{app} components"
+    skip_content: Skip to content
+    main_navigation: Main navigation
+  home:
+    index:
+      title: Workspace
+      heading: Workspace
+      intro: You're signed in and ready to work.
+  accounts:
+    show:
+      title: Profile
+      heading: Profile
+  sessions:
+    new:
+      title: Sign in
+      heading: Sign in to %{app}
+      intro: Use your work account.
+      help: Need help signing in?
+  passwords:
+    new:
+      title: Reset password
+      heading: Reset your password
+    edit:
+      title: New password
+      heading: New password
+  admin:
+    access_denied:
+      heading: Access denied
+      description: Your account does not have administrator access. Contact the application
+        owner.
+    dashboard:
+      jobs: Jobs
+      oldest_ready:
+        one: The oldest Ready job has been waiting for %{count} second.
+        other: The oldest Ready job has been waiting for %{count} seconds.
+      workers: Queue processes
+      healthy: Healthy
+      unhealthy: Needs attention
+      unavailable: Database unavailable. Check the application logs.
+    observability:
+      grafana_description: Metrics and dashboards
+      prometheus_description: Queries, targets, and alerts
+      logs: Logs
+      logs_description: Live logs and event search
+      not_configured: Not configured
+    navigation:
+      overview: Overview
+      admin: Admin
+      label: Administration
+      observability: Monitoring
+      app: Back to app ↗
+    live:
+      live: Live
+      offline: Connection interrupted
+      paused: Paused while editing
+      denied: Access expired. Sign in again.
+  actions:
+    open_admin: Open admin
+    sign_out: Sign out
+    open_profile: Open profile
+    sign_in: Sign in
+    reset_password: Reset password
+    send_reset: Send reset instructions
+    back_to_sign_in: Back to sign in
+    save_password: Save password
+    back_to_app: Back to app
+  fields:
+    password: Password
+    email: Email
+    password_confirmation: Confirm password
+  auth:
+    rate_limited: Try again later.
+    invalid_credentials: Incorrect email or password.
+    reset_sent: If an account exists, reset instructions have been sent by email.
+    password_changed: Password updated.
+    invalid_reset_link: This link is invalid or has expired.
+  passwords_mailer:
+    reset:
+      subject: Reset your %{app} password
+      intro: To reset your %{app} password, open the link below.
+      link: Reset password
+      expiry: This link expires in 15 minutes. If you didn't request a password reset,
+        ignore this email.
+  activerecord:
+    attributes:
+      user:
+        email_address: Email
+        password: Password
+        password_confirmation: Password confirmation
+  components:
+    notice:
+      saved: Changes saved.
+      invalid: Check the values you entered.
+  agent_prism:
+    title: AgentPrism
+    earlier: Earlier traces
+    loading: Loading AgentPrism data…
+    empty: No traces yet. They will appear after an agent runs.
+    load_error: Could not load traces.
+    http_error: Could not load traces (HTTP %{status}).
+    invalid_data: AgentPrism returned an invalid data format.
+    render_error: Could not display this trace. Check the application logs.
+    live: Live
+    offline: Connection interrupted
+    latest: Latest traces
+    denied: Access expired. Sign in again.
+  operations:
+    agents:
+      enable_javascript: Enable JavaScript to use AgentPrism.

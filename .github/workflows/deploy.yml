@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: 'setup — первый деплой, deploy — обновление'
+        description: 'setup: first deployment; deploy: update'
         type: choice
         options: [deploy, setup]
         default: deploy
@@ -63,7 +63,7 @@ jobs:
           for key in DEPLOY_HOST DEPLOY_USER DEPLOY_ARCH WEB_HOST SMTP_ADDRESS MAIL_FROM KAMAL_IMAGE SECRET_KEY_BASE DB_PASSWORD SMTP_USERNAME SMTP_PASSWORD OPERATIONS_USERNAME OPERATIONS_PASSWORD OPERATIONS_METRICS_TOKEN ANYCABLE_SECRET IMGPROXY_KEY IMGPROXY_SALT; do
             test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }
           done
-          # Необязательная интеграция, но частичная конфигурация недопустима.
+          # The integration is optional, but partial configuration is invalid.
           if [[ -n "$LLM_PROVIDER$LLM_MODEL$LLM_API_KEY" ]]; then
             for key in LLM_PROVIDER LLM_MODEL LLM_API_KEY; do
               test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }

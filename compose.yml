@@ -1,6 +1,12 @@
 name: starterapp
+x-logging: &bounded-logging
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: "5"
 services:
   imgproxy:
+    logging: *bounded-logging
     image: ghcr.io/imgproxy/imgproxy:v4.0.15
     profiles: [images]
     ports:
@@ -29,9 +35,11 @@ services:
       IMGPROXY_LOG_LEVEL: error
       IMGPROXY_FAIL_ON_DEPRECATION: "true"
   k6:
+    logging: *bounded-logging
     image: grafana/k6:2.2.0
     profiles: [testing]
   postgres:
+    logging: *bounded-logging
     image: postgres:18.6
     environment:
       POSTGRES_USER: starter_app
@@ -46,6 +54,7 @@ services:
       timeout: 5s
       retries: 20
   prometheus:
+    logging: *bounded-logging
     image: prom/prometheus:v3.14.0
     profiles: [monitoring]
     ports:
@@ -67,7 +76,13 @@ services:
         bind:
           create_host_path: false
       - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9090/-/ready"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
   anycable:
+    logging: *bounded-logging
     image: anycable/anycable-go:1.6.16-alpine
     profiles: [realtime]
     ports:
@@ -91,20 +106,42 @@ services:
       ANYCABLE_BROKER: memory
       ANYCABLE_HISTORY_TTL: 300
       ANYCABLE_HISTORY_LIMIT: 100
-      # Каждое переподключение повторно проверяет Rails-сессию.
+      # Every reconnect rechecks the Rails session.
       ANYCABLE_SESSIONS_TTL: 0
       ANYCABLE_METRICS_HTTP: /metrics
       ANYCABLE_METRICS_PORT: 8091
       ANYCABLE_LOG_FORMAT: json
-      # Go включает содержимое команд в warn; ошибки RPC видны в Rails.error и метриках.
+      # Go includes command contents in warn logs; RPC failures remain visible in Rails.error and metrics.
       ANYCABLE_LOG_LEVEL: error
       ANYCABLE_DISABLE_TELEMETRY: "true"
+  loki:
+    logging: *bounded-logging
+    image: grafana/loki:3.7.8
+    profiles: [monitoring]
+    ports:
+      - "127.0.0.1:3100:3100"
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./config/observability/loki.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+  alloy:
+    logging: *bounded-logging
+    image: grafana/alloy:v1.19.2
+    profiles: [tools]
+    # Validation uses the same version as the local mise binary.
+    environment:
+      ALLOY_LOG_PATH: /var/log/app/development.jsonl
+      ALLOY_LOKI_URL: http://loki:3100/loki/api/v1/push
+    volumes:
+      - ./config/observability/config.alloy:/etc/alloy/config.alloy:ro
   grafana:
+    logging: *bounded-logging
     image: grafana/grafana:13.2.2
     profiles: [monitoring]
     ports:
       - "127.0.0.1:3001:3000"
     environment:
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/starterapp.json
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
@@ -116,7 +153,13 @@ services:
       - ./config/observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./config/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
 volumes:
+  loki_data:
   prometheus_data:
   grafana_data:
   postgres_data:

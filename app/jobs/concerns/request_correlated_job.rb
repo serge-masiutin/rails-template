@@ -13,14 +13,14 @@ module RequestCorrelatedJob
 
   def deserialize(job_data)
     super
-    # Старые задания и задания планировщика могут не иметь HTTP-контекста.
+    # Older and scheduled jobs may have no HTTP context.
     self.request_id = job_data["request_id"]
   end
 
   private
 
   def with_request_context(&block)
-    # Задание получает пользователя явно аргументом, включая вызов perform_now из HTTP.
+    # Jobs receive the user explicitly, including perform_now calls from HTTP.
     Current.set(session: nil, request_id: request_id) do
       SemanticLogger.named_tagged(request_id: request_id, job_id: job_id, &block)
     end

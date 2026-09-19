@@ -1,12 +1,13 @@
 #!/usr/bin/env ruby
 require_relative "../config/boot"
 require "fileutils"
+require "json"
 require "net/http"
 require "securerandom"
 require "timeout"
 require "yaml"
 
-Signal.trap("TERM") { raise Interrupt, "Нагрузочный тест остановлен" }
+Signal.trap("TERM") { raise Interrupt, "Load test interrupted" }
 
 def wait_for_http(url, timeout: 20)
   Timeout.timeout(timeout) do
@@ -14,7 +15,7 @@ def wait_for_http(url, timeout: 20)
       begin
         break if Net::HTTP.get_response(URI(url)).code == "200"
       rescue Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
-        # Listener ещё запускается; общий deadline ограничивает ожидание.
+        # The listener is still starting; the overall deadline bounds the wait.
       end
       sleep 0.1
     end
@@ -33,25 +34,25 @@ def stop_process(pid)
     Process.waitpid(pid)
   end
 rescue Errno::ESRCH, Errno::ECHILD
-  # Процесс уже завершился; ресурс освобождён.
+  # The process already exited; its resource is released.
 end
 
-# rubocop:disable ThreadSafety/DirChdir -- Отдельный CLI-процесс, cwd задаётся до загрузки Rails.
+# rubocop:disable ThreadSafety/DirChdir -- Separate CLI process; set cwd before loading Rails.
 Dir.chdir File.expand_path("..", __dir__) do
   profile = ARGV.shift || "smoke"
-  abort "Использование: bin/load-test [smoke|load]" unless %w[smoke load].include?(profile) && ARGV.empty?
-  abort "Нагрузочный стенд работает только с RAILS_ENV=test" unless ENV.fetch("RAILS_ENV", "test") == "test"
-  abort "DATABASE_URL не поддерживается локальным стендом" if ENV.key?("DATABASE_URL")
-  abort "PGHOST должен указывать на локальную БД" unless %w[127.0.0.1 localhost].include?(ENV.fetch("PGHOST", "127.0.0.1"))
+  abort "Usage: bin/load-test [smoke|load]" unless %w[smoke load].include?(profile) && ARGV.empty?
+  abort "The load harness requires RAILS_ENV=test" unless ENV.fetch("RAILS_ENV", "test") == "test"
+  abort "The local harness does not support DATABASE_URL" if ENV.key?("DATABASE_URL")
+  abort "PGHOST must point to a local database" unless %w[127.0.0.1 localhost].include?(ENV.fetch("PGHOST", "127.0.0.1"))
 
   FileUtils.mkdir_p("tmp/load-test")
   lock = File.open("tmp/load-test/run.lock", "w")
-  abort "Нагрузочный стенд уже запущен" unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+  abort "The load harness is already running" unless lock.flock(File::LOCK_EX | File::LOCK_NB)
   output = File.expand_path("tmp/load-test/#{profile}")
   FileUtils.mkdir_p(output)
   FileUtils.rm_f(%w[k6.json rails.prom anycable.prom server.log anycable.log].map { |name| "#{output}/#{name}" })
   prefix = "starterapp-load-#{Process.pid}"
-  services = YAML.safe_load_file("compose.yml").fetch("services")
+  services = YAML.safe_load_file("compose.yml", aliases: true).fetch("services")
   service = services.fetch("anycable")
   k6_image = services.fetch("k6").fetch("image")
   secret = SecureRandom.hex(32)
@@ -64,7 +65,7 @@ Dir.chdir File.expand_path("..", __dir__) do
   require_relative "../config/environment"
   database = ActiveRecord::Base.connection_db_config
   unless database.database == "starter_app_test" && %w[127.0.0.1 localhost].include?(database.configuration_hash.fetch(:host))
-    abort "Нужна локальная starter_app_test; проверь PGHOST и конфигурацию БД"
+    abort "Local starter_app_test is required; check PGHOST and database configuration"
   end
 
   network_created = cable_started = false
@@ -88,21 +89,21 @@ Dir.chdir File.expand_path("..", __dir__) do
       "test/load/application.ru", pgroup: true, out: [ "#{output}/server.log", "w" ], err: :out)
     wait_for_http("http://127.0.0.1:3200/up")
     wait_for_http("http://127.0.0.1:8291/metrics")
-    # Credentials передаются через окружение, без аргументов CLI и файлов отчёта.
+    # Pass credentials through the environment, not CLI arguments or report files.
     k6_env = { "LOAD_PROFILE" => profile, "LOAD_EMAIL" => user.email_address, "LOAD_PASSWORD" => password,
       "LOAD_BASE_URL" => "http://host.docker.internal:3200", "LOAD_CABLE_URL" => "ws://#{prefix}-cable:8080/cable" }
     k6_pid = Process.spawn(k6_env, "docker", "run", "--name", "#{prefix}-k6", "--network", prefix,
       "--add-host", "host.docker.internal:host-gateway", "--user", "#{Process.uid}:#{Process.gid}",
       "-e", "K6_NO_USAGE_REPORT=true", *k6_env.keys.flat_map { |key| [ "-e", key ] },
-      "-v", "#{Dir.pwd}/test/load:/scripts:ro", "-v", "#{output}:/artifacts",
-      k6_image, "run", "--summary-export=/artifacts/k6.json", "/scripts/scenario.js", pgroup: true)
+      "-v", "#{Dir.pwd}/test/load:/scripts:ro",
+      k6_image, "run", "--summary-export=/tmp/k6.json", "/scripts/scenario.js", pgroup: true)
     status = nil
     Timeout.timeout(90) do
       until (result = Process.waitpid2(k6_pid, Process::WNOHANG))
-        # Публикуем через тот же Rails broadcaster, что и приложение. Ключи/ids в метрики не попадают.
+        # Use the application's Rails broadcaster. Keep keys and IDs out of metrics.
         published_at = (Time.now.to_f * 1000).to_i
         Turbo::StreamsChannel.broadcast_update_to(user.updates_stream_name, target: "flash",
-          html: %(<span data-load-published-at="#{published_at}">Проверка доставки</span>))
+          html: %(<span data-load-published-at="#{published_at}">Delivery probe</span>))
         sleep 0.5
       end
       status = result.last
@@ -114,8 +115,10 @@ Dir.chdir File.expand_path("..", __dir__) do
     raise "Rails metrics: #{metrics.code}" unless metrics.code == "200"
     File.binwrite("#{output}/rails.prom", metrics.body)
     File.binwrite("#{output}/anycable.prom", Net::HTTP.get(URI("http://127.0.0.1:8291/metrics")))
-    abort "k6 завершился с кодом #{status.exitstatus}; отчёт: #{output}" unless status.success?
-    puts "Нагрузочный сценарий #{profile} пройден. Отчёты: #{output}"
+    system("docker", "cp", "#{prefix}-k6:/tmp/k6.json", "#{output}/k6.json", exception: true)
+    abort "k6 exited with #{status.exitstatus}; report: #{output}" unless status.success?
+    JSON.parse(File.read("#{output}/k6.json")).fetch("metrics")
+    puts "Load profile #{profile} passed. Reports: #{output}"
   ensure
     system("docker", "logs", "#{prefix}-cable", out: [ "#{output}/anycable.log", "w" ], err: :out) if cable_started
     system("docker", "rm", "--force", "#{prefix}-k6") if k6_pid || status

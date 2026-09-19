@@ -6,15 +6,15 @@ class ConcurrencyTest < ActiveSupport::TestCase
 
   class ContextProbeJob < ApplicationJob
     def perform(barrier)
-      raise Timeout::Error, "Задания не достигли барьера" unless barrier.wait(5)
+      raise Timeout::Error, "Jobs did not reach the barrier" unless barrier.wait(5)
       [ Current.request_id, Current.session, SemanticLogger.named_tags.slice(:request_id, :job_id) ]
     end
   end
 
-  test "одновременные задания изолируют контекст и возвращают вызывающий контекст" do
+  test "concurrent jobs isolate context and restore caller context" do
     sessions = [ users(:one).sessions.build, users(:two).sessions.build ]
     barrier = Concurrent::CyclicBarrier.new(2)
-    # Предзагрузка класса до потоков исключает проверку autoload вместо нашего контракта.
+    # Preload the class so the threads test our contract rather than autoloading.
     jobs = 2.times.map do |index|
       ContextProbeJob.new(barrier).tap { |job| job.request_id = "job-request-#{index}" }
     end
@@ -34,14 +34,14 @@ class ConcurrencyTest < ActiveSupport::TestCase
     end
   end
 
-  test "Executor очищает Current после ошибки и возвращает соединение в пул" do
+  test "Executor clears Current after failure and returns the connection" do
     pool = ApplicationRecord.connection_pool
     results = concurrently do |index|
       begin
         Rails.application.executor.wrap do
           Current.request_id = "failed-#{index}"
           pool.lease_connection
-          raise ArgumentError, "Проверка cleanup"
+          raise ArgumentError, "Cleanup probe"
         end
       rescue ArgumentError
         [ Current.request_id, Current.session, pool.active_connection? ]
@@ -50,7 +50,7 @@ class ConcurrencyTest < ActiveSupport::TestCase
     assert_equal [ [ nil, nil, nil ], [ nil, nil, nil ] ], results
   end
 
-  test "уникальный индекс защищает email при конкурентной вставке после валидации" do
+  test "unique index protects email against concurrent inserts after validation" do
     email = "concurrency-#{SecureRandom.hex(8)}@example.test"
     digest = users(:one).password_digest
     candidates = 2.times.map { User.new(email_address: email, password_digest: digest) }
@@ -58,7 +58,7 @@ class ConcurrencyTest < ActiveSupport::TestCase
     barrier = Concurrent::CyclicBarrier.new(2)
     results = concurrently do |index|
       Rails.application.executor.wrap do
-        raise Timeout::Error, "Вставки не достигли барьера" unless barrier.wait(5)
+        raise Timeout::Error, "Inserts did not reach the barrier" unless barrier.wait(5)
         candidates.fetch(index).save!(validate: false)
         :created
       rescue ActiveRecord::RecordNotUnique
@@ -74,13 +74,13 @@ class ConcurrencyTest < ActiveSupport::TestCase
   private
 
   def concurrently
-    # Явные потоки нужны только для воспроизводимой проверки гонок.
+    # Explicit threads serve only to reproduce races deterministically.
     threads = 2.times.map do |index|
       Thread.new { yield index } # rubocop:disable ThreadSafety/NewThread
     end
     ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
       threads.map do |thread|
-        raise Timeout::Error, "Поток теста не завершился" unless thread.join(10)
+        raise Timeout::Error, "Test thread did not finish" unless thread.join(10)
         thread.value
       end
     end

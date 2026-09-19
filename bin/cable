@@ -11,12 +11,12 @@ Dir.chdir File.expand_path("..", __dir__) do
         file.write({ "secret" => SecureRandom.hex(32) }.to_yaml)
       end
     end
-    puts "Локальный AnyCable настроен: #{path}. Секрет исключён из Git и Docker."
+    puts "Local AnyCable configured: #{path}. The secret is excluded from Git and Docker."
   when [ "start" ]
-    # Один локальный секрет используют Rails и Go; значение не попадает в аргументы процесса.
+    # Rails and Go share one local secret; its value stays out of process arguments.
     ENV["ANYCABLE_SECRET"] ||= YAML.safe_load_file("config/anycable.local.yml").fetch("secret")
     exec "docker", "compose", "run", "--rm", "--no-deps", "--service-ports", "anycable"
   else
-    abort "Использование: bin/cable setup | start"
+    abort "Usage: bin/cable setup | start"
   end
 end

@@ -1,30 +1,32 @@
 ---
 name: hotwire-bridge-contracts
-description: "Проектировать и проверять JSON-контракты между Stimulus, Hotwire Native Android."
+description: "Define and validate shared JSON contracts between Stimulus and Hotwire Native Android."
 metadata:
   upstream: inertia-rails-typescript
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # hotwire-bridge-contracts
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Исследуй bridge API именно версий из `docs/native.md` и lock/build files.
-- Для компонента опиши name, события, обязательные/опциональные поля, типы, ошибки и допустимые ответы.
-- JavaScript BridgeComponent отправляет JSON; Kotlin DTO декодируют тот же контракт.
-- Валидируй внешнее сообщение один раз на границе. Неверный payload должен приводить к наблюдаемой ошибке без логирования чувствительных значений.
-- Bridge поддерживает отсутствие нативной возможности: обычная HTML-кнопка остаётся рабочей. Это явная progressive enhancement ветка.
-- Изменяй JS, Kotlin и fixture payloads атомарно. Старые опубликованные приложения должны понимать серверные изменения.
-- Проверь некорректный payload, неизвестное событие, disconnect/reconnect, повторный тап и отсутствие компонента в старом клиенте.
+- Inspect bridge APIs for the versions in `docs/native.md` and lock/build files.
+- Define component name, events, required/optional fields, types, errors and valid responses.
+- JavaScript BridgeComponent and Kotlin DTOs must implement the same JSON contract.
+- Validate external messages once at the boundary. Invalid payloads produce observable errors without exposing sensitive values.
+- Keep the HTML button usable when a native capability is unavailable: this is explicit progressive enhancement.
+- Change JS, Kotlin and fixture payloads together; preserve compatibility with released applications.
+- Test malformed payloads, unknown events, disconnect/reconnect, repeated taps and clients without the component.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/inertia-rails-typescript/SKILL.md`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/inertia-rails-typescript`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/inertia-rails-typescript/SKILL.md).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/inertia-rails-typescript`.

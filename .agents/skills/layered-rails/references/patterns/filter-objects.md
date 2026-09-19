@@ -1,9 +1,9 @@
-# Фильтры коллекций
+# Collection filters
 
-- Внешний ввод разбирается один раз; объект фильтра получает проверенные значения и уже авторизованный scope.
-- Пустой опциональный фильтр и невалидный фильтр — разные случаи. Для malformed input возвращай ошибку, а не весь dataset.
-- Сортировка использует allowlist; значения SQL передаются параметрами. Размер страницы ограничен, порядок детерминирован.
-- Возвращай relation, если следующий слой ещё добавляет условия; не делай преждевременный to_a.
-- Проверяй комбинации фильтров, cursor, граничный размер и недоступные записи.
+- Parse external input once; filters receive validated values and an authorized scope.
+- An absent optional filter differs from an invalid one. Malformed input must not return the whole dataset.
+- Allowlist sort columns, parameterize SQL values, bound page size and make ordering deterministic.
+- Return a relation while further conditions may be added; avoid premature to_a.
+- Test filter combinations, cursors, boundary sizes and inaccessible records.
 
-Источники поведения: [app/controllers/operations/agents_controller.rb](../../../../../app/controllers/operations/agents_controller.rb), [test/controllers/operations/agents_controller_test.rb](../../../../../test/controllers/operations/agents_controller_test.rb).
+Behavior sources: [app/controllers/operations/agents_controller.rb](../../../../../app/controllers/operations/agents_controller.rb), [test/controllers/operations/agents_controller_test.rb](../../../../../test/controllers/operations/agents_controller_test.rb).

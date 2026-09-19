@@ -1,7 +1,8 @@
-# Выделить правило доступа
+# Extract an access rule
 
-Повторяющуюся проверку владельца замени именованным правилом ApplicationPolicy. Контроллер вызывает authorize! до выдачи данных; UserPolicy#show? — рабочий образец. Сохрани verify_authorized и проверь чужую запись и гостя.
+Replace repeated ownership checks with a named ApplicationPolicy rule. Call authorize! before disclosure; UserPolicy#show? is the existing example. Keep verify_authorized and test foreign records and guests.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/policies/user_policy.rb](../../../../app/policies/user_policy.rb), [app/controllers/accounts_controller.rb](../../../../app/controllers/accounts_controller.rb), [test/controllers/authorization_test.rb](../../../../test/controllers/authorization_test.rb).
+Behavior sources: [app/policies/user_policy.rb](../../../../app/policies/user_policy.rb), [app/controllers/accounts_controller.rb](../../../../app/controllers/accounts_controller.rb), [test/controllers/authorization_test.rb](../../../../test/controllers/authorization_test.rb).

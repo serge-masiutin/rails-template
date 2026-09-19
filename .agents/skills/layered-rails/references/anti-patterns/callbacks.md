@@ -1,9 +1,10 @@
-# Скрытые эффекты callbacks
+# Hidden callback effects
 
-Признак: Сеть, письмо, публикация или цепочка обновления других моделей внутри save/destroy callback.
+Symptom: Network calls, email, publishing or cascading updates to other models inside save/destroy callbacks.
 
-Исправление: Вынеси use case в явный метод/операцию; свяжи записи транзакцией, а job — commit. Проверь rollback. Не добавляй skip-флаги или runtime skip_callback.
+Correction: Move the use case into an explicit method/operation; group records in a transaction and enqueue after commit. Test rollback. Do not add skip flags or runtime skip_callback.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/models/user.rb](../../../../../app/models/user.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/models/user.rb](../../../../../app/models/user.rb), [docs/architecture.md](../../../../../docs/architecture.md).

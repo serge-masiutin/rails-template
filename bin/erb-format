@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 Dir.chdir File.expand_path("..", __dir__) do
-  abort "Использование: bin/erb-format [--check] путь.html.erb" if ARGV.empty?
+  abort "Usage: bin/erb-format [--check] path.html.erb" if ARGV.empty?
   exec "node", "node_modules/.bin/herb-format", *ARGV
 end

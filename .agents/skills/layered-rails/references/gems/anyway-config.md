@@ -1,9 +1,9 @@
-# Anyway Config в StarterApp
+# Anyway Config contract
 
-- Наследуй конфигурацию от Anyway::Config, объявляй attr_config, coerce_types и on_load с raise_validation_error.
-- Пример строгого целого — ConcurrencyConfig::INTEGER: дробное число отклоняется, а не усекается.
-- Обязательные группы проверяй вместе, как provider/model/api_key в LlmConfig. Пустая необязательная интеграция разрешена только как явный режим.
-- Конфиг подключается при boot; новый ENV/local YAML обновляется вместе с setup, Kamal, CI и docs.
-- В Minitest создавай отдельный экземпляр конфигурации с параметрами; глобальное состояние восстанавливай в ensure, если тестируетcя интеграционный wiring.
+- Inherit Anyway::Config; declare attr_config, coerce_types and on_load validation with raise_validation_error.
+- Follow ConcurrencyConfig::INTEGER for strict integers: reject fractional input instead of truncating it.
+- Validate required groups together, such as provider/model/api_key in LlmConfig. An empty optional integration is an explicit mode.
+- Load configuration at boot. Update new ENV/local YAML with setup, Kamal, CI and docs.
+- Instantiate isolated configurations in Minitest. Restore global state in ensure when checking integration wiring.
 
-Источники поведения: [app/configs/concurrency_config.rb](../../../../../app/configs/concurrency_config.rb), [app/configs/llm_config.rb](../../../../../app/configs/llm_config.rb), [test/models/operations_config_test.rb](../../../../../test/models/operations_config_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/configs/concurrency_config.rb](../../../../../app/configs/concurrency_config.rb), [app/configs/llm_config.rb](../../../../../app/configs/llm_config.rb), [test/models/operations_config_test.rb](../../../../../test/models/operations_config_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).

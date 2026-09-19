@@ -5,6 +5,6 @@ const root = new URL("../vendor/agent-prism/", import.meta.url);
 const source = JSON.parse(await readFile(new URL("source.json", root), "utf8"));
 for (const [path, expected] of Object.entries(source.files)) {
   const actual = createHash("sha256").update(await readFile(new URL(path, root))).digest("hex");
-  if (actual !== expected) throw new Error(`Изменён upstream AgentPrism: ${path}. Проверьте источник и обновите manifest.`);
+  if (actual !== expected) throw new Error(`AgentPrism upstream changed: ${path}. Verify the source and update the manifest.`);
 }
-console.log(`AgentPrism: ${Object.keys(source.files).length} файлов, commit ${source.commit}`);
+console.log(`AgentPrism: ${Object.keys(source.files).length} files, commit ${source.commit}`);

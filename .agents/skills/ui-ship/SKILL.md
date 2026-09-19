@@ -1,29 +1,31 @@
 ---
 name: ui-ship
-description: "Переносить выбранный UI-прототип StarterApp в продуктовые ViewComponent/ERB экраны."
+description: "Integrate an approved UI prototype into production ERB/ViewComponent screens."
 metadata:
   upstream: sb-ship
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-ship
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Найди выбранный вариант и его критерии готовности; проверь существующие вызовы.
-- Переиспользуй компонент, если контракт совпадает; иначе добавь маленький именованный компонент.
-- Перенеси утверждённые токены, состояния и доступность, обнови реальные страницы атомарно.
-- Сохрани preview как документацию публичного API.
-- Удали неиспользуемый экспериментальный код в рамках изменения, сохраняя источник решения в PR.
-- Проверь component/system tests и соответствующий Native сценарий; сообщи, что не запускалось.
+- Locate the selected variant, completion criteria and current call sites.
+- Reuse a matching component contract or add a small named component.
+- Move approved tokens, states and accessibility together with real page changes.
+- Keep the preview as public API documentation.
+- Remove unused experiment code in the same change; preserve the decision source in the PR.
+- Run component/system tests and the relevant Native journey; report anything not executed.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-ship.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-ship`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-ship.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-ship`.

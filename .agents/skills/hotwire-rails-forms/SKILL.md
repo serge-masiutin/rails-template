@@ -1,33 +1,34 @@
 ---
 name: hotwire-rails-forms
-description: "Создавать формы StarterApp для браузера и Hotwire Native, включая ошибки, загрузки и многосоставные формы."
+description: "Build web and Hotwire Native forms with explicit validation and upload contracts."
 metadata:
   upstream: inertia-rails-forms
   adapted-for: StarterApp
-  version: "5"
+  version: "6"
 ---
 
 # hotwire-rails-forms
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Изображения обрабатывает imgproxy через обычный `.variant(...)`; прочитай `docs/images.md`. Не вызывай `.processed`/`preprocessed: true`. При загрузке проверяй пользователя, принадлежность blob, размер и MIME на сервере; signed URL не заменяет авторизацию.
+- Read `docs/images.md` for uploads. Use imgproxy through `.variant(...)`, never `.processed` or `preprocessed: true`. Check user/blob ownership, size and MIME server-side; a signed URL is not authorization.
+- Use `form_with`, labels, server validation messages and ordinary submit buttons.
+- GET renders the form; successful mutations return 303; invalid submissions return form HTML with 422.
+- Preserve the outer frame ID on validation failures. Use `data-turbo-frame="_top"` when leaving a frame.
+- Stimulus handles local interaction; the server validates required values independently.
+- For multiple models, use an explicit form object and one transaction where atomicity is required.
+- Change modal rules in `public/configurations/android_v1.json`, then run `bin/native sync` and `bin/native check`.
+- Test disabled submission, repeated submission, errors, keyboard, back navigation and modal dismissal in web and Android.
+- Use `render :new, status: :unprocessable_entity` on invalid models and a 303 `redirect_to` on success.
 
-- Используй `form_with`, label, серверные validation errors и обычные submit-кнопки.
-- Контракт: GET показывает форму; успешная мутация возвращает 303; неуспешная — HTML формы с 422.
-- Frame-форма сохраняет внешний frame id в ответах с ошибками. Переход за пределы frame задавай через `data-turbo-frame="_top"`.
-- Stimulus управляет только локальным поведением; сервер повторно валидирует обязательные поля.
-- Для нескольких моделей используй form object с явным контрактом и одной транзакцией там, где нужна атомарность.
-- Модальные пути меняй в `public/configurations/android_v1.json`, затем запускай `bin/native sync` и `bin/native check` для bundled-копии Android.
-- Проверяй disabled submit, повторное отправление, ошибки, клавиатуру, возврат и закрытие modal в вебе и Android.
-- Пример: `render :new, status: :unprocessable_entity` при невалидной модели; `redirect_to root_path, status: :see_other` при успехе.
+## Completion
 
-## Результат
-
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/inertia-rails-forms.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/inertia-rails-forms`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/inertia-rails-forms.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/inertia-rails-forms`.

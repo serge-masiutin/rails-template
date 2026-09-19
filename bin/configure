@@ -6,10 +6,10 @@ require "optparse"
 
 options = {}
 parser = OptionParser.new do |opts|
-  opts.banner = "Использование: bin/configure --name my_app --android-id com.example.myapp [--dry-run]"
-  opts.on("--name NAME", "Имя проекта в snake_case, до 36 символов") { |value| options[:name] = value }
-  opts.on("--android-id ID", "Собственный Android application ID") { |value| options[:android_id] = value }
-  opts.on("--dry-run", "Проверить входы и показать объём изменений") { options[:dry_run] = true }
+  opts.banner = "Usage: bin/configure --name my_app --android-id com.example.myapp [--dry-run]"
+  opts.on("--name NAME", "Project name in snake_case, up to 36 characters") { |value| options[:name] = value }
+  opts.on("--android-id ID", "Your Android application ID") { |value| options[:android_id] = value }
+  opts.on("--dry-run", "Validate inputs and preview the change count") { options[:dry_run] = true }
   opts.on("-h", "--help") { puts opts; exit }
 end
 begin
@@ -20,33 +20,33 @@ end
 abort parser.to_s unless ARGV.empty? && options.key?(:name) && options.key?(:android_id)
 name = options.fetch(:name)
 android_id = options.fetch(:android_id)
-abort "Имя: строчные латинские буквы, цифры и одиночные подчёркивания; до 36 символов" unless /\A[a-z][a-z0-9]*(?:_[a-z0-9]+)*\z/.match?(name) && name.length <= 36
+abort "Name: lowercase Latin letters, digits and single underscores; up to 36 characters" unless /\A[a-z][a-z0-9]*(?:_[a-z0-9]+)*\z/.match?(name) && name.length <= 36
 module_name = name.split("_").map(&:capitalize).join
-abort "Имя конфликтует с Ruby/Rails" if %w[Object Kernel Module Class Rails ActiveRecord ActiveSupport ActionController ActionView].include?(module_name)
-abort "Android ID: не менее двух сегментов из строчных латинских букв, цифр и подчёркиваний" unless /\A[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+\z/.match?(android_id) && android_id.length <= 150
+abort "Name conflicts with Ruby/Rails" if %w[Object Kernel Module Class Rails ActiveRecord ActiveSupport ActionController ActionView].include?(module_name)
+abort "Android ID: at least two segments of lowercase Latin letters, digits and underscores" unless /\A[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+\z/.match?(android_id) && android_id.length <= 150
 keywords = %w[abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public return short static strictfp super switch synchronized this throw throws transient try void volatile while true false null as fun in is object typealias val var when]
-abort "Android ID содержит ключевое слово Java/Kotlin" if (android_id.split(".") & keywords).any?
+abort "Android ID contains a Java/Kotlin keyword" if (android_id.split(".") & keywords).any?
 
 root = File.expand_path("..", __dir__)
-# rubocop:disable ThreadSafety/DirChdir -- Отдельный CLI-процесс; рабочий каталог задаётся до запуска приложения.
+# rubocop:disable ThreadSafety/DirChdir -- Separate CLI process; set the working directory before application startup.
 Dir.chdir(root) do
   path = "config/template.json"
   current = JSON.parse(File.read(path))
-  abort "Неизвестная версия конфигурации шаблона" unless current.fetch("version") == 1 && [ true, false ].include?(current.fetch("configured"))
+  abort "Unknown template configuration version" unless current.fetch("version") == 1 && [ true, false ].include?(current.fetch("configured"))
   if current.fetch("configured")
-    abort "Проект уже настроен. bin/configure не переименовывает действующие приложения и БД" unless current.fetch("name") == name && current.fetch("android_id") == android_id
-    puts "Проект уже настроен с этими параметрами; файлы не изменены"
+    abort "Project already configured. bin/configure cannot rename existing applications or databases" unless current.fetch("name") == name && current.fetch("android_id") == android_id
+    puts "Project already configured with these values; no files changed"
     exit
   end
-  abort "Задайте свой Android ID вместо исходного идентификатора шаблона" if android_id == current.fetch("android_id")
-  abort "Выполните настройку до bin/setup и первого запуска приложения" if Dir.glob("config/*.local.yml").any? || File.exist?("tmp/local_secret.txt")
+  abort "Choose your Android ID instead of the template identifier" if android_id == current.fetch("android_id")
+  abort "Configure before bin/setup and the first application run" if Dir.glob("config/*.local.yml").any? || File.exist?("tmp/local_secret.txt")
   status, error, result = Open3.capture3("git", "status", "--porcelain")
-  abort "Нужен Git checkout: #{error.strip}" unless result.success?
-  abort "Сначала сохраните изменения в Git: рабочее дерево должно быть чистым" unless status.empty?
+  abort "A Git checkout is required: #{error.strip}" unless result.success?
+  abort "Commit changes first: the working tree must be clean" unless status.empty?
   listing, error, result = Open3.capture3("git", "ls-files", "-z")
   abort error unless result.success?
   files = listing.split("\0")
-  abort "В репозитории нет исходников" if files.empty?
+  abort "No source files found in the repository" if files.empty?
 
   prefix = name.delete("_")
   replacements = {
@@ -63,18 +63,18 @@ Dir.chdir(root) do
   replace = ->(text) { text.gsub(pattern) { |match| replacements.fetch(match) } }
   changes = files.filter_map do |source|
     next if source.start_with?("vendor/", "test/template/") || [ "bin/configure", path ].include?(source)
-    abort "Символическая ссылка не поддерживается: #{source}" if File.symlink?(source)
+    abort "Symbolic links are not supported: #{source}" if File.symlink?(source)
     contents = File.binread(source)
     utf8 = contents.dup.force_encoding(Encoding::UTF_8)
     updated = utf8.valid_encoding? ? replace.call(utf8).b : contents
     target = replace.call(source)
     next if target == source && updated == contents
-    abort "Целевой файл уже существует: #{target}" if target != source && File.exist?(target)
+    abort "Destination file already exists: #{target}" if target != source && File.exist?(target)
     [ source, target, updated ]
   end
   targets = changes.map { |_, target, _| target }
-  abort "Переименование создаёт конфликт файлов" unless targets.uniq == targets
-  puts "#{current.fetch('name')} → #{name}; #{module_name}; Android #{android_id}; файлов: #{changes.length}"
+  abort "Renaming creates a file collision" unless targets.uniq == targets
+  puts "#{current.fetch('name')} → #{name}; #{module_name}; Android #{android_id}; files: #{changes.length}"
   exit if options[:dry_run]
 
   changes.each do |source, target, contents|
@@ -84,6 +84,6 @@ Dir.chdir(root) do
   end
   configured = { version: 1, configured: true, name: name, module_name: module_name, prefix: prefix, android_id: android_id }
   File.write(path, JSON.pretty_generate(configured) + "\n")
-  puts "Готово. Проверьте git diff, затем выполните mise exec -- bin/setup --skip-server"
+  puts "Done. Review git diff, then run mise exec -- bin/setup --skip-server"
 end
 # rubocop:enable ThreadSafety/DirChdir

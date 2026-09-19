@@ -5,19 +5,19 @@ class UserUpdatesChannelTest < ActionCable::Channel::TestCase
 
   setup { stub_connection current_user: users(:one) }
 
-  test "владелец получает собственный поток" do
+  test "owner receives their own stream" do
     subscribe signed_stream_name: token(users(:one))
     assert subscription.confirmed?
     assert_has_stream users(:one).updates_stream_name
   end
 
-  test "даже подписанный чужой поток запрещён" do
+  test "even a signed foreign stream is rejected" do
     subscribe signed_stream_name: token(users(:two))
     assert subscription.rejected?
     assert_no_streams
   end
 
-  test "подделка подписи запрещена" do
+  test "forged signature is rejected" do
     subscribe signed_stream_name: "invalid"
     assert subscription.rejected?
     assert_no_streams

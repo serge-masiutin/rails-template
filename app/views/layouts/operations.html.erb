@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru" data-mode="light">
+<html lang="<%= I18n.locale %>" dir="<%= t("layout.direction") %>" data-mode="light">
   <head>
     <title>AgentPrism — StarterApp</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-visit-control" content="reload">
     <meta name="turbo-cache-control" content="no-cache">
+    <meta name="action-cable-url" content="<%= realtime_url %>">
     <meta name="referrer" content="same-origin">
     <%= stylesheet_link_tag "agent-prism", "admin_navigation" %>
     <%= render "shared/typography" %>
+    <%= javascript_importmap_tags "operations_stream" %>
     <%= javascript_include_tag "agent-prism", defer: true, nonce: true %>
   </head>
-  <body>
+  <body class="admin-shell admin-shell--agents">
     <%= render "admin/navigation" %>
+    <%= render "admin/shared/stream" %>
     <%= yield %>
   </body>
 </html>

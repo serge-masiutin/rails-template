@@ -1,31 +1,33 @@
 ---
 name: hotwire-ui-components
-description: "Создавать переиспользуемые UI-компоненты StarterApp с ViewComponent и Tailwind."
+description: "Build reusable ViewComponent and Tailwind UI with explicit variants."
 metadata:
   upstream: shadcn-inertia
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
 # hotwire-ui-components
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Используй только локальный Martian Mono через общий шрифтовой слой; меняй размер, вес и интервалы, а не семейство. Проверь компонент и preview с кириллицей, длинным текстом и на узком экране.
-- Найди существующий компонент и токены в `app/assets/tailwind/application.css`.
-- Компонент размещается в `app/components`, preview — в `test/components/previews`, тест — в `test/components`.
-- Используй keyword arguments и фиксированную карту вариантов; неизвестный variant отклоняй через fetch.
-- Сохраняй полные Tailwind class literals, чтобы компилятор находил их. Не собирай `bg-#{color}`.
-- Вывод экранируется Rails. HTML-безопасность пользовательских строк не отключается.
-- Кнопка имеет корректный type, поле label, dialog управление фокусом. Компонент работает с touch и клавиатурой.
-- Проверь preview, семантический DOM и пользовательский сценарий с Turbo.
+- Use local Martian Mono through shared typography; vary size, weight and spacing, not family. Test Cyrillic coverage, long text and narrow screens.
+- Find existing components and tokens in `app/assets/tailwind/application.css` first.
+- Put components in `app/components`, previews in `test/components/previews` and tests in `test/components`.
+- Use keyword arguments and a fixed variant map; reject unknown variants with `fetch`.
+- Keep complete Tailwind class literals; never construct names such as `bg-#{color}`.
+- Preserve Rails escaping; do not mark user strings HTML-safe.
+- Give buttons correct types, fields labels and dialogs focus management. Support touch and keyboard.
+- Validate previews, semantic DOM and the user journey through Turbo.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/shadcn-inertia.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/shadcn-inertia`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/shadcn-inertia.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/shadcn-inertia`.

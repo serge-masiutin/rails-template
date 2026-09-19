@@ -1,29 +1,31 @@
 ---
 name: ui-comparisons
-description: "Сравнивать варианты, состояния и адаптивное поведение компонентов StarterApp в Lookbook."
+description: "Compare component variants, states and responsive behavior in Lookbook."
 metadata:
   upstream: sb-wrappers
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-comparisons
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Покажи два варианта с одинаковыми входными данными и размером viewport.
-- Используй ViewComponent preview templates для state grids; не дублируй компонентную реализацию в preview.
-- Группируй только значимые состояния: обычное, длинное содержимое, ошибка, disabled.
-- Проверяй смысловую структуру DOM и фокус, а не только внешний вид.
-- Для web/Native сравнения укажи, что рисует Rails, а что platform navigation.
-- Результат — сравнимый preview и конкретное решение с проверенными ограничениями.
+- Compare variants with identical input and viewport sizes.
+- Use ViewComponent preview templates for state grids; do not duplicate the component implementation.
+- Group meaningful states only: normal, long content, error and disabled.
+- Check semantic DOM and focus as well as appearance.
+- For web/Native comparisons, identify Rails-rendered content versus platform navigation.
+- Deliver a comparable preview and a concrete decision with verified limits.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-wrappers.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-wrappers`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-wrappers.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-wrappers`.

@@ -1,30 +1,32 @@
 ---
 name: rails-boot-profiling
-description: "Измерять и сокращать время загрузки Rails StarterApp по профилю require/initializers."
+description: "Measure Rails boot time and optimize demonstrated require/initializer bottlenecks."
 metadata:
   upstream: rails-boot-profiling
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # rails-boot-profiling
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Сначала воспроизведи медленный boot на зафиксированном Ruby/Gemfile.lock и сохрани baseline.
-- Раздели холодный/тёплый bootsnap, development/test/production, процесс web/job.
-- Профилируй require и initializers по подходящему инструменту; устанавливай profiler только для конкретного измерения.
-- Ищи загрузку development gems в production, IO при boot и повторный парсинг конфигурации.
-- Сетевая работа не должна скрываться в initializer или accessor.
-- Меняй одну причину, повторяй тот же замер; измерение и команды приложи к результату.
-- После оптимизации проверь zeitwerk, assets и тесты. Не жертвуй fail-fast конфигурацией ради скорости.
+- Reproduce slow boot with pinned Ruby and Gemfile.lock and save a baseline.
+- Separate cold/warm Bootsnap, development/test/production and web/job processes.
+- Profile require/initializers with an appropriate tool; add a profiler only for a concrete measurement.
+- Look for development gems in production, boot-time IO and repeated configuration parsing.
+- Do not hide network work in an initializer or accessor.
+- Change one cause, repeat the same measurement and report commands/results.
+- Check Zeitwerk, assets and tests after optimization. Preserve fail-fast configuration.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/rails-boot-profiling/SKILL.md`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/rails-boot-profiling`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/rails-boot-profiling/SKILL.md).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/rails-boot-profiling`.

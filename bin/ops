@@ -1,25 +1,47 @@
 #!/usr/bin/env ruby
 require "securerandom"
 require "yaml"
+require "net/http"
+require "fileutils"
 
+# rubocop:disable ThreadSafety/DirChdir -- Isolated CLI process before Rails loads.
 Dir.chdir File.expand_path("..", __dir__) do
   case ARGV
   when [ "setup" ]
     path = "config/operations.local.yml"
     if File.exist?(path)
-      puts "Локальный доступ уже настроен: #{path}"
+      puts "Local access already configured: #{path}"
     else
       File.open(path, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
         file.write({ "username" => "starterapp", "password" => SecureRandom.hex(32), "metrics_token" => SecureRandom.hex(32) }.to_yaml)
       end
-      puts "Доступ к /ops/health и токен метрик в #{path}. Вход в /admin — через аккаунт администратора."
+      puts "Health credentials and metrics token: #{path}. Sign in to /admin with an administrator account."
     end
   when [ "monitoring" ]
     system("bin/rails", "runner", "script/prepare_monitoring.rb", exception: true)
-    exec "docker", "compose", "--profile", "monitoring", "up", "--detach", "prometheus", "grafana"
+    system("docker", "compose", "--profile", "monitoring", "up", "--detach", "--wait", "--wait-timeout", "60", "prometheus", "grafana", "loki", exception: true)
+    # Loki accepts requests after its ring recovers.
+    uri = URI("http://127.0.0.1:3001/api/datasources/proxy/uid/loki/ready")
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 60
+    loop do
+      response = Net::HTTP.start(uri.host, uri.port, open_timeout: 2, read_timeout: 3) { |http| http.get(uri.request_uri) }
+      break if response.is_a?(Net::HTTPSuccess)
+      abort "Loki is not ready: HTTP #{response.code}. Check docker compose logs loki." unless response.code == "503"
+      abort "Loki did not start within 60 seconds. Check docker compose logs loki." if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+      sleep 2
+    end
+    puts "Monitoring is ready: http://localhost:3001"
+  when [ "logs" ]
+    FileUtils.mkdir_p("tmp/observability/alloy", mode: 0o700)
+    exec({ "ALLOY_LOG_PATH" => File.expand_path("log/development.jsonl"),
+           "ALLOY_LOKI_URL" => "http://127.0.0.1:3100/loki/api/v1/push" },
+      "alloy", "run", "--disable-reporting", "--storage.path=tmp/observability/alloy",
+      "--server.http.listen-addr=127.0.0.1:12345", "config/observability/config.alloy")
   when [ "queue" ]
     exec "bin/rails", "runner", "puts JSON.pretty_generate(Operations::QueueSnapshot.capture)"
   else
-    abort "Использование: bin/ops setup | queue | monitoring"
+    abort "Usage: bin/ops setup | queue | monitoring | logs"
   end
 end
+
+# rubocop:enable ThreadSafety/DirChdir

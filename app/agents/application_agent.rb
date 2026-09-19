@@ -1,4 +1,4 @@
-# Общая граница генерации: настройки, версия промпта, очередь и наблюдаемость.
+# Shared generation boundary: configuration, prompt version, queue and observability.
 class ApplicationAgent < ActiveAgent::Base
   abstract!
 
@@ -12,8 +12,8 @@ class ApplicationAgent < ActiveAgent::Base
   before_generation :validate_configuration
   around_prompt :observe_generation
 
-  # Стандартный обработчик gem пишет exception.message, где может быть исходный текст.
-  # Ошибка остаётся видимой в журнале задания и Solid Queue.
+  # The gem handler logs exception.message, which may contain source content.
+  # Failures remain visible in job logs and Solid Queue.
   def self.handle_exception(error)
     raise error
   end
@@ -31,7 +31,7 @@ class ApplicationAgent < ActiveAgent::Base
     metadata = { agent: self.class.name, action: action_name, prompt_version: prompt_version,
       provider: Rails.configuration.x.llm.provider, model: Rails.configuration.x.llm.model }
     span = ActiveAgent::Telemetry.tracer.current_span
-    # У вызова с instrumentation: false SDK не создаёт span.
+    # The SDK creates no span when instrumentation is false.
     if span
       metadata.except(:agent, :action).each { |key, value| span.set_attribute("starterapp.#{key}", value) }
       span.set_attribute("starterapp.request_id", Current.request_id) if Current.request_id

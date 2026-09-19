@@ -3,7 +3,8 @@ import type { TraceViewerData } from "../../../vendor/agent-prism/components/Tra
 
 const categories = new Set(["agent_invocation", "chain_operation", "llm_call", "tool_execution", "span", "embedding", "event"]);
 const statuses = new Set(["success", "error", "pending", "warning"]);
-const invalid = () => new Error("Некорректный формат данных AgentPrism");
+export class InvalidTracePage extends Error {}
+const invalid = () => new InvalidTracePage("Invalid AgentPrism data format");
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw invalid();
   return value as Record<string, unknown>;

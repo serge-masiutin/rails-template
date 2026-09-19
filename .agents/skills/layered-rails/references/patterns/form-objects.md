@@ -1,10 +1,10 @@
-# Формы с несколькими записями
+# Forms spanning multiple records
 
-- Обычная форма одной модели остаётся Rails form_with + validations. Form object нужен для нескольких записей или самостоятельного контракта ввода.
-- Используй ActiveModel для формы: явные атрибуты, errors и публичный save/submit. Не переносишь туда request, cookies или доставку HTTP-ответа.
-- params.expect и авторизация остаются на границе контроллера. Доменные инварианты принадлежат моделям.
-- Атомарные записи выполняй одной транзакцией, внешние эффекты — после commit через jobs.
-- Ошибка рендерит введённые значения и errors с 422, успех перенаправляет с 303; Frame id и Android modal сохраняются.
-- Нужны проверки частичной ошибки, rollback, неверного ввода и пользовательского сценария.
+- Keep one-model forms conventional with form_with and model validations. Extract a form object for multiple records or an independent input contract.
+- Use ActiveModel, explicit attributes/errors and a public save/submit. Keep requests, cookies and HTTP response handling outside.
+- params.expect and authorization stay at the controller boundary; models own domain invariants.
+- Use one transaction for atomic writes and jobs after commit for external effects.
+- Re-render values/errors with 422; redirect with 303 on success. Preserve frame IDs and Android modal behavior.
+- Test partial failure, rollback, malformed input and the user journey.
 
-Источники поведения: [docs/hotwire.md](../../../../../docs/hotwire.md), [app/views/passwords/edit.html.erb](../../../../../app/views/passwords/edit.html.erb), [test/controllers/passwords_controller_test.rb](../../../../../test/controllers/passwords_controller_test.rb).
+Behavior sources: [docs/hotwire.md](../../../../../docs/hotwire.md), [app/views/passwords/edit.html.erb](../../../../../app/views/passwords/edit.html.erb), [test/controllers/passwords_controller_test.rb](../../../../../test/controllers/passwords_controller_test.rb).

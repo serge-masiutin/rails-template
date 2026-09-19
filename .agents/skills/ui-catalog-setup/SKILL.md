@@ -1,29 +1,31 @@
 ---
 name: ui-catalog-setup
-description: "Поддерживать каталог компонентов StarterApp на Lookbook и ViewComponent previews."
+description: "Maintain the development-only ViewComponent/Lookbook catalog."
 metadata:
   upstream: sb-setup
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
 # ui-catalog-setup
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Проверь gem lookbook, development-only mount и view_component.previews.paths.
-- Превью живут в test/components/previews и используют детерминированные входы без production DB и сетевых вызовов.
-- Используй `component_preview` layout с настоящей Tailwind сборкой, `shared/typography` (Martian Mono), importmap и Stimulus. Он задаётся через `config.view_component.previews.default_layout` в development и не зависит от сессии пользователя.
-- Организуй каталог по компонентам и смысловым состояниям: обычное, длинный текст, ошибка, disabled.
-- Проверь `/lookbook` в development и отсутствие маршрута в production.
-- После настройки проверь рендер хотя бы одного preview и компонентный тест; зафиксируй результат в docs/intent-log.md.
+- Check the lookbook gem, development-only mount and `view_component.previews.paths`.
+- Keep previews in `test/components/previews` with deterministic inputs and no production database or network dependencies.
+- Use the `component_preview` layout with real Tailwind assets, `shared/typography` (Martian Mono), importmap and Stimulus. Configure `view_component.previews.default_layout` in development; previews must not depend on a user session.
+- Organize by component and meaningful states: normal, long text, error and disabled.
+- Verify `/lookbook` in development and its absence in production.
+- Render at least one preview, run its component test and record a significant setup result in `docs/intent-log.md`.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-setup.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-setup`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-setup.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-setup`.

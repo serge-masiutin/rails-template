@@ -1,14 +1,14 @@
 require "test_helper"
 
 class NativeConfigurationTest < ActionDispatch::IntegrationTest
-  test "публичная конфигурация не требует сессии и соответствует bundled JSON" do
+  test "public configuration needs no session and matches bundled JSON" do
     get "/configurations/android_v1.json"
     assert_response :success
     assert_equal JSON.parse(Rails.root.join("native/android/app/src/main/assets/json/android_v1.json").read), response.parsed_body
     assert_equal({}, response.parsed_body.fetch("settings"))
   end
 
-  test "профиль модален, форма не обновляется жестом, вход имеет обычную навигацию" do
+  test "account is modal with no pull-to-refresh and sign-in uses regular navigation" do
     rules = JSON.parse(Rails.root.join("public/configurations/android_v1.json").read).fetch("rules")
     assert_equal "modal", properties_for(rules, "/account").fetch("context")
     assert_equal false, properties_for(rules, "/passwords/new").fetch("pull_to_refresh_enabled")

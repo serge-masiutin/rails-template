@@ -1,12 +1,12 @@
-# Изображения
+# Image processing
 
-Изменение размера и формата выполняет imgproxy. Rails хранит оригиналы через Active Storage
-и подписывает URL; веб и Android используют один HTML. Версии — в Gemfile.lock и compose.yml.
+imgproxy resizes and converts images. Rails stores originals through Active Storage and signs URLs;
+web and Android use the same HTML. Versions are pinned in `Gemfile.lock` and `compose.yml`.
 
-## Запуск и проверка
+## Run and verify
 
-`bin/setup` создаёт локальные ключи и таблицы Active Storage. `bin/dev` запускает imgproxy
-через Overmind вместе с приложением. После обновления существующего checkout:
+`bin/setup` creates local keys and Active Storage tables. `bin/dev` starts imgproxy with Overmind.
+For an existing checkout:
 
 ```sh
 mise exec -- bin/images setup
@@ -14,74 +14,70 @@ mise exec -- bin/rails db:prepare
 mise exec -- bin/dev
 ```
 
-Ключи лежат в игнорируемом `config/imgproxy.local.yml` с правами 0600.
-Healthcheck — `http://localhost:8082/images/health`, метрики — `http://localhost:8083/metrics`.
-Оба порта по умолчанию доступны только с компьютера разработчика.
-Для физического Android-устройства настрой LAN-адрес по [инструкции Android](native.md).
+Keys live in ignored `config/imgproxy.local.yml`, mode `0600`.
+Health: `http://localhost:8082/images/health`. Metrics: `http://localhost:8083/metrics`.
+Both bind to loopback by default. Physical devices need the [Android LAN configuration](native.md).
 
 ```sh
 mise exec -- bin/rails test test/lib/image_variant_url_test.rb
 mise exec -- bin/image-test
 ```
 
-Первая команда проверяет генерацию ссылок и контракты. Вторая запускает отдельный контейнер
-на портах 8382/8383: загружает тестовый PNG через Active Storage, получает WebP 32×16,
-проверяет подпись, срок ссылки и запрет внешнего источника, затем удаляет blob и контейнер.
-Метрики остаются в `tmp/images/imgproxy.prom`; CI сохраняет их в артефактах.
-Проверки входят в `bin/ci`. Исходный PNG — синтетическая одноцветная картинка 128×64 в `test/fixtures/files`.
+The first checks URL generation/contracts. The second runs a temporary container on 8382/8383,
+uploads a synthetic 128×64 PNG through Active Storage, receives a 32×16 WebP, checks signature,
+expiry, and external-source rejection, then removes the blob and container.
+Metrics are saved in `tmp/images/imgproxy.prom` and uploaded by CI. Both checks are part of `bin/ci`.
+The PNG fixture is in `test/fixtures/files`.
 
-## Использование в экранах
+## Use in a screen
 
-У модели с `has_one_attached :photo` используй стандартный variant:
+For a model with `has_one_attached :photo`, use the standard variant API:
 
 ```erb
 <%= image_tag record.photo.variant(resize_to_limit: [800, 600], format: :webp),
-      alt: "Описание изображения", loading: "lazy" %>
+      alt: "Image description", loading: "lazy" %>
 ```
 
-Название поля и alt принадлежат конкретному экрану. Перед выдачей ссылки проверь доступ к записи.
-Форму загрузки и доменное поле добавляй вместе с реальной функцией: проверяй пользователя,
-принадлежность blob, размер и распознанный MIME; не доверяй имени файла и Content-Type клиента.
-Direct uploads требуют отдельного решения по аутентификации и ограничениям загрузки.
+The actual field and alt text belong to the feature. Authorize the record before exposing its URL.
+Add upload forms and domain fields with a real feature: validate user, blob ownership, size, and detected MIME;
+do not trust the filename or client Content-Type. Direct uploads need their own authentication and limits.
 
-Не вызывай `.processed` и не включай `preprocessed: true`: они запускают локальные Rails variants.
-Операции преобразования задавай в коде, не передавай сырой params в variant или imgproxy_options.
-`Images::VariantUrl` использует преобразователь imgproxy-rails, сохраняет `format`, отклоняет
-неизвестные Rails-преобразования и не изменяет исходный hash. Дополнительные опции — через
-`imgproxy_options`; они имеют приоритет, кроме обязательного срока ссылки.
+Do not call `.processed` or enable `preprocessed: true`; those trigger local Rails variants.
+Define transformations in code; never pass raw params to variant or `imgproxy_options`.
+`Images::VariantUrl` uses the imgproxy-rails converter, preserves `format`, rejects unknown Rails transforms,
+and leaves the input hash unchanged. Explicit `imgproxy_options` take precedence except for mandatory expiry.
 
-`image_processing`, явный адаптер `ruby-vips` и системный libvips остаются для штатного
-анализа метаданных Active Storage. Начиная с ImageProcessing 2 адаптеры больше не устанавливаются
-транзитивно; удаление `ruby-vips` ломает загрузку Rails. Преобразования по-прежнему выполняет imgproxy.
-PDF/video previews не настроены: для них требуется отдельный сценарий и, в случае imgproxy, Pro.
+`image_processing`, explicit `ruby-vips`, and system libvips remain for Active Storage metadata analysis.
+ImageProcessing 2 no longer installs adapters transitively; removing `ruby-vips` breaks Rails boot.
+imgproxy still performs image transformations. PDF/video previews are not configured;
+they need a separate feature and imgproxy Pro when using that service.
 
-## Хранение и доступ
+## Storage and access
 
-В development контейнер читает `storage/`, в production — том `starterapp_storage`, только для чтения.
-Источники imgproxy ограничены `local:///`; HTTP, metadata endpoints и произвольные внешние URL запрещены.
-Переход на S3 или несколько серверов требует общей object storage и изменения `Images::VariantUrl`.
+The container reads development `storage/` or production `starterapp_storage` read-only.
+Sources are restricted to `local:///`; HTTP, metadata endpoints, and arbitrary external URLs are rejected.
+S3 or multiple application servers require shared object storage and changes to `Images::VariantUrl`.
 
-Ссылки подписаны HMAC и действуют 15 минут; кеширование результата ограничено минутой.
-Это bearer-ссылки: знающий URL может читать изображение до истечения срока, даже после выхода.
-Не используй их для документов, которым нужен немедленный отзыв доступа; для таких файлов
-проектируй авторизованную выдачу отдельно. Не кешируй HTML с этими ссылками дольше их срока.
+HMAC-signed URLs expire after 15 minutes; result caching is limited to one minute.
+They are bearer URLs: anyone holding one can read until expiry, even after sign-out.
+Use separately authorized delivery for documents requiring immediate revocation.
+Do not cache HTML beyond its image URLs' lifetime.
 
-Ограничения сервиса: исходник до 20 MiB и 25 мегапикселей, результат до 4096 пикселей по стороне,
-один кадр анимации, два обработчика и очередь до 16 запросов. Это стартовые ограничения;
-перед изменением измеряй время обработки и память.
+Initial limits: 20 MiB / 25 megapixel source, 4096-pixel result side, one animation frame,
+two workers, and a 16-request queue. Measure time and memory before changing them.
 
-В production Kamal направляет `/images` в imgproxy на том же HTTPS-домене.
-В development Rails перенаправляет на порт 8082 того же hostname — работает для браузера и адреса Android.
-Настройка ключей и обновление accessory — в [деплое](deployment.md).
+Kamal routes `/images` to imgproxy on the same HTTPS domain.
+Development redirects to port 8082 on the request hostname, including Android hosts.
+See [deployment](deployment.md) for keys and accessory upgrades.
 
-## Диагностика
+## Diagnostics
 
-Панели imgproxy и alert доступности добавлены в [Prometheus/Grafana](observability.md).
-Смотри частоту кодов ответа, p95, `imgproxy_errors_total` и загрузку обработчиков.
-Локальный процесс — `overmind connect images`; production — `bin/kamal image-logs`.
-Сервис пишет JSON уровня error. Логи сервиса могут содержать краткоживущие подписанные URL;
-доступ к ним должен быть ограничен, перед внешней передачей URL и IP нужно удалить.
+[Prometheus/Grafana](observability.md) includes imgproxy panels and an availability alert.
+Check response-code rates, p95, `imgproxy_errors_total`, and worker utilization.
+Local logs: `overmind connect images`. Production: `bin/kamal image-logs`.
+The service writes error-level JSON. Its logs may contain short-lived signed URLs;
+restrict access and remove URLs/IPs before sharing externally.
 
-Источники: [imgproxy-rails](https://github.com/imgproxy/imgproxy-rails),
-[настройки imgproxy](https://docs.imgproxy.net/configuration/options),
-[стек Evil Martians](https://evilmartians.com/rails-startup-stack#image-processing).
+Sources: [imgproxy-rails](https://github.com/imgproxy/imgproxy-rails),
+[imgproxy options](https://docs.imgproxy.net/configuration/options),
+[Evil Martians stack](https://evilmartians.com/rails-startup-stack#image-processing).

@@ -6,16 +6,17 @@ class Operations::AgentsControllerTest < ActionDispatch::IntegrationTest
 
   setup { sign_in_as(users(:admin)) }
 
-  test "авторизованная страница подключает только отдельную сборку" do
+  test "authorized page loads AgentPrism and AnyCable" do
     get operations_agents_path
     assert_response :success
     assert_equal "no-store", response.headers.fetch("Cache-Control")
     assert_select "main#agent-prism[data-url]"
     assert_select 'script[src*="agent-prism"]', 1
-    assert_select 'script[type="importmap"]', 0
+    assert_select 'script[type="importmap"]', 1
+    assert_select 'turbo-cable-stream-source[channel="OperationsUpdatesChannel"]', 1
   end
 
-  test "JSON пагинируется и не выдаёт старые traces или исходные тексты" do
+  test "JSON is paginated and excludes expired traces and source content" do
     expired = capture_trace
     expired.update!(started_at: 8.days.ago)
     21.times { capture_trace }
@@ -31,7 +32,7 @@ class Operations::AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_nil response.parsed_body.fetch("next_cursor")
   end
 
-  test "некорректный курсор отклоняется" do
+  test "malformed cursor is rejected" do
     get operations_agents_path(format: :json, before: "bad")
     assert_response :bad_request
   end

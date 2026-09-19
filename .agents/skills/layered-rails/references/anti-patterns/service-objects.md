@@ -1,9 +1,10 @@
-# Пустая или универсальная операция
+# Empty or overly general operations
 
-Признак: Обёртка только переименовывает Model.find; универсальный manager скрывает несвязанные действия и результаты.
+Symptom: A wrapper only renames Model.find, or a generic manager hides unrelated actions and results.
 
-Исправление: Оставь простой Rails вызов либо выдели один доменный use case рядом с моделью. Не выноси из модели инварианты ради искусственной анемичной архитектуры.
+Correction: Keep the simple Rails call or extract one domain use case next to its model. Do not remove model invariants to impose an anemic architecture.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/models/user.rb](../../../../../app/models/user.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/models/user.rb](../../../../../app/models/user.rb), [docs/architecture.md](../../../../../docs/architecture.md).

@@ -1,3 +1,4 @@
 [tools]
 ruby = "4.0.7"
 node = "24.21.0"
+"aqua:grafana/alloy" = "1.19.2"

@@ -1,77 +1,75 @@
-# Инструменты разработки
+# Developer tools
 
-`mise exec -- bin/setup --skip-server` устанавливает gems, npm-пакеты и pre-commit
-Lefthook в этом репозитории. Версии Ruby и Node.js закреплены в `mise.toml`,
-Node.js также указан в `package.json` для npm и GitHub Actions.
-Используется Node.js 24 LTS. Docker, `mise.toml` и `package.json` должны задавать одну версию;
-переход на следующую LTS выполняется согласованно. Dependabot обновляет Docker Node в пределах
-выбранной major-ветки. [Статус релизов Node.js](https://nodejs.org/en/about/previous-releases).
-Node.js нужен Herb и сборке закрытого просмотрщика AgentPrism. Продуктовые экраны используют importmap.
-Команды просмотра AI traces и сборки AgentPrism — в [agents.md](agents.md#agentprism).
+`mise exec -- bin/setup --skip-server` installs gems, npm packages, and this repository's Lefthook pre-commit hook.
+Ruby and Node versions are pinned in `mise.toml`; `package.json` also pins Node for npm and GitHub Actions.
+Docker, mise, and npm must agree on Node 24 LTS. Upgrade to the next LTS together;
+Dependabot keeps the Docker image within the selected major.
+[Node release schedule](https://nodejs.org/en/about/previous-releases).
 
-## Редактор
+Node runs Herb and builds the isolated AgentPrism viewer. Product pages use importmap.
+See [AgentPrism commands](agents.md#agentprism).
 
-Для VS Code и Cursor список расширений находится в `.vscode/extensions.json`:
-Ruby LSP, Herb, Tailwind CSS IntelliSense и EditorConfig. Установи рекомендации workspace
-через панель Extensions. Файлы проекта задают настройки; сами расширения автоматически не устанавливаются.
+## Editor
 
-- Ruby LSP использует Ruby из mise, RuboCop из bundle и Rails add-on для моделей, маршрутов и тестов.
-  Для Rails add-on нужна доступная development-БД. Ruby форматируется при сохранении.
-- Herb проверяет HTML/ERB с учётом Action View. Общие правила редактора и CLI — `.herb.yml`.
-  Форматирование и исправления ERB выполняются явно; сохранение файла их не запускает.
-- `.editorconfig` задаёт кодировку, переводы строк и отступы.
+`.vscode/extensions.json` recommends Ruby LSP, Herb, Tailwind CSS IntelliSense, and EditorConfig
+for VS Code and Cursor. Install workspace recommendations through Extensions;
+repository settings do not install extensions automatically.
 
-В другом LSP-редакторе укажи корень workspace и команды:
+- Ruby LSP uses mise Ruby, bundled RuboCop, and the Rails add-on for models, routes, and tests.
+  The add-on needs a reachable development database. Ruby formats on save.
+- Herb understands HTML/ERB and Action View. Editor and CLI share `.herb.yml`.
+  Run ERB formatting and fixes explicitly; saving does not rewrite templates.
+- `.editorconfig` defines encoding, line endings, and indentation.
+
+Other LSP editors can run these commands from the workspace root over stdio:
 
 ```sh
 mise exec -- bin/ruby-lsp
 mise exec -- bin/herb-language-server
 ```
 
-Обе команды работают по stdio. Ruby LSP использует `Gemfile.lock`, Herb CLI/LSP —
-`package-lock.json`. Расширение Herb для VS Code поставляет собственную версию сервера;
-перед коммитом результат проверяет закреплённый CLI.
+Ruby LSP uses `Gemfile.lock`; Herb CLI/LSP uses `package-lock.json`.
+The VS Code Herb extension bundles its own server. The pinned CLI verifies results before commit.
 
-## Проверки и исправления
+## Checks and fixes
 
-| Задача | Команда из корня проекта |
+| Task | Command from the project root |
 | --- | --- |
-| Ruby и Ruby-примеры в README/docs | `mise exec -- bin/rubocop` |
-| Безопасные исправления Ruby | `mise exec -- bin/rubocop -a путь.rb` |
-| HTML/ERB, включая Turbo Streams | `mise exec -- bin/erb-check` |
-| Проверка одного шаблона | `mise exec -- bin/erb-check app/views/accounts/show.html.erb` |
-| Форматирование шаблона | `mise exec -- bin/erb-format app/views/accounts/show.html.erb` |
-| Проверка форматирования без записи | `mise exec -- bin/erb-format --check app/views/accounts/show.html.erb` |
-| Полная проверка проекта | `mise exec -- bin/ci` |
+| Ruby and Ruby examples in README/docs | `mise exec -- bin/rubocop` |
+| Safe Ruby corrections | `mise exec -- bin/rubocop -a path.rb` |
+| HTML/ERB, including Turbo Streams | `mise exec -- bin/erb-check` |
+| One template | `mise exec -- bin/erb-check app/views/accounts/show.html.erb` |
+| Format a template | `mise exec -- bin/erb-format app/views/accounts/show.html.erb` |
+| Check formatting without writing | `mise exec -- bin/erb-format --check app/views/accounts/show.html.erb` |
+| Full project check | `mise exec -- bin/ci` |
 
-Выбор тестов, TestProf, k6 и разбор нестабильных сценариев — в [тестировании](testing.md).
+See [testing](testing.md) for test selection, TestProf, k6, and flaky-test diagnosis.
+Herb Formatter is experimental: review its diff and run the affected screen test.
+Formatting does not block CI; linter errors and warnings do.
 
-Herb Formatter пока экспериментальный: после применения проверь diff и относящийся к экрану тест.
-Форматирование не блокирует CI; ошибки и предупреждения линтера блокируют.
-Ruby-блоки в Markdown помечай `ruby`; shell-команды — `sh`. RuboCop проверяет синтаксис
-и стиль примеров, но не исполняет их. Архивы, зависимости и skills с учебными антипаттернами
-исключены из RuboCop; структуру skills проверяет `bin/skills check`.
+Mark Ruby examples as `ruby` and shell examples as `sh`. RuboCop checks syntax and style,
+not execution. Archives, dependencies, and skills containing teaching counterexamples are excluded;
+`bin/skills check` validates skill structure.
 
-RuboCop включает Rails Omakase, `rubocop-thread_safety` и `rubocop-md`.
-[RuboCop Gradual](https://github.com/skryukov/rubocop-gradual) нужен при постепенном устранении
-накопленных нарушений. Сейчас проверяется весь код без baseline, поэтому Gradual не установлен.
+RuboCop includes Rails Omakase, `rubocop-thread_safety`, and `rubocop-md`.
+[RuboCop Gradual](https://github.com/skryukov/rubocop-gradual) is useful for an existing backlog.
+This starter checks all code without a baseline, so Gradual is not installed.
 
-## Git-хук и CI
+## Git hook and CI
 
-Перед коммитом Lefthook выбирает проверки по изменённым файлам: RuboCop, Herb, skills
-и Native contracts. Линтеры проверяют рабочие файлы целиком, ничего не исправляют
-и не добавляют в индекс. Для частично подготовленного коммита учитывай, что проверяется
-также содержимое вне staged hunks. БД для этих проверок не нужна.
+Lefthook selects RuboCop, Herb, skills, and Native checks by changed files.
+Linters inspect entire working files, do not fix them, and do not stage changes.
+For partial commits, remember that unstaged content is also checked. These hooks do not need a database.
 
-После изменения `lefthook.yml` выполни `mise exec -- bin/lefthook install`.
-Ручной запуск перед коммитом: `mise exec -- bin/lefthook run pre-commit`.
-Хук запускает закреплённые инструменты через mise; `mise` должен быть в PATH Git-клиента.
-Глобальные Git/SSH и hooks других репозиториев не меняются.
+After editing `lefthook.yml`, run `mise exec -- bin/lefthook install`.
+Run hooks manually with `mise exec -- bin/lefthook run pre-commit`.
+Hooks invoke pinned tools through mise; the Git client must have `mise` in PATH.
+Global Git/SSH and other repositories' hooks are unchanged.
 
-GitHub CI устанавливает npm-зависимости через `npm ci` и повторяет проверки через `bin/ci`,
-включая `npm audit`. `.npmrc` запрещает install scripts. Dependabot обновляет Herb одной группой;
-при обновлении согласуй версии npm-пакетов, gem `herb` и `.herb.yml`.
+GitHub CI uses `npm ci` and `bin/ci`, including `npm audit`.
+`.npmrc` disables install scripts. Dependabot updates Herb as a group;
+keep npm packages, gem `herb`, and `.herb.yml` compatible.
 
-Источники: [стек Evil Martians](https://evilmartians.com/rails-startup-stack),
+Sources: [Evil Martians stack](https://evilmartians.com/rails-startup-stack),
 [Ruby LSP](https://shopify.github.io/ruby-lsp/), [Herb](https://herb-tools.dev/configuration),
 [Lefthook](https://lefthook.dev/configuration/lefthook/).

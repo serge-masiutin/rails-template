@@ -1,10 +1,11 @@
-<header class="admin-navigation">
-  <a class="admin-navigation__brand" href="<%= main_app.admin_root_path %>" data-turbo="false">StarterApp <span>Админка</span></a>
-  <nav aria-label="Администрирование">
-    <%= link_to "Обзор", main_app.admin_root_path, aria: { current: request.path == main_app.admin_root_path ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "Mission Control", main_app.mission_control_jobs_path, aria: { current: request.path.start_with?(main_app.mission_control_jobs_path) ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "AgentPrism", main_app.operations_agents_path, aria: { current: request.path == main_app.operations_agents_path ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "Метрики и логи", main_app.admin_observability_path, aria: { current: request.path == main_app.admin_observability_path ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "Приложение", main_app.root_path, data: { turbo: false } %>
+<aside class="admin-navigation">
+  <%= link_to main_app.admin_root_path, class: "admin-navigation__brand", data: { turbo: false } do %>
+    <span class="admin-navigation__mark" aria-hidden="true"><%= t("app.name").first %></span><%= t("app.name") %>
+  <% end %>
+  <nav aria-label="<%= t("admin.navigation.label") %>">
+    <% [[t("admin.navigation.overview"), main_app.admin_root_path], ["Mission Control", main_app.mission_control_jobs_path], ["AgentPrism", main_app.operations_agents_path], [t("admin.navigation.observability"), main_app.admin_observability_path]].each do |label, path| %>
+      <%= link_to label, path, aria: { current: (path == main_app.admin_root_path ? request.path == path : request.path.start_with?(path)) ? "page" : nil }, data: { turbo: false } %>
+    <% end %>
+    <%= link_to t("admin.navigation.app"), main_app.root_path, class: "admin-navigation__app", data: { turbo: false } %>
   </nav>
-</header>
+</aside>

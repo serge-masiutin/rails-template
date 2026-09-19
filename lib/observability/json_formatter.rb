@@ -1,6 +1,6 @@
 module Observability
   class JsonFormatter < SemanticLogger::Formatters::Json
-    # Эти поля могут содержать произвольный пользовательский текст и секреты.
+    # These fields may contain arbitrary user content and secrets.
     OMITTED_FIELDS = %w[params headers request response path location ip args arguments mail to from cc bcc subject sql binds exception exception_object exception_message].freeze
 
     def payload
@@ -14,7 +14,7 @@ module Observability
 
     def message
       if log.exception
-        hash[:message] = "Ошибка #{log.exception.class.name}"
+        hash[:message] = "Error #{log.exception.class.name}"
       else
         super
       end

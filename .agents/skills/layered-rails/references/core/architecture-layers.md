@@ -1,10 +1,10 @@
-# Слои StarterApp
+# Application layers
 
-- Контроллеры и каналы принимают внешние данные, проверяют доступ и выбирают ответ; jobs принимают сериализованные аргументы и заново загружают записи.
-- Модель владеет состоянием и инвариантами. Связанную операцию размещай в её namespace, когда появился отдельный use case; простой CRUD оставляй в модели/контроллере.
-- ERB и ViewComponent формируют общий HTML веба и Android; Stimulus управляет локальным взаимодействием, Kotlin — нативной навигацией и возможностями устройства.
-- Конфигурация, HTTP-транспорт, хранилище и telemetry имеют собственные явные границы. Домен не получает request, params, cookies или скрытый Current.user.
-- Не проводи данные через пустую цепочку обёрток. Каждый выделенный объект должен иметь свой контракт и причину изменения.
-- Проверяй направление зависимости по реальным вызовам, а не названию каталога. Исход проверки: конкретное нарушение, потребители и минимальная правка.
+- Controllers/channels accept external data, authorize and select responses. Jobs accept serialized arguments and reload records.
+- Models own state and invariants. Put a distinct related use case in the model namespace; keep simple CRUD conventional.
+- ERB/ViewComponent renders shared web/Android HTML; Stimulus owns local interaction and Kotlin native navigation/device capabilities.
+- Configuration, transport, storage and telemetry have explicit boundaries. Domain interfaces do not accept requests, params, cookies or hidden Current.user.
+- Do not pass data through empty wrappers. Each extracted object needs a contract and a reason to change.
+- Inspect dependency direction through actual calls, not directory names. Report the violation, consumers and smallest fix.
 
-Источники поведения: [docs/architecture.md](../../../../../docs/architecture.md), [app/models/user.rb](../../../../../app/models/user.rb), [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb).
+Behavior sources: [docs/architecture.md](../../../../../docs/architecture.md), [app/models/user.rb](../../../../../app/models/user.rb), [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb).

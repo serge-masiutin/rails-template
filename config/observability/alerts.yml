@@ -6,67 +6,67 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Не удалось сохранить traces Active Agent"
+          summary: "Could not store Active Agent traces"
       - alert: StarterAppJobMetricsUnavailable
         expr: up{job="starterapp_jobs"} == 0
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "Процесс jobs не отдаёт метрики"
+          summary: "The jobs process is not exposing metrics"
       - alert: StarterAppImagesUnavailable
         expr: up{job="imgproxy"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "imgproxy не отдаёт метрики"
+          summary: "imgproxy is not exposing metrics"
       - alert: StarterAppRealtimeUnavailable
         expr: up{job="anycable"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "AnyCable не отдаёт метрики"
+          summary: "AnyCable is not exposing metrics"
       - alert: StarterAppRealtimeRpcErrors
         expr: sum(rate(anycable_go_rpc_error_total[5m])) > 0
         for: 2m
         labels:
           severity: warning
         annotations:
-          summary: "AnyCable получает ошибки от Rails RPC"
+          summary: "AnyCable is receiving Rails RPC errors"
       - alert: StarterAppUnavailable
         expr: up{job="starterapp"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "StarterApp не отдаёт метрики"
+          summary: "StarterApp is not exposing metrics"
       - alert: StarterAppWorkerMissing
         expr: starterapp_queue_processes{kind=~"worker|dispatcher"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "Нет активного процесса очереди {{ $labels.kind }}"
+          summary: "No active queue process {{ $labels.kind }}"
       - alert: StarterAppFailedJobs
         expr: starterapp_queue_jobs{state="failed"} > 0
         for: 1m
         labels:
           severity: warning
         annotations:
-          summary: "В очереди есть упавшие задания"
+          summary: "The queue contains failed jobs"
       - alert: StarterAppQueueDelayed
         expr: starterapp_queue_oldest_ready_age_seconds > 60
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Очередь ждёт обработки больше минуты"
+          summary: "The oldest Ready job has been waiting for over a minute"
       - alert: StarterAppHttpErrors
         expr: sum(rate(rails_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(rails_requests_total[5m])), 0.001) > 0.05
         for: 5m
         labels:
           severity: warning
         annotations:
-          summary: "Доля HTTP 5xx превышает 5%"
+          summary: "HTTP 5xx responses exceed 5%"

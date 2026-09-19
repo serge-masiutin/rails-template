@@ -7,7 +7,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
   setup { AgentTrace.delete_all }
   teardown { AgentTrace.delete_all }
 
-  test "сохраняет дерево SDK и удаляет произвольные тексты во всех узлах" do
+  test "preserves the SDK tree and strips arbitrary content from every node" do
     document = AgentTrace::Document.new(trace_payload).attributes.fetch(:document)
     assert_equal 3, document.dig(:traceRecord, :spansCount)
     root = document.fetch(:spans).first
@@ -21,7 +21,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
     refute document.fetch(:traceRecord).key?(:totalCost)
   end
 
-  test "ошибочные и слишком большие графы не превращаются в пустые traces" do
+  test "invalid or oversized graphs do not become empty traces" do
     invalid = []
     invalid << trace_payload.tap { |trace| trace.fetch("spans").last["parent_span_id"] = "missing" }
     invalid << trace_payload.tap { |trace| trace.fetch("spans") << trace.fetch("spans").first.dup }
@@ -32,7 +32,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
     invalid.each { |trace| assert_raises(AgentTrace::Document::InvalidTrace) { AgentTrace::Document.new(trace).attributes } }
   end
 
-  test "очистка удаляет только traces старше семи дней" do
+  test "pruning removes only traces older than seven days" do
     fresh = capture_trace
     expired = capture_trace
     expired.update!(started_at: 8.days.ago)
@@ -41,7 +41,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
     refute AgentTrace.exists?(expired.id)
   end
 
-  test "сбой записи наблюдаем и не повторяет генерацию" do
+  test "persistence failure is observable and does not repeat generation" do
     previous = Yabeda.starterapp.agent_trace_failures.get(stage: "storage") || 0
     payload = trace_payload
     AgentTrace::Capture.call(payload, {})

@@ -1,10 +1,10 @@
-# Проверка callbacks
+# Review callbacks
 
-1. Найди callbacks, их условия и вызываемые методы; проследи вложенные save/destroy, доставки и HTTP.
-2. Определи инвариант записи и атомарный use case. Сохрани необходимую нормализацию; сделай сетевые эффекты явными.
-3. Проверь commit, rollback, отказ БД и момент enqueue. Учитывай отдельные primary/queue базы и после-коммитный разрыв.
-4. Не меняй callbacks глобально и не отключай Isolator; вынеси только доказанно неподходящую ответственность.
+1. Trace callbacks, conditions and nested save/destroy, delivery and HTTP calls.
+2. Identify record invariants and the atomic use case. Retain necessary normalization and make network effects explicit.
+3. Check commit, rollback, database failure and enqueue timing. Account for separate primary/queue databases and the post-commit gap.
+4. Do not globally change callbacks or disable Isolator. Extract only a demonstrated misplaced responsibility.
 
-Результат: конкретная цепочка вызовов и проверенный контракт после изменения, без произвольных баллов качества.
+Report the actual call chain and verified resulting contract, without arbitrary quality scores.
 
-Источники поведения: [app/models/user.rb](../../../../app/models/user.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb), [test/lib/transaction_safety_test.rb](../../../../test/lib/transaction_safety_test.rb).
+Behavior sources: [app/models/user.rb](../../../../app/models/user.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb), [test/lib/transaction_safety_test.rb](../../../../test/lib/transaction_safety_test.rb).

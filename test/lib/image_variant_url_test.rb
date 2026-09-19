@@ -8,7 +8,7 @@ class ImageVariantUrlTest < ActiveSupport::TestCase
 
   teardown { @blob.purge }
 
-  test "обычный variant создаёт подписанную ссылку с форматом и сроком без локальной обработки" do
+  test "standard variant creates a signed expiring URL with format and no local processing" do
     freeze_time do
       variant = @blob.variant(resize_to_limit: [ 32, 32 ], format: :webp, imgproxy_options: { quality: 75 })
       original = variant.variation.transformations.deep_dup
@@ -24,16 +24,16 @@ class ImageVariantUrlTest < ActiveSupport::TestCase
     end
   end
 
-  test "неизвестное преобразование отклоняется вместо молчаливого пропуска" do
+  test "unknown transformations raise rather than being skipped silently" do
     assert_raises(ArgumentError) { Images::VariantUrl.call(@blob.variant(unknown_resize: [ 10, 10 ])) }
   end
 
-  test "явный формат imgproxy_options имеет приоритет над стандартным форматом Rails" do
+  test "explicit imgproxy_options format overrides the Rails default" do
     variant = @blob.variant(resize_to_limit: [ 32, 32 ], imgproxy_options: { format: :webp })
     assert Images::VariantUrl.call(variant).end_with?(".webp")
   end
 
-  test "оригинал использует штатный proxy маршрут с ограниченным сроком" do
+  test "original uses the standard proxy route with bounded expiry" do
     path = Rails.application.routes.url_helpers.polymorphic_url(@blob, only_path: true)
     assert_match %r{\A/rails/active_storage/blobs/proxy/}, path
     token = path.split("/")[-2]

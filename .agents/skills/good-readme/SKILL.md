@@ -1,37 +1,33 @@
 ---
 name: good-readme
-description: "Обновлять README и документацию StarterApp вместе с кодом, удалять устаревшее и сохранять один источник для каждой темы."
+description: "Maintain concise, reproducible README and documentation with one authoritative source per topic."
 metadata:
   upstream: good-readme
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
-# Документация StarterApp
+# good-readme
 
-## Задача
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-Помоги читателю запустить, изменить или сопровождать проект по текущему коду.
-Прочитай AGENTS.md, skill `clear-writing`, затронутые документы и их источники:
-конфиги, команды, тесты, маршруты и сборки.
+## Working contract
 
-## Работа с документами
+- Help the reader run, change or operate the current project. Read `clear-writing`, affected docs and their source configuration, commands, tests, routes and builds.
+- Find the existing guide and incoming links with `rg` before adding documentation.
+- Update docs with each behavior, command or contract change. Create a file only for a distinct recurring reader task; otherwise use a section or link.
+- Keep README to purpose, startup, checks and navigation. Put details in the relevant guide and link manifests instead of duplicating version lists.
+- Remove stale instructions and duplication. Update incoming links when moving or deleting a file; retain history only for a supported contract or a current decision.
+- Distinguish development, CI and production. Preserve prerequisites, side effects and limits.
+- Put one-off validation results in the PR or a short dated `intent-log` entry, not a new report per step.
+- Verify paths, links, ENV names and commands against code. Run changed commands or mark them unverified; ensure the reader can find the action and expected result.
 
-- Сначала найди существующую инструкцию и все ссылки на неё через `rg`.
-- Обновляй документацию в том же изменении, что поведение, команда или контракт.
-- Новый файл нужен только отдельной повторяющейся задаче читателя. Если достаточно раздела или ссылки — используй их.
-- README оставляй точкой входа: назначение, запуск, проверки, ссылки. Подробности храни в профильном документе.
-- У каждой темы один основной источник. Ссылайся на manifest/config вместо копирования перечня версий.
-- Удаляй неверные инструкции и дубли. При удалении или переносе файла обновляй входящие ссылки.
-- Архивируй только то, что нужно для старого контракта или объясняет действующее решение.
-- Разделяй development, CI и production. Сохраняй предпосылки команд, последствия и нужные ограничения.
-- Разовые результаты проверок фиксируй в PR или краткой датированной записи `intent-log`; не создавай отдельный отчёт для каждого шага.
+## Completion
 
-## Готовность
-
-Проверь пути, ссылки, имена ENV и команды по исходникам. Изменённую команду выполни
-либо пометь непроверенной. Проверь, что читатель найдёт нужное действие и его результат.
-В ответе назови изменения и выполненные проверки; не дублируй документацию целиком.
-
-Адаптация [good-readme Evil Martians](https://evilmartians.com/agent-skills/good-readme/SKILL.md).
-Оригинал и SHA-256 — в `vendor/agent-skills/evilmartians/good-readme` и `config/agent_skills.json`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/good-readme/SKILL.md).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/good-readme`.

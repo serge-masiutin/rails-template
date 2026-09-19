@@ -1,32 +1,34 @@
 ---
 name: hotwire-rails-controllers
-description: "Писать HTTP-контроллеры StarterApp с HTML, Turbo Frames/Streams, аутентификацией и Native."
+description: "Implement authenticated HTML, Turbo Frame/Stream and Native controllers."
 metadata:
   upstream: inertia-rails-controllers
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
 # hotwire-rails-controllers
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Прочитай `ApplicationController`, concern Authentication и `docs/hotwire.md`.
-- Используй `params.expect` для обязательной формы. Неверные параметры дают 400; неверные пользовательские значения — 422 с повторным рендером формы.
-- После успешного POST/PATCH/DELETE возвращай redirect со статусом 303. У redirect должен быть известный внутренний адрес.
-- Ответ на Turbo Frame содержит frame с тем же id. Turbo Streams используют стабильные dom_id и явные targets.
-- Проверяй доступ через Action Policy и `authorize!` до мутации или выдачи данных. `verify_authorized` обязателен по умолчанию; исключение требует отдельного проверенного механизма доступа, как пароль/токен в sessions/passwords. User-Agent Native изменяет представление, а не права.
-- Для коллекции применяй `authorized_scope` и `verify_authorized_scoped`; одно только `authorize!` не фильтрует строки. Нужны тесты чужих записей.
-- Прикладное уведомление вызывай через delivery; не рассыпай прямые вызовы mailer по контроллерам.
-- Для Native сохраняй cookie/CSRF-механизм Rails; не вводи токены в URL.
-- Тесты покрывают гостя, вошедшего пользователя, malformed input и успешный/неуспешный ответ; существующие статусы меняй осознанно.
+- Read `ApplicationController`, `Authentication` and `docs/hotwire.md`.
+- Use `params.expect` for required form structure. Malformed parameters return 400; invalid values re-render the form with 422.
+- Successful POST/PATCH/DELETE requests redirect to a known internal destination with 303.
+- Frame responses retain the requested frame ID; Streams use stable `dom_id` and explicit targets.
+- Authorize through Action Policy and `authorize!` before mutation or disclosure. Keep `verify_authorized` by default; exceptions require a separately tested access boundary, such as password/token checks in sessions/passwords.
+- Collections need `authorized_scope` and `verify_authorized_scoped`; `authorize!` alone does not filter rows. Test other users' records.
+- Send application notifications through deliveries instead of scattered mailer calls.
+- Keep Rails cookies/CSRF for Native; User-Agent changes presentation, not access. Never put tokens in URLs.
+- Cover guests, authenticated users, malformed input and success/failure responses; change existing statuses deliberately.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/inertia-rails-controllers.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/inertia-rails-controllers`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/inertia-rails-controllers.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/inertia-rails-controllers`.

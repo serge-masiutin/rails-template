@@ -14,7 +14,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
 
     follow_redirect!
-    assert_notice "инструкция отправлена"
+    assert_notice "reset instructions have been sent"
   end
 
   test "create for an unknown user redirects but sends no mail" do
@@ -23,7 +23,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
 
     follow_redirect!
-    assert_notice "инструкция отправлена"
+    assert_notice "reset instructions have been sent"
   end
 
   test "edit" do
@@ -36,7 +36,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_password_path
 
     follow_redirect!
-    assert_notice "Ссылка недействительна"
+    assert_notice "This link is invalid"
   end
 
   test "update" do
@@ -46,7 +46,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     end
 
     follow_redirect!
-    assert_notice "Пароль изменён"
+    assert_notice "Password updated"
   end
 
   test "update with non matching passwords" do
@@ -63,7 +63,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]"
   end
 
-  test "сброс пароля отзывает сессии всех устройств и ставит отключение в очередь" do
+  test "password reset revokes all device sessions and enqueues disconnect" do
     session_ids = 2.times.map { @user.sessions.create!.id }
     assert_enqueued_with(job: DisconnectSessionsJob, args: [ session_ids ]) do
       put password_path(@user.password_reset_token), params: { password: "new-password-2026", password_confirmation: "new-password-2026" }

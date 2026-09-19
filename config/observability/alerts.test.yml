@@ -2,7 +2,7 @@ rule_files:
   - /etc/prometheus/alerts.yml
 evaluation_interval: 1m
 tests:
-  - name: AnyCable недоступен дольше двух минут
+  - name: AnyCable unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="anycable",instance="test"}'
@@ -19,8 +19,8 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: AnyCable не отдаёт метрики
-  - name: Короткий сбой не вызывает тревогу, устойчивый вызывает
+              summary: AnyCable is not exposing metrics
+  - name: Brief failures do not alert; sustained failures do
     interval: 1m
     input_series:
       - series: 'up{job="starterapp",instance="test"}'
@@ -37,8 +37,8 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: StarterApp не отдаёт метрики
-  - name: Worker пропал, dispatcher продолжает работать
+              summary: StarterApp is not exposing metrics
+  - name: Worker missing while dispatcher remains active
     interval: 1m
     input_series:
       - series: 'starterapp_queue_processes{kind="worker"}'
@@ -53,8 +53,8 @@ tests:
               kind: worker
               severity: critical
             exp_annotations:
-              summary: Нет активного процесса очереди worker
-  - name: imgproxy недоступен дольше двух минут
+              summary: No active queue process worker
+  - name: imgproxy unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="imgproxy",instance="test"}'
@@ -71,8 +71,8 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: imgproxy не отдаёт метрики
-  - name: Метрики jobs недоступны дольше двух минут
+              summary: imgproxy is not exposing metrics
+  - name: Job metrics unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="starterapp_jobs",instance="test"}'
@@ -89,8 +89,8 @@ tests:
               instance: test
               severity: warning
             exp_annotations:
-              summary: Процесс jobs не отдаёт метрики
-  - name: Потеря traces видна в alert
+              summary: The jobs process is not exposing metrics
+  - name: Trace loss triggers an alert
     interval: 1m
     input_series:
       - series: 'starterapp_agent_trace_failures{stage="storage"}'
@@ -105,4 +105,4 @@ tests:
           - exp_labels:
               severity: warning
             exp_annotations:
-              summary: Не удалось сохранить traces Active Agent
+              summary: Could not store Active Agent traces

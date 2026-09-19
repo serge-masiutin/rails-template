@@ -1,9 +1,10 @@
-# Неправильная граница задания
+# Incorrect job boundaries
 
-Признак: Job содержит доменные правила, зависит от Current.user, получает секреты аргументами либо скрывает ошибку.
+Symptom: A job contains domain rules, depends on Current.user, takes secrets as arguments or hides failures.
 
-Исправление: Сохрани явную тонкую ApplicationJob с ID и политикой ошибок. Короткое делегирование нормально: job владеет очередью, commit, лог-контекстом и retry. Не заменяй его скрытой генерацией методов модели.
+Correction: Keep an explicit thin ApplicationJob with IDs and an error policy. Short delegation is useful: the job owns queue, commit, log context and retries. Do not replace it with generated model methods.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/jobs/disconnect_sessions_job.rb](../../../../../app/jobs/disconnect_sessions_job.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/jobs/disconnect_sessions_job.rb](../../../../../app/jobs/disconnect_sessions_job.rb), [docs/architecture.md](../../../../../docs/architecture.md).

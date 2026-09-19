@@ -1,9 +1,10 @@
-# Тест внутренней механики
+# Tests of internal mechanics
 
-Признак: Тест копирует реализацию, проверяет private methods или мокает все доменные взаимодействия.
+Symptom: A test duplicates implementation, checks private methods or mocks every domain interaction.
 
-Исправление: Зафиксируй наблюдаемый контракт и ошибки. Используй Minitest/fixtures, WebMock на HTTP-границе и реальную БД для транзакций; Cuprite — для пользовательского поведения.
+Correction: Specify observable behavior and failures. Use Minitest/fixtures, WebMock at HTTP boundaries, real database transactions and Cuprite for user journeys.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [docs/testing.md](../../../../../docs/testing.md), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [docs/testing.md](../../../../../docs/testing.md), [docs/architecture.md](../../../../../docs/architecture.md).

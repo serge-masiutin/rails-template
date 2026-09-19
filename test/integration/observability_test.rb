@@ -11,7 +11,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     Rails.application.config.x.operations = @operations
   end
 
-  test "диагностика и панель закрыты без доступа оператора" do
+  test "diagnostics and panel require operator access" do
     %w[/ops/health /ops/metrics].each do |path|
       get path
       assert_response :unauthorized
@@ -20,7 +20,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "панель показывает Solid Queue после аутентификации" do
+  test "panel shows Solid Queue after authentication" do
     sign_in_as(users(:admin))
     get "/ops/jobs"
     follow_redirect! while response.redirect?
@@ -29,13 +29,13 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     assert_equal "no-store", response.headers["Cache-Control"]
   end
 
-  test "не настроенный доступ закрыт" do
+  test "unconfigured access is denied" do
     Rails.application.config.x.operations = OperationsConfig.new(username: nil, password: nil, metrics_token: nil)
     get "/ops/metrics", headers: { "Authorization" => @authorization }
     assert_response :unauthorized
   end
 
-  test "токен сборщика не открывает панель и health" do
+  test "collector token cannot open the panel or health endpoint" do
     %w[/ops/health].each do |path|
       get path, headers: { "Authorization" => "Bearer #{"b" * 32}" }
       assert_response :unauthorized
@@ -44,7 +44,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
-  test "отсутствующий или устаревший worker делает диагностику нездоровой" do
+  test "missing or stale worker makes health checks fail" do
     SolidQueue::Process.create!(kind: "Worker", name: "stale", last_heartbeat_at: 10.minutes.ago, pid: 1, hostname: "test")
     get "/ops/health", headers: { "Authorization" => @authorization }
     assert_response :service_unavailable
@@ -52,7 +52,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     assert_equal 0, response.parsed_body.dig("queue", "processes", "worker")
   end
 
-  test "диагностика видит heartbeat и очередь в PostgreSQL" do
+  test "diagnostics read heartbeat and queue state from PostgreSQL" do
     %w[Worker Dispatcher].each do |kind|
       SolidQueue::Process.create!(kind: kind, name: kind, last_heartbeat_at: Time.current, pid: 1, hostname: "test")
     end
@@ -62,7 +62,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     assert_equal 1, response.parsed_body.dig("queue", "processes", "worker")
   end
 
-  test "Yabeda экспортирует HTTP и общую очередь" do
+  test "Yabeda exports HTTP and shared queue metrics" do
     get new_session_path
     get "/ops/metrics", headers: { "Authorization" => "Bearer #{"b" * 32}" }
     assert_response :success
@@ -73,7 +73,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "email_address"
   end
 
-  test "логи сохраняют корреляцию и не раскрывают форму, token и аргументы письма" do
+  test "logs preserve correlation without exposing form values tokens or email arguments" do
     io = StringIO.new
     appender = SemanticLogger.add_appender(io: io, formatter: Observability::JsonFormatter.new)
     user = users(:one)

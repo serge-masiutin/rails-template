@@ -1,39 +1,55 @@
-# Новый проект из шаблона
+# Create an app from the template
 
-[Создай репозиторий через GitHub Template](https://github.com/serge-masiutin/rails-template/generate), затем клонируй его.
-GitHub создаёт отдельную историю; обновления шаблона не применяются к проекту автоматически.
+[Create a repository on GitHub](https://github.com/serge-masiutin/rails-template/generate), then clone it.
+GitHub creates an independent history. Future template changes are not applied automatically.
 
-## Имя и Android ID
+## App name and Android ID
 
-Из чистого checkout, до `bin/setup` и первого запуска Rails:
+From a clean checkout, before `bin/setup` or the first Rails boot:
 
 ```sh
 mise exec -- bin/configure --name my_app --android-id com.example.myapp --dry-run
 mise exec -- bin/configure --name my_app --android-id com.example.myapp
 ```
 
-`--name` — snake_case до 36 символов; из `my_app` получаются Ruby namespace `MyApp`,
-префикс `myapp` и базы `my_app_development` / `my_app_test` / `my_app_production`.
-`--android-id` — собственный application ID, например `com.acme.portal`; Debug добавляет `.debug`.
-Отображаемое имя по умолчанию совпадает с Ruby namespace. Тексты интерфейса можно менять после настройки.
+`--name` accepts snake_case, up to 36 characters. `my_app` produces Ruby namespace `MyApp`,
+prefix `myapp`, and databases `my_app_development`, `my_app_test`, and `my_app_production`.
+Use your own `--android-id`, such as `com.acme.portal`. Debug builds append `.debug`.
+The initial display name matches the Ruby namespace; edit UI translations after setup.
 
-Команда меняет исходники, пути Kotlin, имена классов/ресурсов, конфигурацию, метрики,
-тесты, документацию и рабочие skills. Оригиналы в vendor, шрифты, лицензии и их SHA-256 сохраняются.
-Git remotes, identity, ключи и настройки компьютера команда не меняет.
-Параметры записываются в `config/template.json`. Повтор с теми же параметрами ничего не меняет;
-переименование уже работающего приложения отклоняется: перенос БД и опубликованного Android ID требует отдельного плана.
+The command updates source files, Kotlin paths, class/resource names, configuration, metrics,
+tests, documentation, and working skills. Vendored sources, fonts, licenses, and their hashes stay intact.
+It does not change Git remotes, identity, keys, or machine settings.
 
-Проверь `git diff`, выполни `bin/setup --skip-server`, затем `bin/ci` и сохрани изменения в Git.
-GitHub CI настраивает пример, пока шаблон не персонализирован; после настройки проверяет твой проект.
+Choices are saved in `config/template.json`. Repeating the same choices is a no-op.
+Renaming an already configured app is rejected: migrating databases and a published Android ID
+requires a separate plan.
 
-## Локальное окружение и публикация
+Review `git diff`, run `bin/setup --skip-server` and `bin/ci`, then commit.
+GitHub CI configures a sample while the repository is an unconfigured template;
+after personalization it checks your app.
 
-- В `bin/setup` создаются новые локальные ключи операций, AnyCable и imgproxy. Не копируй их между проектами.
-- Для Git настрой имя/email и при необходимости `core.sshCommand` через `git config --local`.
-- Домен, SMTP, secrets и registry задаются при [деплое](deployment.md); production-значений в шаблоне нет.
-- AI отключён до выбора провайдера, модели и ключа. Продуктовые AI-функции требуют отдельных evals.
-- Перед production настрой резервные копии, проверь восстановление, SMTP и канал оповещений.
-- Android требует проверки навигации на устройстве и подписи Release своим keystore.
+## First account
 
-Если запускаешь несколько проектов одновременно, разведи локальные порты и targets Prometheus
-по [инструкции наблюдаемости](observability.md). Каждый проект должен использовать собственные БД и тома.
+After `bin/setup`, open `mise exec -- bin/rails console`:
+
+```ruby
+require "io/console"
+User.create!(email_address: "you@example.com", password: IO.console.getpass("Password (at least 12 characters): "))
+```
+
+Self-registration is not enabled. Grant the admin role with
+`mise exec -- bin/rails admin:grant EMAIL=you@example.com`, then open `/admin`.
+Development email is saved in `tmp/mail`. See the [access contract](observability.md#admin).
+
+## Local environment and release
+
+- `bin/setup` generates fresh operations, AnyCable, and imgproxy secrets. Do not copy them between apps.
+- Configure Git name/email and, if needed, `core.sshCommand` with `git config --local`.
+- Set domains, SMTP, secrets, and registry during [deployment](deployment.md). The template contains no production credentials.
+- AI stays disabled until you choose a provider, model, and key. Product AI features require their own evals.
+- Before production, configure backups, verify restoration and SMTP, and connect an alert receiver.
+- Verify Android navigation on a device and sign Release builds with your own keystore.
+
+When running multiple apps, allocate separate local ports, Prometheus targets, databases,
+and volumes. See [observability](observability.md).

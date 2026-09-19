@@ -1,7 +1,7 @@
 require "application_system_test_case"
 
 class BrowserDriverTest < ApplicationSystemTestCase
-  test "Rails передаёт настройки запуска реальному браузеру" do
+  test "Rails passes startup options to the actual browser" do
     visit new_session_path
 
     browser_options = page.driver.browser.options

@@ -1,18 +1,13 @@
-# Rails · Hotwire · Android
+# Rails Template
 
-Шаблон для веб-приложения и Android-клиента с общим Rails-интерфейсом.
-Ruby/Rails, PostgreSQL, Turbo/Stimulus, Tailwind и ViewComponent; версии закреплены в lockfiles.
+A Rails and Hotwire starter for web and Android apps. Includes authentication,
+an admin area, background jobs, AnyCable, imgproxy, and AI tooling.
+Overmind runs local processes; Kamal deploys the app; GitHub Actions runs CI.
 
-Есть вход и восстановление пароля, фоновые задачи Solid Queue, AnyCable, imgproxy,
-логи и метрики Yabeda/Prometheus/Grafana, Active Agent и закрытая панель AgentPrism.
-Локальный запуск — Overmind, деплой — Kamal, проверки — GitHub Actions.
-Внутри проекта: 30 адаптированных skills Evil Martians и `clear-writing`.
+## Create an app
 
-## Создать проект
-
-1. [Создай репозиторий из шаблона](https://github.com/serge-masiutin/rails-template/generate), выбери имя и видимость.
-2. Клонируй созданный репозиторий и перейди в его каталог.
-3. Установи Homebrew, Docker и Chrome для браузерных тестов. Запусти Docker, затем выполни:
+[Use this template](https://github.com/serge-masiutin/rails-template/generate), then clone your repository.
+On macOS, install Homebrew, Docker, and Chrome. Start Docker and run:
 
 ```sh
 brew bundle
@@ -22,49 +17,24 @@ mise exec -- bin/setup --skip-server
 mise exec -- bin/dev
 ```
 
-Замени `my_app` и Android ID на свои. Команда настройки согласованно меняет Ruby namespace,
-имена БД и сервисов, метрики, интерфейс, Kotlin package, тесты и документацию.
-Её выполняют один раз, до создания локальных данных. Контракт и `--dry-run` — [настройка шаблона](docs/template.md).
+Choose your own app name and Android ID before the first setup.
+[Create an administrator](docs/template.md#first-account).
 
-[Приложение](http://localhost:3000) · [Компоненты](http://localhost:3000/lookbook) · [Админка](http://localhost:3000/admin)
+[App](http://localhost:3000) · [Admin](http://localhost:3000/admin) ·
+[Grafana](http://localhost:3001) · [Prometheus](http://localhost:9090)
 
-Overmind запускает web, Tailwind, jobs, AnyCable, imgproxy и сборку AgentPrism.
-`Ctrl+C` останавливает процессы; `docker compose stop` — БД с сохранением данных.
-Локальные пароли и ключи создаёт `bin/setup`; они исключены из Git и Docker.
+`bin/dev` also starts Loki and Alloy for logs. Admin panels update through AnyCable;
+Prometheus collects metrics independently. The UI ships in English with Rails i18n ready for more languages.
+Run checks with `mise exec -- bin/ci`. `Ctrl+C` stops Overmind;
+[stop infrastructure containers separately](docs/observability.md#local-development).
 
-## Первый аккаунт и проверки
+## Documentation
 
-Открой `mise exec -- bin/rails console`:
+- [Template setup](docs/template.md) · [Development](docs/development.md) · [Testing](docs/testing.md)
+- [Architecture and i18n](docs/architecture.md) · [Hotwire](docs/hotwire.md) · [Android](docs/native.md)
+- [Monitoring and logs](docs/observability.md) · [Deployment](docs/deployment.md)
+- [AnyCable](docs/realtime.md) · [Images](docs/images.md) · [Active Agent and AgentPrism](docs/agents.md)
+- [Agent rules](AGENTS.md) · [Skills](docs/agent-skills.md)
 
-```ruby
-require "io/console"
-User.create!(email_address: "you@example.com", password: IO.console.getpass("Пароль (от 12 символов): "))
-```
-
-Самостоятельной регистрации нет; письма разработки сохраняются в `tmp/mail`.
-Для доступа к Mission Control, AgentPrism и диагностике выдай аккаунту роль через
-`mise exec -- bin/rails admin:grant EMAIL=you@example.com` и открой `/admin`.
-[Доступ и мониторинг](docs/observability.md#админка).
-Полная проверка при запущенной БД: `mise exec -- bin/ci`.
-Android Debug использует локальный сервер; для Release нужны HTTPS-адрес и свой keystore.
-
-## Документация
-
-- [Первоначальная настройка](docs/template.md)
-- [Редактор, линтеры и Git-хуки](docs/development.md)
-- [Тесты, профилирование и нагрузка](docs/testing.md)
-- [Архитектура и конфигурация](docs/architecture.md)
-- [Формы и навигация Hotwire](docs/hotwire.md)
-- [AnyCable](docs/realtime.md) · [Изображения](docs/images.md)
-- [Active Agent и AgentPrism](docs/agents.md)
-- [Android](docs/native.md)
-- [GitHub CI/CD и Kamal](docs/deployment.md)
-- [Логи, метрики и задачи](docs/observability.md)
-- [Skills](docs/agent-skills.md) · [Правила агента](AGENTS.md)
-
-## Происхождение и лицензия
-
-Основа следует [Rails Startup Stack Evil Martians](https://evilmartians.com/rails-startup-stack)
-и использует [их skills](https://evilmartians.com/agent-skills), адаптированные под Hotwire и Android.
-Это самостоятельный шаблон, не официальный продукт Evil Martians.
-Код шаблона — [MIT](LICENSE); сторонние материалы сохраняют [свои лицензии и авторство](THIRD_PARTY.md).
+Based on the Evil Martians [Rails Startup Stack](https://evilmartians.com/rails-startup-stack) and agent skills.
+[MIT](LICENSE) · [Third-party licenses](THIRD_PARTY.md).

@@ -1,2 +1,3 @@
-Смена пароля StarterApp: <%= edit_password_url(@user.password_reset_token) %>
-Ссылка действует 15 минут. Если вы не запрашивали смену пароля, проигнорируйте письмо.
+<%= t("passwords_mailer.reset.intro", app: t("app.name")) %>
+<%= edit_password_url(@user.password_reset_token, locale: I18n.locale) %>
+<%= t("passwords_mailer.reset.expiry") %>

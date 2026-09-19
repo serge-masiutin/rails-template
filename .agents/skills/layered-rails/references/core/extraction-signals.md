@@ -1,9 +1,9 @@
-# Когда выделять объект
+# When to extract an object
 
-- Начни с повторяющейся ответственности: правила доступа, многомодельный ввод, сложная выборка, преобразование внешнего контракта, повторяемый UI или интеграция.
-- Размер файла и число методов — повод прочитать код, а не доказательство дефекта. Найди повторение инварианта, скрытый эффект или несколько независимых причин изменения.
-- Выделяй policy для прав, query для композиции чтения, form для ввода, ViewComponent для HTML, именованную операцию рядом с моделью для use case.
-- Сохраняй сигнатуры и потребителей либо обновляй их атомарно. Не вводи базовый класс, DSL и dependency ради одного вызова.
-- Покажи до изменения публичный сценарий и тест, который должен остаться зелёным; после — изменившийся контракт и выполненную проверку.
+- Start with recurring responsibility: access rules, multi-model input, complex queries, external contract conversion, repeated UI or integration.
+- File size and method count prompt investigation; they do not prove a defect. Look for repeated invariants, hidden effects or independent reasons to change.
+- Use policies for access, queries for read composition, forms for input, ViewComponent for HTML and model-adjacent operations for use cases.
+- Preserve signatures/consumers or change them together. Do not add a base class, DSL or dependency for one call.
+- Identify the public scenario and test before changing it; report the resulting contract and validation afterward.
 
-Источники поведения: [docs/architecture.md](../../../../../docs/architecture.md), [test/integration/authentication_contract_test.rb](../../../../../test/integration/authentication_contract_test.rb).
+Behavior sources: [docs/architecture.md](../../../../../docs/architecture.md), [test/integration/authentication_contract_test.rb](../../../../../test/integration/authentication_contract_test.rb).

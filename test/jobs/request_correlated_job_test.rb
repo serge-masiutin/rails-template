@@ -3,17 +3,17 @@ require "test_helper"
 class RequestCorrelatedJobTest < ActiveSupport::TestCase
   class ProbeJob < ApplicationJob
     def perform
-      Rails.logger.info("Проверка контекста задания", payload: { request_id: Current.request_id })
+      Rails.logger.info("Job context probe", payload: { request_id: Current.request_id })
     end
   end
 
   class FailingJob < ApplicationJob
     def perform
-      raise ArgumentError, "Проверка очистки контекста"
+      raise ArgumentError, "Context cleanup probe"
     end
   end
 
-  test "HTTP контекст переживает сериализацию и очищается после выполнения" do
+  test "HTTP context survives serialization and clears after execution" do
     io = StringIO.new
     appender = SemanticLogger.add_appender(io: io, formatter: Observability::JsonFormatter.new)
     serialized = Current.set(request_id: "original-request") { ProbeJob.new.serialize }
@@ -23,7 +23,7 @@ class RequestCorrelatedJobTest < ActiveSupport::TestCase
     end
     SemanticLogger.flush
     records = io.string.lines.map { |line| JSON.parse(line) }
-    record = records.find { |entry| entry["message"] == "Проверка контекста задания" }
+    record = records.find { |entry| entry["message"] == "Job context probe" }
     assert_equal "original-request", record.dig("named_tags", "request_id")
     assert_equal serialized.fetch("job_id"), record.dig("named_tags", "job_id")
     completion = records.find { |entry| entry["metric"] == "rails.job.perform" }
@@ -32,12 +32,12 @@ class RequestCorrelatedJobTest < ActiveSupport::TestCase
     SemanticLogger.remove_appender(appender) if appender
   end
 
-  test "старые задания без request_id выполняются" do
+  test "older jobs without request_id still execute" do
     serialized = ProbeJob.new.serialize.except("request_id")
     assert_nothing_raised { ActiveJob::Base.deserialize(serialized).perform_now }
   end
 
-  test "ошибка задания не оставляет его контекст следующей задаче" do
+  test "failed jobs do not leak context into the next job" do
     job = FailingJob.new
     job.request_id = "failed-request"
     Current.set(request_id: "outer-context") do

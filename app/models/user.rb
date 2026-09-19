@@ -6,6 +6,7 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
+  after_update_commit -> { Operations::Updates.access_changed(id) }, if: :saved_change_to_admin?
 
   def reset_password(password:, password_confirmation:)
     transaction do

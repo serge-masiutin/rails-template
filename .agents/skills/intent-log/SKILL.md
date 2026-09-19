@@ -1,26 +1,34 @@
 ---
 name: intent-log
-description: "Оставлять краткую запись о значимом решении или состоянии долгой работы StarterApp для передачи контекста."
+description: "Record significant decisions and the state of sustained work for the next contributor."
 metadata:
   upstream: intent-log
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
-# Передача контекста
+# intent-log
 
-Прочитай AGENTS.md, `docs/intent-log.md` и фактические изменения.
-Для редактуры используй `clear-writing`.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-- Записывай значимые решения и состояние долгой работы; мелкая правка не требует отдельной записи.
-- Под датой укажи намерение, результат, проверки, открытые вопросы и следующий шаг — только то, что нужно продолжателю.
-- Ссылайся на основной документ с действующим решением; не копируй команды и описание стека.
-- Датируй результат проверки. Старый успешный запуск не подтверждает текущее состояние кода.
-- Сокращай повторы и промежуточные попытки; сохраняй причины решений, которые ещё влияют на проект.
-- Добавляй ссылки на PR/commit, только если они созданы. Отмечай отсутствие публикации, когда от этого зависит следующий шаг.
-- Не сохраняй переписку, секреты, личные данные и внутренние рассуждения агента.
+## Working contract
 
-Запись готова, если другой разработчик найдёт нужные файлы и поймёт, что делать дальше.
+- Read `docs/intent-log.md`, actual changes and `clear-writing`.
+- Record significant decisions and handoff state; a minor edit does not need an entry.
+- Under a date, retain only the intent, outcome, checks, open questions and next step needed by the next contributor.
+- Link the authoritative guide instead of copying commands or the stack description.
+- Date validation results. An old successful run does not validate current code.
+- Remove repetition and intermediate attempts; preserve reasons that still affect the project.
+- Link PRs/commits only after they exist. State unpublished status when it affects the next step.
+- Exclude transcripts, secrets, personal data and private reasoning.
+- The handoff is complete when another developer can locate the relevant files and continue.
 
-Адаптация [intent-log Evil Martians](https://evilmartians.com/agent-skills/intent-log.tar.gz).
-Оригинал и SHA-256 — в `vendor/agent-skills/evilmartians/intent-log` и `config/agent_skills.json`.
+## Completion
+
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/intent-log.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/intent-log`.

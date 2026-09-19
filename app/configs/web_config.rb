@@ -4,9 +4,9 @@ class WebConfig < Anyway::Config
   required :host
 
   on_load do
-    raise_validation_error("protocol: ожидается http или https") unless %w[http https].include?(protocol)
-    raise_validation_error("port: ожидается 1..65535") unless (1..65_535).cover?(port)
-    raise_validation_error("host: ожидается hostname без пути и порта") unless /\A[a-zA-Z0-9.-]+\z/.match?(host)
+    raise_validation_error("protocol: expected http or https") unless %w[http https].include?(protocol)
+    raise_validation_error("port: expected 1..65535") unless (1..65_535).cover?(port)
+    raise_validation_error("host: expected a hostname without path or port") unless /\A[a-zA-Z0-9.-]+\z/.match?(host)
   end
 
   def url_options

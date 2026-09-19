@@ -12,7 +12,7 @@ const profiles = {
   load: { http: 5, sockets: 20, duration: "30s", hold: 10000 }
 }
 if (!profiles[profile] || !baseURL || !cableURL || !__ENV.LOAD_EMAIL || !__ENV.LOAD_PASSWORD) {
-  throw new Error("Нужны LOAD_PROFILE=smoke|load, LOAD_BASE_URL, LOAD_CABLE_URL и тестовые credentials")
+  throw new Error("Set LOAD_PROFILE=smoke|load, LOAD_BASE_URL, LOAD_CABLE_URL and test credentials")
 }
 const selected = profiles[profile]
 const deliveries = new Counter("turbo_deliveries")
@@ -40,15 +40,15 @@ export const options = {
 export function setup() {
   const form = http.get(`${baseURL}/session/new`)
   const csrf = form.html().find('input[name="authenticity_token"]').attr("value")
-  if (form.status !== 200 || !csrf) fail("Форма входа или CSRF token отсутствуют")
+  if (form.status !== 200 || !csrf) fail("Sign-in form or CSRF token missing")
   const login = http.post(`${baseURL}/session`, {
     email_address: __ENV.LOAD_EMAIL, password: __ENV.LOAD_PASSWORD, authenticity_token: csrf
   }, { redirects: 0 })
-  if (login.status !== 303) fail(`Вход: ожидался 303, получен ${login.status}`)
+  if (login.status !== 303) fail(`Sign-in: expected 303, received ${login.status}`)
   const page = http.get(`${baseURL}/`)
   const stream = page.html().find('turbo-cable-stream-source[channel="UserUpdatesChannel"]').attr("signed-stream-name")
   const cookies = http.cookieJar().cookiesForURL(baseURL)
-  if (page.status !== 200 || !stream || !cookies.session_id) fail("Не получены приватная подписка и cookie сессии")
+  if (page.status !== 200 || !stream || !cookies.session_id) fail("Private subscription and session cookie missing")
   return { cookie: `session_id=${cookies.session_id[0]}`, stream }
 }
 
@@ -58,8 +58,8 @@ export function pages(session) {
       headers: { Cookie: session.cookie }, redirects: 0, tags: { page }
     })
     check(response, {
-      "страница доступна после входа": (result) => result.status === 200,
-      "страница содержит ожидаемый элемент": (result) => result.html().find(selector).size() > 0
+      "page is accessible after sign-in": (result) => result.status === 200,
+      "page contains the expected element": (result) => result.html().find(selector).size() > 0
     })
   }
   sleep(1)
@@ -101,9 +101,9 @@ export function cable(session) {
   socket.addEventListener("close", () => {
     clearTimeout(deadline)
     check(null, {
-      "соединение сохранилось до конца интервала": () => closeRequested,
-      "приватная подписка подтверждена": () => subscribed,
-      "Turbo Stream доставлен по сокету": () => received > 0
+      "connection lasts until the interval ends": () => closeRequested,
+      "private subscription is confirmed": () => subscribed,
+      "Turbo Stream is delivered through the socket": () => received > 0
     })
     sleep(1)
   })

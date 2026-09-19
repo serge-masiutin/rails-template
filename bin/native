@@ -3,19 +3,19 @@ require "json"
 require "fileutils"
 
 command = ARGV.fetch(0, "check")
-abort "Использование: bin/native [sync|check]" unless %w[sync check].include?(command)
+abort "Usage: bin/native [sync|check]" unless %w[sync check].include?(command)
 root = File.expand_path("..", __dir__)
 source = File.join(root, "public/configurations/android_v1.json")
 destination = File.join(root, "native/android/app/src/main/assets/json/android_v1.json")
 configuration = JSON.parse(File.read(source))
-raise TypeError, "settings должен быть объектом" unless configuration.fetch("settings").is_a?(Hash)
+raise TypeError, "settings must be an object" unless configuration.fetch("settings").is_a?(Hash)
 configuration.fetch("rules").each do |rule|
   rule.fetch("patterns").each { |pattern| Regexp.new(pattern) }
-  raise TypeError, "properties должен быть объектом" unless rule.fetch("properties").is_a?(Hash)
+  raise TypeError, "properties must be an object" unless rule.fetch("properties").is_a?(Hash)
 end
 if command == "sync"
   FileUtils.mkdir_p(File.dirname(destination))
   FileUtils.cp(source, destination)
 end
-abort "Bundled JSON устарел: выполните bin/native sync" unless File.binread(source) == File.binread(destination)
-puts "Native: конфигурация Android валидна и синхронизирована"
+abort "Bundled JSON is outdated: run bin/native sync" unless File.binread(source) == File.binread(destination)
+puts "Native: Android configuration is valid and synchronized"

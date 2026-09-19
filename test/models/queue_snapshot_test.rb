@@ -3,11 +3,11 @@ require "test_helper"
 class QueueSnapshotTest < ActiveSupport::TestCase
   class ProbeJob < ApplicationJob
     def perform
-      raise ArgumentError, "Проверка отказа"
+      raise ArgumentError, "Failure probe"
     end
   end
 
-  test "число SQL-запросов диагностики не растёт вместе с очередью" do
+  test "diagnostic SQL query count stays constant as the queue grows" do
     populate = ->(count) do
       SolidQueue::Job.delete_all
       count.times { SolidQueue::Job.enqueue(ProbeJob.new) }
@@ -19,7 +19,7 @@ class QueueSnapshotTest < ActiveSupport::TestCase
     end
   end
 
-  test "видит ожидающие, отложенные и упавшие задания из общей БД" do
+  test "reads ready scheduled and failed jobs from the shared database" do
     ready = SolidQueue::Job.enqueue(ProbeJob.new)
     ready.ready_execution.update!(created_at: 2.minutes.ago)
     SolidQueue::Job.enqueue(ProbeJob.new, scheduled_at: 1.hour.from_now)
@@ -27,7 +27,7 @@ class QueueSnapshotTest < ActiveSupport::TestCase
     claimed = SolidQueue::ReadyExecution.claim([ "default" ], 2, 1)
     failed_execution = claimed.find { |execution| execution.job_id == failed.id }
     assert_raises(ArgumentError) { failed_execution.perform }
-    # Освобождаем вторую задачу, чтобы проверить возраст готовой очереди.
+    # Release the second job to verify the Ready queue age.
     claimed.find { |execution| execution.job_id == ready.id }.release
     ready.reload.ready_execution.update!(created_at: 2.minutes.ago)
 

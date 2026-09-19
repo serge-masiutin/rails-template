@@ -7,14 +7,14 @@ class LlmConfig < Anyway::Config
   on_load do
     if [ provider, model, api_key ].any?(&:present?)
       unless [ provider, model, api_key ].all?(&:present?)
-        raise_validation_error("provider, model и api_key задаются вместе")
+        raise_validation_error("provider, model and api_key must be set together")
       end
       unless PROVIDER_KEYS.key?(provider)
-        raise_validation_error("provider: ожидается openai, anthropic или gemini")
+        raise_validation_error("provider: expected openai, anthropic or gemini")
       end
     end
     unless (1..300).cover?(request_timeout)
-      raise_validation_error("request_timeout: ожидается 1..300 секунд")
+      raise_validation_error("request_timeout: expected 1..300 seconds")
     end
   end
 
@@ -23,7 +23,7 @@ class LlmConfig < Anyway::Config
   end
 
   def ensure_configured!
-    raise_validation_error("Задайте LLM_PROVIDER, LLM_MODEL и LLM_API_KEY") unless configured?
+    raise_validation_error("Set LLM_PROVIDER, LLM_MODEL and LLM_API_KEY") unless configured?
   end
 
   def provider_key

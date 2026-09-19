@@ -1,29 +1,31 @@
 ---
 name: ui-health
-description: "Проверять дизайн-токены, Tailwind и доступность интерфейса StarterApp."
+description: "Audit design tokens, Tailwind and interface accessibility."
 metadata:
   upstream: sb-health
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-health
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Прочитай `app/assets/tailwind/application.css`, компоненты и их реальные вызовы.
-- Найди повторяемые magic values, динамически конструируемые классы, недостающие семантические токены и противоречивые варианты.
-- Проверь контраст, focus-visible, aria-состояния, labels, размер touch targets и длинные русские строки.
-- Не удаляй токен, пока не проверены все templates, previews и JS.
-- Используй `tailwind-best-practices` для исправлений, `ui-previews` для демонстрации состояний.
-- Отчёт содержит конкретные пути, воспроизводимый пример и минимальную правку.
+- Read `app/assets/tailwind/application.css`, components and real call sites.
+- Find repeated magic values, constructed class names, missing semantic tokens and conflicting variants.
+- Check contrast, focus-visible, ARIA state, labels, touch targets and long translated text.
+- Search templates, previews and JS before removing a token.
+- Use `tailwind-best-practices` for fixes and `ui-previews` to demonstrate states.
+- Report concrete paths, a reproducible case and the smallest correction.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-health.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-health`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-health.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-health`.

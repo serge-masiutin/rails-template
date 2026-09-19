@@ -1,78 +1,82 @@
-# Обновления через AnyCable
+# AnyCable updates
 
-AnyCable обслуживает WebSocket для веба и Android. Rails проверяет сессии и подписки
-через HTTP RPC; Go-сервер держит соединения и историю. Redis и отдельный Ruby RPC-процесс не нужны.
-Версии и параметры — в `Gemfile.lock`, `config/importmap.rb`, `config/anycable.yml` и `compose.yml`.
+AnyCable serves WebSocket connections for web and Android. Rails validates sessions and subscriptions
+over HTTP RPC; Go manages connections and history. Redis and a separate Ruby RPC process are not required.
+Versions and settings live in `Gemfile.lock`, `config/importmap.rb`, `config/anycable.yml`, and `compose.yml`.
 
-## Запуск и проверка
+## Run and verify
 
-`bin/setup` создаёт случайный общий секрет в `config/anycable.local.yml` с правами 0600.
-Файл исключён из Git и Docker. Для существующей установки выполни `bin/cable setup`.
-`bin/dev` запускает AnyCable через Overmind; `Ctrl+C` останавливает его контейнер.
+`bin/setup` generates a shared secret in `config/anycable.local.yml` with mode `0600`.
+Git and Docker exclude this file. For an existing installation, run `bin/cable setup`.
+`bin/dev` starts AnyCable through Overmind; `Ctrl+C` stops its container.
 
-| Локальный адрес | Назначение |
+| Local address | Purpose |
 | --- | --- |
-| `ws://localhost:8080/cable` | WebSocket; адрес в HTML учитывает host Android-эмулятора |
-| `http://localhost:3000/_anycable` | Rails RPC с отдельным Bearer-секретом |
-| `http://localhost:8090/_broadcast` | Публикации Rails/worker, требуется Bearer-секрет |
-| `http://localhost:8091/metrics` | Метрики Go; только loopback |
-| `http://localhost:8080/health` | Жив ли Go-процесс; не проверяет Rails и доставку |
+| `ws://localhost:8080/cable` | WebSocket; HTML preserves the Android emulator host |
+| `http://localhost:3000/_anycable` | Rails RPC with its own Bearer secret |
+| `http://localhost:8090/_broadcast` | Rails/worker broadcasts, authenticated with a Bearer secret |
+| `http://localhost:8091/metrics` | Go metrics, loopback only |
+| `http://localhost:8080/health` | Go liveness; does not verify Rails or delivery |
 
-Не вызывай RPC и broadcast API из браузера: серверные ключи не должны попадать в HTML или JS.
-LAN-запуск для физического устройства описан в [Android](native.md).
+Never call RPC or broadcast APIs from the browser. Server keys must not appear in HTML or JS.
+See [Android](native.md) for LAN access.
 
 ```sh
 mise exec -- bin/realtime-test
 ```
 
-Команда входит в `bin/ci`; нужны Docker, PostgreSQL и Chrome. Она занимает порты 3100, 8180 и 8190,
-использует тестовую БД и удаляет свой контейнер после проверки. Сценарий проверяет доставку
-Turbo Stream, восстановление пропуска, обновление страницы после потери истории,
-запрет чужой подписки и отзыв соединения.
+This command is part of `bin/ci` and needs Docker, PostgreSQL, and Chrome.
+It uses ports 3100, 8180, and 8190, the test database, and a temporary container cleaned up afterward.
+It verifies Turbo Stream delivery, missed-message recovery, reload after history loss,
+foreign-subscription rejection, session revocation, and admin updates without idle HTTP polling.
 
-## Подписки и публикации
+## Subscribe and broadcast
 
-После входа layout подписывается на `Current.user.updates_stream_name` через `UserUpdatesChannel`.
-Канал проверяет и подпись stream name, и владельца. Для нового потока сначала задай правила
-доступа в его канале; знание подписанного имени само по себе не даёт право на приватные данные.
+After sign-in, the layout subscribes to `Current.user.updates_stream_name` through `UserUpdatesChannel`.
+The channel checks both the stream signature and ownership. Define authorization in each new channel;
+a signed stream name alone does not grant access to private data.
 
-Публикуй через `Turbo::StreamsChannel.broadcast_*_to` на тот же stream name.
-HTML формируй существующим ViewComponent или partial; target должен присутствовать на странице.
-Сетевую публикацию выполняй после commit, для фоновой доставки используй ApplicationJob.
-`Realtime::HttpBroadcaster` отправляет синхронно с таймаутами: ошибка не скрывается,
-payload не логируется, автоматических повторов нет. Повтор и идемпотентность определяет конкретное задание.
+Publish through `Turbo::StreamsChannel.broadcast_*_to` to the same stream name.
+Render HTML with an existing ViewComponent or partial; its target must exist on the page.
+Publish after commit. Use ApplicationJob for background product delivery.
+`Realtime::HttpBroadcaster` is synchronous and has explicit timeouts: failures propagate,
+payloads are not logged, and it does not retry automatically. Each job owns retry and idempotency decisions.
 
-Соединение определяется Rails-сессией, каждый reconnect проверяет cookie заново.
-Выход и сброс пароля вызывают `Session#revoke!` / `Session.revoke_all!`:
-сессии удаляются сразу, `DisconnectSessionsJob` отключает сокеты после commit.
-При недоступном AnyCable задание повторяет сетевую попытку через 5 секунд, максимум три раза;
-окончательный сбой виден в очереди. Не удаляй сессии напрямую в новых операциях отзыва.
+Admin panels use `OperationsUpdatesChannel`. It sends only invalidation signals after commit;
+each HTML/JSON request checks the role again. Queue broadcasts do not enqueue jobs, avoiding a feedback loop.
+Network failures are reported through `Rails.error` without undoing a committed job.
+See the [admin contract](observability.md#admin).
 
-## Восстановление и ограничения
+The connection identifies a Rails session; every reconnect validates the cookie again.
+Sign-out and password reset use `Session#revoke!` / `Session.revoke_all!`:
+sessions are deleted immediately and `DisconnectSessionsJob` closes sockets after commit.
+On a network failure, that job retries after five seconds, up to three attempts.
+Final failure remains visible in the queue. New revocation operations must not delete sessions directly.
 
-Используется расширенный протокол AnyCable и memory broker: до 100 сообщений на поток,
-история за последние 5 минут. При коротком обрыве клиент получает пропущенные сообщения.
-Если история потеряна, `history_not_found` вызывает загрузку свежего HTML.
-Кэш сессий отключён, чтобы восстановление не обходило проверку отозванной Rails-сессии.
+## Recovery and limits
 
-Это конфигурация одного Go-сервера. Перезапуск очищает историю; она не является долговременным
-журналом событий. Перед горизонтальным масштабированием выбери общий broker/pubsub,
-обнови топологию и повтори проверки восстановления. Источником состояния остаётся PostgreSQL.
+The extended AnyCable protocol uses a memory broker: up to 100 messages per stream, retained for five minutes.
+Short disconnects recover missed messages. Lost history emits `history_not_found`, which reloads fresh HTML.
+Session caching is disabled so recovery cannot bypass revoked Rails sessions.
 
-## Эксплуатация
+This is a single Go-server topology. Restarting clears history; it is not a durable event log.
+Choose a shared broker/pubsub before scaling horizontally, update the topology, and rerun recovery tests.
+PostgreSQL remains the source of application state.
 
-Kamal направляет `wss://<WEB_HOST>/cable` в accessory `anycable` на том же домене.
-Go обращается к `https://<WEB_HOST>/_anycable`; Rails публикует через внутренний
-`http://starterapp-anycable:8090/_broadcast`. Общий `ANYCABLE_SECRET` приходит из secrets.
-TLS и DNS требуют проверки на настоящем сервере; локальный тест их не подтверждает.
+## Operations
 
-Локальные логи Go видны в процессе `cable` Overmind; production — `bin/kamal cable-logs`.
-Go пишет JSON уровня error: на warn SDK может выводить содержимое команд и подписанные имена потоков.
-Ошибки прикладного RPC регистрирует `Rails.error`; доступность и частоту ошибок показывают метрики.
-Не включай подробные логи на пользовательском трафике без фильтрации.
-Дашборд, alerts и сбор — в [наблюдаемости](observability.md).
+Kamal routes `wss://<WEB_HOST>/cable` to the `anycable` accessory on the same domain.
+Go calls `https://<WEB_HOST>/_anycable`; Rails publishes to internal
+`http://starterapp-anycable:8090/_broadcast`. Both receive `ANYCABLE_SECRET` from secrets.
+Verify TLS and DNS on the deployed server; local tests do not prove production connectivity.
 
-После изменения транспорта проверь `bin/realtime-test`, метрики соединений и RPC,
-переходы между страницами, выход и восстановление Android из фона.
-Основа настройки — [Hotwire](https://docs.anycable.io/guides/hotwire),
-[HTTP RPC](https://docs.anycable.io/ruby/http_rpc) и [Kamal](https://docs.anycable.io/deployment/kamal) в документации AnyCable.
+Go logs appear in Overmind's `cable` process locally and `bin/kamal cable-logs` in production.
+Go writes JSON at error level: warn can include command payloads and signed stream names.
+Rails reports RPC errors through `Rails.error`; metrics show availability and error rates.
+Do not enable verbose logging on user traffic without filtering.
+See [observability](observability.md) for dashboards, alerts, and collection.
+
+After transport changes, run `bin/realtime-test`, check connection/RPC metrics, navigation,
+sign-out, and Android recovery from the background.
+Sources: AnyCable [Hotwire](https://docs.anycable.io/guides/hotwire),
+[HTTP RPC](https://docs.anycable.io/ruby/http_rpc), and [Kamal](https://docs.anycable.io/deployment/kamal).

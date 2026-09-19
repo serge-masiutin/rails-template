@@ -1,12 +1,12 @@
-# AI-функция в StarterApp
+# AI features
 
-- Отталкивайся от конкретного пользовательского результата и проверяемого контракта. Зафиксируй входы, доступ, допустимые эффекты, формат ответа и критерии качества.
-- Используй ApplicationAgent, PROMPT_VERSION и текстовые ERB. Прикладная job получает ID, загружает контекст, повторно проверяет доступ, вызывает generate_now вне транзакции и явно сохраняет проверенный результат.
-- Пользовательский текст отделяй от инструкций. Ответ модели не является командой, HTML или разрешением вызвать tool. Проверяй схему и права до побочных эффектов.
-- Сохранённый результат показывай через общий ERB/ViewComponent и приватный AnyCable/Turbo Stream. Состояния ожидания и ошибки должны переживать reload и возвращение Android из фона.
-- Llm.build_chat подходит прямому вызову без шаблона и текущему schema API. Он не создаёт Active Agent traces; основной путь AI-функций проходит через ApplicationAgent.
-- Ошибка не заменяется обрезанным исходником, пустым текстом или фиктивной категорией. Retries, tool budgets и таймауты задаются явно на границе.
-- Диагностика: agent.generated, Yabeda, request/job ID и очищенные AgentPrism traces. Не сохраняй prompt, output и tool bodies в журналах.
-- Перед усложнением retrieval, orchestration или кэша сравни простой baseline с версионируемыми evals. Проверяй типичные, неоднозначные и adversarial входы.
+- Start from a user outcome and testable contract: inputs, access, allowed effects, output format and quality criteria.
+- Use ApplicationAgent, PROMPT_VERSION and text ERB. An application job takes IDs, reloads context, rechecks access, calls generate_now outside a transaction and explicitly persists validated results.
+- Separate user content from instructions. Model output is not a command, trusted HTML or tool permission; validate schemas and access before side effects.
+- Render persisted results with shared ERB/ViewComponent and private AnyCable/Turbo Streams. Pending/error states must survive reload and Android background return.
+- Llm.build_chat handles direct calls without templates and the current schema API. It does not create Active Agent traces; ApplicationAgent is the normal feature path.
+- Never replace failures with truncated input, empty output or fabricated categories. Configure retries, tool budgets and timeouts at the boundary.
+- Diagnose with agent.generated, Yabeda, request/job IDs and sanitized AgentPrism traces. Never store prompts, outputs or tool bodies in logs.
+- Compare a simple baseline using versioned evals before adding retrieval, orchestration or caching. Include typical, ambiguous and adversarial inputs.
 
-Источники поведения: [docs/agents.md](../../../../../docs/agents.md), [app/agents/application_agent.rb](../../../../../app/agents/application_agent.rb), [test/agents/application_agent_test.rb](../../../../../test/agents/application_agent_test.rb).
+Behavior sources: [docs/agents.md](../../../../../docs/agents.md), [app/agents/application_agent.rb](../../../../../app/agents/application_agent.rb), [test/agents/application_agent_test.rb](../../../../../test/agents/application_agent_test.rb).

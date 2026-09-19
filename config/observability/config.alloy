@@ -1,0 +1,30 @@
+logging {
+  level = "warn"
+  format = "json"
+}
+
+loki.source.file "rails" {
+  targets = [{
+    __path__ = sys.env("ALLOY_LOG_PATH"),
+    service_name = "starterapp",
+    environment = "development",
+  }]
+  forward_to = [loki.process.rails.receiver]
+}
+
+loki.process "rails" {
+  stage.json {
+    expressions = { timestamp = "timestamp" }
+  }
+  stage.timestamp {
+    source = "timestamp"
+    format = "RFC3339Nano"
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = sys.env("ALLOY_LOKI_URL")
+  }
+}

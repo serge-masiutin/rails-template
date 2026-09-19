@@ -20,7 +20,8 @@
       "@evilmartians/agent-prism-types": [
         "./vendor/agent-prism/types/index.ts"
       ]
-    }
+    },
+    "allowJs": true
   },
   "include": [
     "app/frontend/agents/**/*.ts",

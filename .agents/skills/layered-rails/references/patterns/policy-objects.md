@@ -1,8 +1,8 @@
-# Объекты авторизации
+# Authorization objects
 
-- Наследуй ApplicationPolicy и задавай именованные предикаты. Неизвестное правило должно поднимать ошибку; не вводи default allow.
-- Проверяй нужное действие до данных/мутации через authorize!; для коллекции — authorized_scope и проверка scope.
-- Видимость кнопки не заменяет серверное разрешение. Actor передаётся явно, Native User-Agent не влияет на права.
-- Нужны Minitest-сценарии владельца, другого пользователя, гостя и неизвестного правила. Для коллекций проверь отсутствие утечек и N+1.
+- Inherit ApplicationPolicy with named predicates. Unknown rules raise; never default to allow.
+- Call authorize! before disclosure/mutation. Collections need authorized_scope and scope verification.
+- Hidden buttons do not authorize actions. Pass actors explicitly; Native User-Agent does not affect permissions.
+- Test owner, another user, guest and unknown rules; collections need leak and N+1 checks.
 
-Источники поведения: [app/policies/user_policy.rb](../../../../../app/policies/user_policy.rb), [test/policies/user_policy_test.rb](../../../../../test/policies/user_policy_test.rb), [test/controllers/authorization_test.rb](../../../../../test/controllers/authorization_test.rb).
+Behavior sources: [app/policies/user_policy.rb](../../../../../app/policies/user_policy.rb), [test/policies/user_policy_test.rb](../../../../../test/policies/user_policy_test.rb), [test/controllers/authorization_test.rb](../../../../../test/controllers/authorization_test.rb).

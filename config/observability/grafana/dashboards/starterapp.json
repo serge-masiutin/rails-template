@@ -3,7 +3,7 @@
   "title": "StarterApp",
   "schemaVersion": 39,
   "version": 1,
-  "refresh": "15s",
+  "refresh": "5s",
   "time": {
     "from": "now-1h",
     "to": "now"
@@ -12,7 +12,7 @@
     {
       "id": 1,
       "type": "timeseries",
-      "title": "HTTP запросы в секунду",
+      "title": "HTTP requests per second",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -40,7 +40,7 @@
     {
       "id": 2,
       "type": "timeseries",
-      "title": "Время HTTP ответа, p95",
+      "title": "HTTP response time, p95",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -68,7 +68,7 @@
     {
       "id": 3,
       "type": "timeseries",
-      "title": "Задания по состояниям",
+      "title": "Jobs by state",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -96,7 +96,7 @@
     {
       "id": 4,
       "type": "timeseries",
-      "title": "Активные процессы очереди",
+      "title": "Active queue processes",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -124,7 +124,7 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "Ожидание старейшего задания в Ready",
+      "title": "Oldest Ready job wait time",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -139,7 +139,7 @@
         {
           "refId": "A",
           "expr": "starterapp_queue_oldest_ready_age_seconds",
-          "legendFormat": "Ожидание"
+          "legendFormat": "Waiting"
         }
       ],
       "fieldConfig": {
@@ -152,7 +152,7 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "Доступность метрик",
+      "title": "Metrics availability",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -167,7 +167,7 @@
         {
           "refId": "A",
           "expr": "up{job=\"starterapp\"}",
-          "legendFormat": "Доступность"
+          "legendFormat": "Availability"
         }
       ],
       "fieldConfig": {
@@ -180,7 +180,7 @@
     {
       "id": 7,
       "type": "timeseries",
-      "title": "WebSocket-соединения",
+      "title": "WebSocket connections",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -194,7 +194,7 @@
       "targets": [
         {
           "expr": "anycable_go_clients_num",
-          "legendFormat": "Соединения",
+          "legendFormat": "Connections",
           "refId": "A"
         }
       ],
@@ -208,7 +208,7 @@
     {
       "id": 8,
       "type": "timeseries",
-      "title": "Ошибки RPC в секунду",
+      "title": "RPC errors per second",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -222,7 +222,7 @@
       "targets": [
         {
           "expr": "sum(rate(anycable_go_rpc_error_total[5m]))",
-          "legendFormat": "Ошибки",
+          "legendFormat": "Errors",
           "refId": "A"
         }
       ],
@@ -236,7 +236,7 @@
     {
       "id": 9,
       "type": "timeseries",
-      "title": "Ожидающие RPC-запросы",
+      "title": "Pending RPC requests",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -250,7 +250,7 @@
       "targets": [
         {
           "expr": "anycable_go_rpc_pending_num",
-          "legendFormat": "Ожидание",
+          "legendFormat": "Waiting",
           "refId": "A"
         }
       ],
@@ -264,7 +264,7 @@
     {
       "id": 10,
       "type": "timeseries",
-      "title": "Публикации в секунду",
+      "title": "Publications per second",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -278,7 +278,7 @@
       "targets": [
         {
           "expr": "sum(rate(anycable_go_publications_total[5m]))",
-          "legendFormat": "Публикации",
+          "legendFormat": "Publications",
           "refId": "A"
         }
       ],
@@ -292,7 +292,7 @@
     {
       "id": 11,
       "type": "timeseries",
-      "title": "Ответы imgproxy",
+      "title": "imgproxy responses",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -320,7 +320,7 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Время ответа imgproxy: p95",
+      "title": "imgproxy response time, p95",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -348,7 +348,7 @@
     {
       "id": 13,
       "type": "timeseries",
-      "title": "Генерации AI в секунду",
+      "title": "AI generations per second",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -376,7 +376,7 @@
     {
       "id": 14,
       "type": "timeseries",
-      "title": "Время генерации AI, p95",
+      "title": "AI generation time, p95",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -404,7 +404,7 @@
     {
       "id": 15,
       "type": "timeseries",
-      "title": "Токены AI в секунду",
+      "title": "AI tokens per second",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -432,7 +432,7 @@
     {
       "id": 16,
       "type": "timeseries",
-      "title": "Сбои сохранения AI traces",
+      "title": "AI trace storage failures",
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -456,6 +456,14 @@
         },
         "overrides": []
       }
+    }
+  ],
+  "links": [
+    {
+      "title": "Logs",
+      "type": "link",
+      "url": "/d/starterapp-logs",
+      "keepTime": true
     }
   ]
 }

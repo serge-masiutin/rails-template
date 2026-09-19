@@ -1,30 +1,32 @@
 ---
 name: hotwire-stimulus-components
-description: "Создавать интерактивные компоненты StarterApp на Stimulus с корректным Turbo lifecycle."
+description: "Build focused Stimulus components with correct Turbo lifecycle cleanup."
 metadata:
   upstream: shadcn-vue-inertia
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # hotwire-stimulus-components
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Используй controllers в `app/javascript/controllers`, targets/actions/values и data-атрибуты ERB.
-- Контроллер отвечает за одну локальную UI-задачу. Доменные вычисления и права остаются на сервере.
-- Используй event.currentTarget и явные target/value контракты. Не считывай состояние из произвольных глобальных переменных.
-- Подписки, observers и таймеры освобождай в disconnect. Повторный connect не создаёт дублированные обработчики.
-- Обновляй aria-expanded/hidden и фокус вместе с визуальным состоянием.
-- Проверяй взаимодействие через Cuprite после обычной загрузки и после Turbo-перехода назад/вперёд.
-- Нативную возможность устройства выноси в BridgeComponent и согласуй с Kotlin.
+- Use `app/javascript/controllers`, explicit targets/actions/values and ERB data attributes.
+- Give each controller one local UI responsibility; keep domain rules and permissions on the server.
+- Use `event.currentTarget` and declared contracts instead of arbitrary globals.
+- Release listeners, observers and timers on disconnect; reconnect must not duplicate handlers.
+- Update aria-expanded/hidden and focus with visual state.
+- Check interaction in Cuprite after initial load and Turbo Back/Forward navigation.
+- Put device capabilities in BridgeComponent and coordinate with Kotlin.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/shadcn-vue-inertia.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/shadcn-vue-inertia`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/shadcn-vue-inertia.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/shadcn-vue-inertia`.

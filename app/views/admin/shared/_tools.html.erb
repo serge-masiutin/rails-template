@@ -1,0 +1,15 @@
+<div class="admin-tools">
+  <% { grafana_url: [ "Grafana", t("admin.observability.grafana_description") ], prometheus_url: [ "Prometheus", t("admin.observability.prometheus_description") ], logs_url: [ t("admin.observability.logs"), t("admin.observability.logs_description") ] }.each do |attribute, (title, description)| %>
+    <section class="admin-tool">
+      <h3>
+        <% if (url = operations.public_send(attribute)).present? %>
+          <%= link_to "#{title} ↗", url, target: "_blank", rel: "noopener noreferrer" %>
+        <% else %>
+          <%= title %>
+        <% end %>
+      </h3>
+      <p><%= description %></p>
+      <% if url.blank? %><span class="admin-caption"><%= t("admin.observability.not_configured") %></span><% end %>
+    </section>
+  <% end %>
+</div>

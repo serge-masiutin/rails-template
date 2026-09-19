@@ -1,65 +1,17 @@
-# Журнал решений
+# Decision log
 
-Записывай здесь значимые решения проекта: результат, проверки, ограничения и следующий шаг.
+Record decisions that still affect maintenance, verified outcomes and outstanding work.
+Keep operational instructions in their respective guides; Git history and PRs hold implementation history.
 
-## 2026-09-19 — воспроизводимость шаблона
+## 2026-09-19 — template foundation
 
-- Добавлена первоначальная настройка: [контракт](template.md), `bin/configure` и пять тестов CLI.
-  Переименовываются исходники, Android package, конфигурация, метрики, документация и skills;
-  история Git, локальные данные и сторонние исходники не переносятся из других проектов.
-- На чистой копии с именем AcmePortal и ID `com.acme.portal` прошли `bin/setup` и `bin/ci`:
-  117 Rails-тестов / 509 проверок, 8 браузерных / 39, AnyCable / 12, imgproxy / 10 и k6 / 44.
-  Также прошли production assets, Docker-сборка, Android Debug/unsigned Release/lint,
-  Actionlint, Prometheus config и 10 alert rules. Локальные ссылки и сохранность vendor проверены.
-- GitHub runners, production deploy, внешний SMTP/LLM и Android на устройстве этим запуском не проверялись.
-  Перед выпуском нового приложения выполни проверки и настрой эксплуатацию по [деплою](deployment.md).
-- Опубликован [GitHub Template](https://github.com/serge-masiutin/rails-template):
-  публичный репозиторий с отдельной историей и основной веткой `main`; первый Actions CI запущен.
+- `bin/configure` renames source code, Android packages, configuration, metrics, documentation and skills in a clean checkout. See [the template contract](template.md).
+- A configured AcmePortal copy passed setup, CI, production assets, Docker build and Android Debug/unsigned Release/lint. Device navigation and production deployment were not tested.
+- Cuprite configuration belongs in Rails `driven_by`; a regression test verifies the registered browser options. See [testing](testing.md).
+- Application UI and email publish only `en`; adding other languages requires a complete dictionary, explicit allowlist and client checks. All authored template content is English.
+- Admin tools share session-based administrator access and navigation. Health and metrics keep separate machine authentication contracts.
+- Admin updates use authorized AnyCable signals after commit, coalesced snapshot fetches and Turbo morph. There is no periodic browser polling; selection and access revocation are covered by browser and real transport tests.
+- `bin/dev` starts local Prometheus, Grafana, Loki and Alloy. Ordinary logs stay outside PostgreSQL; JSON file/container rotation is bounded. AI execution records have a separate sanitized schema and retention.
+- Production authentication, alert delivery, SMTP/LLM credentials and device validation remain deployment tasks; local checks do not establish production readiness. See [deployment](deployment.md).
 
-## 2026-09-19 — обновления Dependabot
-
-- Обновлены Puma 8.0.2, ImageProcessing 2.1.0 с явным ruby-vips, Lucide 1.46.0 и setup-node 7.
-  Puma сохраняет IPv4 listener. Android переведён на AGP 9.4.1, встроенный Kotlin 2.4.20
-  и Gradle 9.7.1; wrapper и dependency lock пересозданы и проверены.
-- Node остаётся на 24 LTS, panels — на v3 до совместимого обновления AgentPrism.
-  Причины и условия перехода — в [разработке](development.md) и [AI](agents.md).
-  Dependabot продолжает проверять эти зависимости; Android build-зависимости сгруппированы.
-- Локально прошли полный `bin/ci`: 117 Rails-тестов / 509 проверок,
-  8 браузерных / 39, AnyCable / 12, imgproxy / 10 и k6 / 44. Проверены skills и сохранность vendor.
-  Собраны Android Debug и unsigned Release. Lint: 0 ошибок, 3 предупреждения о SDK
-  и сжатии ресурсов; запуск на устройстве не выполнялся.
-- Следующий шаг после публикации — проверить CI основной ветки GitHub и закрытие заменённых PR.
-
-## 2026-09-19 — запуск Chrome в CI
-
-- Устранена потеря настроек Cuprite: Rails повторно регистрировал драйвер и оставлял
-  стандартные 10 секунд на запуск Chrome. Настройки перенесены в `driven_by`:
-  запуск — 30 секунд, команды — 10, ошибки JavaScript включены.
-- Новый `BrowserDriverTest` проверяет параметры реального браузера после регистрации Rails.
-  Правило добавлено в [инструкцию тестирования](testing.md), testing skill и сценарии его проверки.
-- Полный локальный `bin/ci` прошёл: 117 Rails-тестов / 509 проверок, 9 браузерных / 43,
-  AnyCable / 12, imgproxy / 10, k6 / 44. Результат GitHub CI хранится в Actions соответствующего коммита.
-
-## 2026-09-19 — общая админка
-
-- Добавлен `/admin`: БД, heartbeat, очередь, навигация Mission Control и AgentPrism,
-  настраиваемые ссылки метрик и логов. Новые проекты наследуют тот же контракт.
-- Служебный UI требует сессию и роль администратора; CLI выдаёт и отзывает роль.
-  Basic health и Bearer metrics остаются отдельными техническими контрактами.
-- Обновлены README, эксплуатационная документация, правила и skills.
-- Полный локальный `bin/ci`: 129 Rails-тестов / 618 проверок, 11 браузерных / 58,
-  AnyCable / 12, imgproxy / 10, k6 / 44; production-ассеты и actionlint прошли.
-- Android проверен через общий HTML с Native User-Agent и contracts; устройство и production-сервер
-  не проверялись. Хранилище production-логов и доставка alerts ещё требуют внешнего сервиса.
-
-## 2026-09-19 — терминология интерфейса и документации
-
-- Разделы админки названы AgentPrism и Mission Control. Сохранены trace/span/tool call
-  и имена процессов и состояний Solid Queue; значения объяснены в документации.
-- Согласованы навигация, заголовки, состояния загрузки, ошибки, alerts и Grafana.
-  Правила закреплены в `clear-writing` и AGENTS; исходники vendor не менялись.
-- Выполнены все этапы локального `bin/ci`; после исправления ожиданий тестов
-  повторены упавшие проверки. Результат: 129 Rails-тестов / 650 проверок,
-  11 браузерных / 62, тесты JS, AnyCable, imgproxy, k6 и Prometheus успешны.
-- Визуально проверены веб и мобильная вёрстка. Android на устройстве и production
-  в этой задаче не проверялись; платформенный код не менялся.
+- Local Alloy runs on the host under Overmind, avoiding stale open-file reads across Docker Desktop mounts. Mise pins its version; Loki is bound to loopback.

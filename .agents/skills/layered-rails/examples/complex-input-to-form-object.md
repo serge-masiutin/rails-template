@@ -1,7 +1,8 @@
-# Выделить многомодельную форму
+# Extract a multi-model form
 
-Form object нужен при нескольких связанных записях и общем наборе ошибок. Опиши атрибуты и ошибки через ActiveModel, передай разрешённые параметры из params.expect и сохрани записи транзакцией. Одномодельную форму пароля оставляй обычной Rails-формой. Проверь 400, 422, 303, rollback и Native modal.
+Use a form object for related records with a shared error contract. Declare ActiveModel attributes/errors, accept params.expect values and write in a transaction. Keep the one-model password form conventional. Test 400, 422, 303, rollback and Native modal behavior.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/controllers/passwords_controller.rb](../../../../app/controllers/passwords_controller.rb), [app/views/passwords/edit.html.erb](../../../../app/views/passwords/edit.html.erb), [docs/hotwire.md](../../../../docs/hotwire.md).
+Behavior sources: [app/controllers/passwords_controller.rb](../../../../app/controllers/passwords_controller.rb), [app/views/passwords/edit.html.erb](../../../../app/views/passwords/edit.html.erb), [docs/hotwire.md](../../../../docs/hotwire.md).

@@ -1,12 +1,12 @@
-<% content_for :title, "Восстановление пароля · StarterApp" %>
+<% content_for :title, t("layout.page_title", title: t("passwords.new.title"), app: t("app.name")) %>
 <section class="mx-auto max-w-md space-y-6">
-  <h1 class="text-3xl font-semibold">Восстановить пароль</h1>
+  <h1 class="text-3xl font-semibold"><%= t("passwords.new.heading") %></h1>
   <%= form_with url: passwords_path, class: "space-y-5" do |form| %>
     <div>
-      <%= form.label :email_address, "Email", class: "mb-2 block text-sm font-medium" %>
+      <%= form.label :email_address, t("fields.email"), class: "mb-2 block text-sm font-medium" %>
       <%= form.email_field :email_address, required: true, autocomplete: "username", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
     </div>
-    <%= form.submit "Отправить инструкцию", class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
+    <%= form.submit t("actions.send_reset"), class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
   <% end %>
-  <%= link_to "Вернуться ко входу", new_session_path, class: "text-sm text-accent" %>
+  <%= link_to t("actions.back_to_sign_in"), new_session_path, class: "text-sm text-accent" %>
 </section>

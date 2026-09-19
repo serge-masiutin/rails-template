@@ -1,5 +1,5 @@
 class DisconnectSessionsJob < ApplicationJob
-  # Отзыв cookie не зависит от доступности AnyCable; временный сетевой сбой повторяем ограниченно.
+  # Cookie revocation is independent of AnyCable availability; transient network retries are bounded.
   retry_on Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout, Errno::ECONNREFUSED,
     wait: 5.seconds, attempts: 3
 

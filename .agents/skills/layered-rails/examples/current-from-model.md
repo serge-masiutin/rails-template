@@ -1,7 +1,8 @@
-# Передать пользователя явно
+# Pass the actor explicitly
 
-Найди доменный вызов Current.user и всех его потребителей. Actor передаётся из controller после authorize! либо загружается job по ID. Current оставь контекстом HTTP/логов; RequestCorrelatedJob очищает session. Проверь вызов без HTTP и изоляцию конкурентных заданий.
+Find domain Current.user calls and every consumer. Controllers pass the actor after authorization; jobs reload by ID. Keep Current for HTTP/log context and RequestCorrelatedJob session cleanup. Test execution without HTTP and concurrent job isolation.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/models/current.rb](../../../../app/models/current.rb), [app/jobs/concerns/request_correlated_job.rb](../../../../app/jobs/concerns/request_correlated_job.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).
+Behavior sources: [app/models/current.rb](../../../../app/models/current.rb), [app/jobs/concerns/request_correlated_job.rb](../../../../app/jobs/concerns/request_correlated_job.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).

@@ -13,14 +13,14 @@ class AdminTasksTest < ActiveSupport::TestCase
     ENV["EMAIL"] = @previous_email
   end
 
-  test "CLI выдаёт и отзывает роль у существующего пользователя" do
-    assert_output("Доступ администратора выдан\n") { Rake::Task["admin:grant"].invoke }
+  test "CLI grants and revokes the role for an existing user" do
+    assert_output("Administrator access granted\n") { Rake::Task["admin:grant"].invoke }
     assert users(:one).reload.admin?
-    assert_output("Доступ администратора отозван\n") { Rake::Task["admin:revoke"].invoke }
+    assert_output("Administrator access revoked\n") { Rake::Task["admin:revoke"].invoke }
     refute users(:one).reload.admin?
   end
 
-  test "CLI не создаёт пользователя при неверном email" do
+  test "CLI does not create a user for an unknown email" do
     ENV["EMAIL"] = "absent@example.com"
     assert_no_difference "User.count" do
       assert_raises(ActiveRecord::RecordNotFound) { Rake::Task["admin:grant"].invoke }

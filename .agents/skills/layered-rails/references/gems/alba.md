@@ -1,9 +1,9 @@
-# Явная сериализация без нового DSL
+# Explicit serialization without another DSL
 
-- Для продуктового интерфейса возвращай HTML. JSON нужен Native configuration, служебному экрану или конкретному API-потребителю.
-- Составь Hash из разрешённых полей; модель целиком через as_json не выдавай. Зафиксируй типы, nullability, единицы времени и версию.
-- Рабочий пример — AgentTrace::Document и decodeTracePage: Ruby выдаёт контракт, TypeScript валидирует его на входе.
-- Для небольшого контракта достаточно штатных Ruby/JSON и отдельного объекта преобразования. Новый serializer gem оправдан только повторяющейся сложностью текущего контракта.
-- Проверь лишние/отсутствующие поля, malformed values, права, объём коллекции и совместимость потребителя.
+- Product screens return HTML. JSON serves Native configuration, operations views or a specific API consumer.
+- Build a Hash from allowed fields; never expose an entire model with as_json. Specify types, nullability, time units and version.
+- AgentTrace::Document and decodeTracePage demonstrate a Ruby contract validated by TypeScript at entry.
+- Standard Ruby/JSON and a focused conversion object suffice for small contracts. Add a serializer gem only for demonstrated recurring complexity.
+- Check extra/missing fields, malformed values, permissions, collection limits and consumer compatibility.
 
-Источники поведения: [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb), [app/frontend/agents/trace-page.ts](../../../../../app/frontend/agents/trace-page.ts), [docs/hotwire.md](../../../../../docs/hotwire.md).
+Behavior sources: [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb), [app/frontend/agents/trace-page.ts](../../../../../app/frontend/agents/trace-page.ts), [docs/hotwire.md](../../../../../docs/hotwire.md).

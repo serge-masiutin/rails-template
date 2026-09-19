@@ -3,12 +3,12 @@ require "test_helper"
 class PasswordResetAtomicityTest < ActionDispatch::IntegrationTest
   self.use_transactional_tests = false
 
-  test "сбой БД при отзыве сессий откатывает смену пароля" do
+  test "database failure during revocation rolls back the password change" do
     user = User.create!(email_address: "reset-atomicity@example.test", password: "old-password-2026")
     session = user.sessions.create!
     token = user.password_reset_token
     connection = ApplicationRecord.connection
-    # Реальный отказ DELETE проверяет rollback без подмены методов Session.
+    # A real DELETE failure verifies rollback without replacing Session methods.
     connection.create_table :password_reset_session_guards do |table|
       table.references :session, foreign_key: true
     end

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: 'sql — события БД, cpu — профиль Ruby, load — нагрузка HTTP/WS'
+        description: 'sql: database events; cpu: Ruby profile; load: HTTP/WS load'
         type: choice
         options: [sql, cpu, load]
         default: sql

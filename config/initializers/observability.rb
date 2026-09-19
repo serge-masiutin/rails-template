@@ -1,20 +1,20 @@
 require Rails.root.join("lib/observability/error_subscriber")
 Rails.error.subscribe(Observability::ErrorSubscriber.new)
 
-# Yabeda Rails автоматически подключается к server; runner и tests подключаем явно.
+# Yabeda Rails hooks into server automatically; runner and tests need explicit setup.
 Yabeda::Rails.install! unless defined?(Rails::Server) || defined?(Puma::CLI) || defined?(Unicorn::Launcher) || defined?(PhusionPassenger)
 Yabeda::Rails.config.ignore_actions = [ /\AAdmin::/, /\AOperations::/, /\AMissionControl::/, "Rails::HealthController#show" ]
 
 Yabeda.configure do
   group :starterapp do
-    gauge :queue_jobs, tags: [ :state ], comment: "Число заданий Solid Queue по состояниям"
-    gauge :queue_processes, tags: [ :kind ], comment: "Число процессов Solid Queue с актуальным heartbeat"
-    gauge :queue_oldest_ready_age_seconds, comment: "Время ожидания самого старого готового задания"
-    counter :agent_trace_failures, tags: [ :stage ], comment: "Сбои сохранения traces Active Agent"
-    counter :agent_generations, tags: %i[agent action status], comment: "Завершённые генерации Active Agent"
+    gauge :queue_jobs, tags: [ :state ], comment: "Solid Queue jobs by state"
+    gauge :queue_processes, tags: [ :kind ], comment: "Solid Queue processes with a current heartbeat"
+    gauge :queue_oldest_ready_age_seconds, comment: "Age of the oldest Ready job"
+    counter :agent_trace_failures, tags: [ :stage ], comment: "Active Agent trace persistence failures"
+    counter :agent_generations, tags: %i[agent action status], comment: "Completed Active Agent generations"
     histogram :agent_generation_duration_seconds, tags: %i[agent action status],
-      buckets: [ 0.1, 0.5, 1, 5, 15, 30, 60, 120, 300 ], comment: "Длительность генерации Active Agent"
-    counter :agent_tokens, tags: %i[agent action direction], comment: "Токены Active Agent, сообщённые провайдером"
+      buckets: [ 0.1, 0.5, 1, 5, 15, 30, 60, 120, 300 ], comment: "Active Agent generation duration"
+    counter :agent_tokens, tags: %i[agent action direction], comment: "Provider-reported Active Agent tokens"
   end
 
   collect do
@@ -26,6 +26,6 @@ Yabeda.configure do
 end
 
 Rails.application.config.after_initialize do
-  # Нулевой первый sample позволяет alert увидеть первый сбой сохранения.
+  # An initial zero sample allows alerts to detect the first persistence failure.
   %w[storage sdk].each { |stage| Yabeda.starterapp.agent_trace_failures.increment({ stage: stage }, by: 0) }
 end

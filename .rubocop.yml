@@ -1,4 +1,4 @@
-# Стиль Rails Omakase и проверки потокобезопасности.
+# Rails Omakase style and thread-safety checks.
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
 plugins:
@@ -24,7 +24,7 @@ ThreadSafety/MethodRedefinition:
 ThreadSafety/LazySynchronizationPrimitive:
   Enabled: true
 
-# Во время обработки запросов и заданий ENV общий для всех потоков.
+# ENV is shared across request and job threads.
 ThreadSafety/EnvMutation:
   Enabled: true
   Include:

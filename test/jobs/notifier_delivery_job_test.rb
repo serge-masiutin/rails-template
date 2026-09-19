@@ -5,7 +5,7 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
 
   class ProbeNotifier < ApplicationNotifier
     def ping
-      notification(body: "Проверка очереди")
+      notification(body: "Queue probe")
     end
   end
 
@@ -17,7 +17,7 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
   def setup
     super
     @previous_mode = AbstractNotifier.delivery_mode
-    # Проверяем реальный Active Job adapter вместо перехватчика Abstract Notifier.
+    # Exercise the real Active Job adapter rather than Abstract Notifier interception.
     AbstractNotifier.delivery_mode = :normal
     @delivered = []
     ProbeNotifier.driver = ->(payload) { @delivered << payload.merge(request_id: Current.request_id) }
@@ -29,7 +29,7 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
     super
   end
 
-  test "уведомление попадает в очередь после commit и сохраняет request_id" do
+  test "notification enqueues after commit and preserves request_id" do
     Current.request_id = "notifier-request"
     User.transaction do
       User.count
@@ -41,11 +41,11 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
     assert_equal "notifier-request", enqueued_jobs.last.fetch("request_id")
     Current.reset
     perform_enqueued_jobs(only: NotifierDeliveryJob)
-    assert_equal [ { body: "Проверка очереди", request_id: "notifier-request" } ], @delivered
+    assert_equal [ { body: "Queue probe", request_id: "notifier-request" } ], @delivered
     assert_nil Current.request_id
   end
 
-  test "rollback отменяет уведомление" do
+  test "rollback cancels notification" do
     assert_no_enqueued_jobs do
       User.transaction do
         User.count
@@ -56,7 +56,7 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
     assert_empty @delivered
   end
 
-  test "отсутствующий транспорт не превращается в успешную отправку" do
+  test "missing transport does not become successful delivery" do
     assert_raises(RuntimeError) { ApplicationNotifier.driver }
   end
 end

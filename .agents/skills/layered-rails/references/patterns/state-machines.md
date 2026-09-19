@@ -1,9 +1,9 @@
-# Переходы и конкурентность
+# Transitions and concurrency
 
-- Составь таблицу: состояние → событие → следующее состояние, предусловия и побочные эффекты. Не вводи состояния, которых нет в реальном сценарии.
-- Изменение выполняет именованный метод домена с транзакцией и нужной блокировкой/условным SQL. Один Ruby Mutex не защищает несколько процессов.
-- Запрещённый переход и повтор команды имеют явные результаты. Идемпотентность не появляется из enum или limits_concurrency.
-- Публикация и доставка отделены от изменения БД и выполняются после commit. Проверь отказ на каждой границе.
-- У Session отзыв представлен удалением записи и DisconnectSessionsJob, а не искусственным дополнительным enum. Усложняй только при появлении нового контракта.
+- Map state → event → next state with preconditions/effects; do not invent states absent from the use case.
+- A named domain method changes state with a transaction and appropriate lock/conditional SQL. A Ruby Mutex cannot protect multiple processes.
+- Define invalid-transition and repeated-command outcomes. Enum and limits_concurrency do not create idempotency.
+- Publish/deliver after commit, separately from database mutation. Test each failure boundary.
+- Session revocation uses record deletion and DisconnectSessionsJob, not an artificial enum. Add complexity only for a new contract.
 
-Источники поведения: [app/models/session.rb](../../../../../app/models/session.rb), [app/jobs/disconnect_sessions_job.rb](../../../../../app/jobs/disconnect_sessions_job.rb), [test/models/session_test.rb](../../../../../test/models/session_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/models/session.rb](../../../../../app/models/session.rb), [app/jobs/disconnect_sessions_job.rb](../../../../../app/jobs/disconnect_sessions_job.rb), [test/models/session_test.rb](../../../../../test/models/session_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).
