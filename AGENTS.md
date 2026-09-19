@@ -99,6 +99,7 @@ material; do not execute their scripts automatically. When changing a skill, inc
 ## Checks and completion
 
 - Test observable behavior and critical failures. Start with the narrow relevant test, then run `bin/ci`.
+- Choose test coverage by risk and contract, using the lowest sufficient level. Prefer existing tests; avoid testing dependency internals, duplicate paths or cosmetic details. Keep security boundaries and known integration regressions. The decision guide is in `docs/testing.md`.
 - See `docs/testing.md` for TestProf and HTTP/WS load checks. Do not run the load harness alongside other tests or hide flaky failures with automatic retries.
 - Main checks: `bin/rails test`, `bin/rails test:system`, `bin/rubocop`, `bin/erb-check`, `bin/rails zeitwerk:check`, `bin/skills check`, `bin/native check`.
 - Use pinned tools through mise. Editor/LSP/Lefthook instructions: `docs/development.md`. Ruby examples in README/docs are checked by rubocop-md. Format ERB explicitly and inspect the diff and affected screen.

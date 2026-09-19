@@ -15,10 +15,15 @@ class RealtimeTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=realtime-session][data-turbo-track=reload]"
   end
 
-  test "sign-out revokes the session and enqueues WebSocket disconnect" do
+  test "sign out revokes only the current session and enqueues WebSocket disconnection" do
+    other_session = users(:one).sessions.create!
     sign_in_as users(:one)
     session_id = users(:one).sessions.last.id
     assert_enqueued_with(job: DisconnectSessionsJob, args: [ [ session_id ] ]) { delete session_path }
     assert_not Session.exists?(session_id)
+    assert Session.exists?(other_session.id)
+    assert_empty cookies[:session_id]
+    assert_response :see_other
+    assert_redirected_to new_session_path
   end
 end

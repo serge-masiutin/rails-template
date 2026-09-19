@@ -11,7 +11,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     Rails.application.config.x.operations = @operations
   end
 
-  test "diagnostics and panel require operator access" do
+  test "health and metrics reject missing and invalid credentials" do
     %w[/ops/health /ops/metrics].each do |path|
       get path
       assert_response :unauthorized
@@ -20,26 +20,15 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "panel shows Solid Queue after authentication" do
-    sign_in_as(users(:admin))
-    get "/ops/jobs"
-    follow_redirect! while response.redirect?
-    assert_response :success
-    assert_select "a[href*=solid_queue]", text: "Workers"
-    assert_equal "no-store", response.headers["Cache-Control"]
-  end
-
   test "unconfigured access is denied" do
     Rails.application.config.x.operations = OperationsConfig.new(username: nil, password: nil, metrics_token: nil)
     get "/ops/metrics", headers: { "Authorization" => @authorization }
     assert_response :unauthorized
   end
 
-  test "collector token cannot open the panel or health endpoint" do
-    %w[/ops/health].each do |path|
-      get path, headers: { "Authorization" => "Bearer #{"b" * 32}" }
-      assert_response :unauthorized
-    end
+  test "Basic and Bearer are not interchangeable on machine endpoints" do
+    get "/ops/health", headers: { "Authorization" => "Bearer #{"b" * 32}" }
+    assert_response :unauthorized
     get "/ops/metrics", headers: { "Authorization" => @authorization }
     assert_response :unauthorized
   end

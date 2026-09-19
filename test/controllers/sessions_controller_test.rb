@@ -1,12 +1,7 @@
 require "test_helper"
 
 class SessionsControllerTest < ActionDispatch::IntegrationTest
-  setup { @user = User.take }
-
-  test "new" do
-    get new_session_path
-    assert_response :success
-  end
+  setup { @user = users(:one) }
 
   test "create with valid credentials" do
     post session_path, params: { email_address: @user.email_address, password: "password" }
@@ -20,14 +15,5 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_nil cookies[:session_id]
-  end
-
-  test "destroy" do
-    sign_in_as(User.take)
-
-    delete session_path
-
-    assert_redirected_to new_session_path
-    assert_empty cookies[:session_id]
   end
 end

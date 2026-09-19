@@ -4,7 +4,7 @@ description: "Test Rails contracts, ViewComponent, Cuprite, real services and Na
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "16"
+  version: "17"
 ---
 
 # hotwire-rails-testing
@@ -13,6 +13,14 @@ Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources
 Write repository content in English and respond in the user's preferred language.
 Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
 Hotwire Native Android, Overmind and Kamal.
+
+## Choosing coverage
+
+- Use the risk/level matrix in `docs/testing.md`. Name the failure and observable result before writing a test; choose the lowest sufficient level. Coverage percentages and test counts are not goals.
+- Extend a test that already owns the contract. Keep browser tests for critical journeys and JavaScript; keep validation matrices in Ruby/HTTP tests.
+- Do not test dependency internals, private methods, cosmetic details or duplicate paths. Preserve our integration guards and known regressions, including worker reload and Cuprite setup.
+- When removing a test, identify the remaining owner of the contract or why it belongs to upstream. Never remove a failure merely to get green CI.
+- Use explicit fixtures and restore global state. Subprocess tests supply their own configuration; assert outcomes and absence of forbidden effects, not only HTTP 200 or no exception.
 
 ## Working contract
 
@@ -29,11 +37,11 @@ Hotwire Native Android, Overmind and Kamal.
 - Keep Isolator enabled; test commit and rollback for side-effect changes. For actual commits use `self.use_transactional_tests = false` and clean up records.
 - Check collections with `assert_perform_constant_number_of_queries` over growing datasets; see `test/models/queue_snapshot_test.rb`.
 - Verify job delivery and unauthorized access to another user's records.
-- Test races with real threads, barriers, timeouts, separate database connections and `Thread#value`; see `test/lib/concurrency_test.rb`. Check Current/log-tag cleanup and connection return after failures.
+- Test races with real threads, barriers, timeouts, separate database connections and `Thread#value`; see `test/lib/concurrency_test.rb`. For our own context/resource handling, check cleanup after failure: Current, log tags and checked-out connections.
 - Integration tests cover status, redirects, cookies, authorization, HTML and stable Turbo targets. ViewComponent tests check semantic DOM and variants.
 - Register database pools before system fixtures, including `SolidQueue::Record`; creating a pool in Puma's thread breaks Isolator transaction accounting at teardown.
 - Set Cuprite through `driven_by ... options:`; Rails overwrites manual driver registration. `BrowserDriverTest` verifies real options; `process_timeout` controls Chrome startup, not DOM waits.
-- Test form success, 422 validation, history and Stimulus reconnect through real Chrome/Capybara assertions.
+- Use Chrome/Capybara for form success, 422 error rendering, history and Stimulus reconnect when changing that client behavior. A browser scenario complements the HTTP validation matrix; do not repeat the full matrix in the browser.
 - After WebSocket changes, `bin/realtime-test` checks Go delivery, recovery, history loss, foreign subscriptions and session revocation. Mocked broadcasts cannot prove delivery.
 - `bin/load-test smoke|load` uses the local test database, a temporary user, CSRF and real private delivery. Never run it alongside other tests. Errors or missing delivery must fail thresholds; check cleanup and required JSON/metrics artifacts. Local results do not establish production capacity.
 - Native checks validate schema/path rules and bundled/remote JSON agreement. Kotlin changes require an Android build; missing SDK is an unverified result, not success.
