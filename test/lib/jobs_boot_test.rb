@@ -22,7 +22,13 @@ class JobsBootTest < ActiveSupport::TestCase
         end
       RUBY
       probe.flush
-      output, errors, status = Open3.capture3({ "RAILS_ENV" => "development" },
+      environment = {
+        "RAILS_ENV" => "development",
+        "ANYCABLE_SECRET" => "worker-boot-test-" * 4,
+        "IMGPROXY_KEY" => "1" * 64,
+        "IMGPROXY_SALT" => "2" * 64
+      }
+      output, errors, status = Open3.capture3(environment,
         RbConfig.ruby, "-r", probe.path, "bin/jobs", "check", chdir: Rails.root)
       assert status.success?, errors
       report = JSON.parse(output.lines.find { |line| line.start_with?("WORKER_BOOT:") }.delete_prefix("WORKER_BOOT:"))
