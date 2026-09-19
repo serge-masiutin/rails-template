@@ -9,7 +9,11 @@ Rails Semantic Logger пишет JSON, Mission Control показывает Soli
 Открой `/admin` после обычного входа в приложение. Ссылка есть в верхней навигации
 и в профиле, в том числе в Android. Обзор показывает доступность БД, heartbeat процессов,
 число заданий и возраст очереди. Из общей навигации доступны Mission Control, AgentPrism,
-метрики и логи. Снимок обновляется кнопкой «Refresh»; это не проверка SMTP и внешних API.
+метрики и логи. Обзор, Mission Control и AgentPrism обновляются каждые 5 секунд.
+Turbo morph сохраняет DOM; AgentPrism сохраняет выбранный trace и вкладку. Скрытая вкладка
+не делает запросов. Mission Control приостанавливает замену содержимого при вводе или выборе
+заданий; проверка доступа продолжается. Ошибка связи видна как Reconnecting; при 401/403 данные
+удаляются с экрана. Это не проверка SMTP и внешних API.
 
 Обзор сохраняет имена процессов Solid Queue: `Worker`, `Dispatcher`, `Scheduler`.
 Состояния заданий соответствуют ключам метрик:
@@ -46,7 +50,7 @@ JSON AgentPrism и мутации Mission Control. После отзыва пр�
 
 ### Метрики и логи в админке
 
-`/admin/observability` содержит переходы во внешние сервисы и порядок поиска по request/job ID.
+`/admin/observability` содержит переходы в Grafana, Prometheus и поиск логов.
 Адреса задаются через Anyway Config (`config/operations.local.yml`) или ENV:
 
 | ENV | Назначение |
@@ -57,8 +61,8 @@ JSON AgentPrism и мутации Mission Control. После отзыва пр�
 
 В production обязательна схема HTTPS. Не помещай credentials и секретные токены в URL.
 Ссылки не проксируют сервисы и не передают им сессию или Bearer-токен приложения;
-каждый сервис должен иметь собственную защиту. Пустой адрес показывается как «Адрес не настроен».
-Наличие ссылки не проверяет доступность сервиса и не подключает сборщик логов.
+каждый сервис должен иметь собственную защиту. Пустой адрес показывается как Not configured.
+Наличие ссылки не подтверждает доступность сервиса.
 GitHub Environment variables с этими именами передаются через workflow и Kamal.
 
 ## Локальный запуск
@@ -67,14 +71,11 @@ GitHub Environment variables с этими именами передаются �
 Файл исключён из Git и Docker. Для уже установленного проекта выполни `mise exec -- bin/ops setup`.
 После изменения credentials перезапусти Rails.
 
-При работающем `mise exec -- bin/dev` запусти:
-
-```sh
-mise exec -- bin/ops monitoring
-```
-
-Команда поднимает Prometheus и Grafana через профиль Compose `monitoring`.
-Обычный `bin/dev` эти контейнеры не запускает.
+`mise exec -- bin/dev` запускает PostgreSQL, Prometheus, Grafana, Loki и Alloy,
+ждёт готовности мониторинга и передаёт управление Overmind. Отдельно перезапустить
+мониторинг можно через `mise exec -- bin/ops monitoring`; данные сохраняются в Docker volumes.
+Loki хранит логи 7 дней, Alloy читает только `log/development.jsonl` и сохраняет позицию чтения.
+Тестовые логи и Docker socket сборщику не передаются.
 
 | Адрес | Назначение и доступ |
 | --- | --- |
@@ -82,21 +83,31 @@ mise exec -- bin/ops monitoring
 | `http://localhost:3000/ops/jobs` | Очереди, ошибки, повтор заданий и процессы; та же сессия администратора |
 | `http://localhost:3000/ops/health` | БД и heartbeat воркеров; отдельный HTTP Basic из локального конфига |
 | `http://localhost:3000/ops/metrics` | Prometheus-метрики; отдельный Bearer `metrics_token` |
+| `http://localhost:3001/d/starterapp-logs` | Поиск логов по тексту, request_id и job_id; обновление каждые 5 секунд |
 | `http://localhost:3001/d/starterapp` | Дашборд Grafana, локальный режим просмотра |
 | `http://localhost:9090` | Запросы PromQL, состояние сбора и alerts |
 | `http://localhost:8091/metrics` | Метрики AnyCable; доступ только с локального компьютера |
 | `http://localhost:9394/metrics` | Метрики jobs; Bearer `metrics_token`, остальные маршруты закрыты |
 
-Адреса локальных Grafana и Prometheus уже заданы в `config/operations.yml` для development.
+Адреса локальных Grafana, Prometheus и Logs уже заданы в `config/operations.yml` для development.
 Grafana и Prometheus слушают только loopback. Это конфигурация разработки; ссылки на localhost
 работают на компьютере с этими контейнерами, а не на отдельном Android-устройстве.
 Prometheus собирает данные раз в 15 секунд и хранит до 7 дней, не более 1 ГБ.
-Графики скорости требуют нескольких измерений. Остановка: `docker compose --profile monitoring stop prometheus grafana`.
+Дашборды Grafana обновляются каждые 5 секунд; графики скорости требуют нескольких измерений.
+Loki и Alloy доступны только внутри сети Compose, публичных портов у них нет.
+Остановка мониторинга: `docker compose --profile monitoring stop prometheus grafana loki alloy`.
+Остановка всех контейнеров проекта: `docker compose --profile monitoring --profile realtime --profile images stop`.
+
+Конфиги Loki и Alloy валидируются в GitHub CI вместе с Prometheus и alerts.
+Источники: [Loki](https://grafana.com/docs/loki/latest/configure/examples/configuration-examples/),
+[Alloy](https://grafana.com/docs/alloy/latest/reference/components/loki/loki.source.file/).
 
 ## Найти событие в логах
 
 Приложение и воркеры пишут по одному JSON-событию на строку в `log/development.jsonl` и stdout.
 Тесты пишут в `log/test.jsonl`; production — только в stdout контейнера.
+В админке открой Logs, введи ID или текст в поле Search. Детали строки раскрывают JSON.
+В Grafana Explore можно включить Live tail. Для терминала:
 
 ```sh
 bin/logs

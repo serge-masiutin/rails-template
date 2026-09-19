@@ -10,10 +10,10 @@
     <%= render "shared/typography" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="min-h-screen antialiased">
+  <body class="admin-shell min-h-screen antialiased">
     <a href="#main" class="sr-only focus:not-sr-only"><%= t("layout.skip_content") %></a>
     <%= render "admin/navigation" %>
-    <main id="main" class="mx-auto max-w-5xl space-y-8 px-6 py-8">
+    <main id="main" class="admin-main">
       <%= yield %>
     </main>
   </body>

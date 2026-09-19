@@ -1,31 +1,71 @@
-/* Общая навигация трёх сборок: Tailwind, AgentPrism и Bulma Mission Control. */
-.admin-navigation {
-  background: var(--color-surface, #fff);
-  border-bottom: 1px solid var(--color-line, #dce2d9);
-  color: var(--color-ink, #17251e);
-  padding: 1rem 1.5rem;
+/* Общий каркас Tailwind, AgentPrism и Mission Control. */
+.admin-shell { --admin-line: #dce2d9; --admin-muted: #637168; min-height: 100dvh; background: #f7f7f2; color: #17251e; }
+.admin-navigation { position: fixed; inset: 0 auto 0 0; width: 224px; padding: 28px 18px; background: #fff; border-right: 1px solid var(--admin-line); z-index: 20; }
+.admin-navigation__brand { display: flex; align-items: center; gap: 12px; padding: 0 10px 32px; color: #17251e; font-size: 16px; font-weight: 600; text-decoration: none; }
+.admin-navigation__mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #276749; color: #fff; }
+.admin-navigation nav { display: flex; flex-direction: column; gap: 5px; }
+.admin-navigation nav a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 9px; color: #637168; font-size: 12px; text-decoration: none; }
+.admin-navigation nav a:hover { background: #f0f4ef; color: #17251e; }
+.admin-navigation nav a[aria-current="page"] { background: #eaf2e9; color: #1d563a; font-weight: 600; }
+.admin-navigation__app { margin-top: 24px; border-top: 1px solid var(--admin-line); }
+.admin-navigation a:focus-visible { outline: 2px solid #276749; outline-offset: 2px; }
+.admin-main { margin-left: 224px; padding: 40px; max-width: 1400px; }
+.admin-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+.admin-page-heading h1 { font-size: 25px; font-weight: 600; letter-spacing: -.04em; margin: 0; }
+.admin-live { display: inline-flex; align-items: center; gap: 8px; color: #637168; font-size: 11px; }
+.admin-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #34845a; flex-shrink: 0; }
+.admin-live[data-state="offline"]::before, .admin-live[data-state="denied"]::before { background: #b42318; }
+.admin-live[data-state="paused"]::before { background: #a77616; }
+.admin-section { margin-bottom: 32px; }
+.admin-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.admin-section-heading h2 { font-size: 14px; font-weight: 600; margin: 0; }
+.admin-text-link { color: #276749; font-size: 11px; }
+.admin-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.admin-metric, .admin-tool { background: #fff; border: 1px solid var(--admin-line); border-radius: 14px; padding: 20px; }
+.admin-metric dt { color: #637168; font-size: 11px; }
+.admin-metric dd { margin-top: 12px; font-size: 30px; font-weight: 500; }
+.admin-metric--error { border-color: #e5aea5; background: #fff6f3; color: #b42318; }
+.admin-processes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #fff; border: 1px solid var(--admin-line); border-radius: 14px; }
+.admin-processes > div { display: flex; justify-content: space-between; align-items: center; padding: 20px; font-size: 12px; }
+.admin-processes > div + div { border-left: 1px solid var(--admin-line); }
+.admin-processes dd { font-weight: 600; }
+.admin-health { font-size: 11px; color: #b42318; }
+.admin-health[data-healthy="true"] { color: #276749; }
+.admin-caption { font-size: 11px; color: #637168; margin-top: 10px; }
+.admin-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.admin-tool h3 { font-size: 14px; font-weight: 600; margin: 0; }
+.admin-tool a { color: #276749; display: inline-block; padding-block: 8px; }
+.admin-tool p { color: #637168; font-size: 11px; line-height: 1.7; margin-top: 8px; }
+.admin-shell--agents #agent-prism, .admin-shell--agents noscript { display: block; margin-left: 224px; }
+.admin-shell--agents .ops-toolbar { padding: 28px 24px 20px; }
+.admin-shell--agents .ops-toolbar h1 { font-size: 25px; }
+.admin-shell--agents .ops-message { padding: 24px; }
+.admin-shell .section.admin-main > .container, .admin-shell .section.admin-main > turbo-frame > .container { max-width: none; width: 100%; }
+@media (max-width: 900px) {
+  .admin-navigation { position: static; width: auto; border-right: 0; border-bottom: 1px solid var(--admin-line); padding: 14px 16px 8px; }
+  .admin-navigation__brand { padding: 0 8px 8px; font-size: 14px; }
+  .admin-navigation__mark { width: 26px; height: 26px; border-radius: 8px; }
+  .admin-navigation nav { flex-direction: row; overflow-x: auto; gap: 4px; }
+  .admin-navigation nav a { flex-shrink: 0; font-size: 11px; padding: 8px 10px; }
+  .admin-navigation__app { margin-top: 0; border-top: 0; }
+  .admin-main, .admin-shell--agents #agent-prism, .admin-shell--agents noscript { margin-left: 0; }
+  .admin-main { padding: 24px 16px; }
+  .admin-page-heading { align-items: flex-start; margin-bottom: 24px; }
+  .admin-page-heading h1 { font-size: 22px; }
+  .admin-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .admin-metric { padding: 16px 12px; }
+  .admin-metric dd { font-size: 26px; }
+  .admin-tools { grid-template-columns: 1fr; }
+  .admin-processes > div { padding: 14px 10px; font-size: 10px; gap: 8px; }
+  .admin-live { max-width: 130px; text-align: right; font-size: 10px; }
 }
-.admin-navigation__brand {
-  display: inline-block;
-  color: var(--color-ink, #17251e);
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: .75rem;
-  text-decoration: none;
-}
-.admin-navigation__brand span {
-  color: var(--color-muted, #536258);
-  font-size: .8rem;
-  font-weight: 400;
-}
-.admin-navigation nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
-.admin-navigation nav a {
-  color: var(--color-accent, #276749);
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: .8rem;
-  text-decoration: none;
-}
-.admin-navigation nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: .3em; font-weight: 600; }
-.admin-navigation a:focus-visible { outline: 2px solid var(--color-accent, #276749); outline-offset: 4px; }
+
+/* Уплотняем штатные элементы Mission Control в общем каркасе. */
+.admin-shell .section.admin-main { font-size: 13px; }
+.admin-shell .section.admin-main a { color: #276749; }
+.admin-shell .section.admin-main .tabs { font-size: 11px; margin-bottom: 24px; }
+.admin-shell .section.admin-main .tabs li.is-active a { border-bottom-color: #276749; color: #1d563a; }
+.admin-shell .section.admin-main .label { font-size: 11px; font-weight: 500; }
+.admin-shell .section.admin-main .input, .admin-shell .section.admin-main .button { font-size: 12px; }
+.admin-shell .section.admin-main .is-size-3 { font-size: 16px !important; }
+.admin-shell .section.admin-main .table { font-size: 12px; }

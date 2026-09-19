@@ -1,3 +1,4 @@
+import { startLivePoll } from "../../javascript/live_poll.js";
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { decodeMessages, type Messages } from "./messages";
@@ -9,43 +10,58 @@ type State = { status: "loading" } | { status: "error"; message: string } |
 
 function App({ url, messages }: { url: string; messages: Messages }) {
   const [cursor, setCursor] = useState<string | null>(null);
-  const [revision, setRevision] = useState(0);
   const [state, setState] = useState<State>({ status: "loading" });
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const controller = new AbortController();
     setState({ status: "loading" });
-    async function load() {
-      try {
-        const endpoint = new URL(url, window.location.origin);
-        if (cursor) endpoint.searchParams.set("before", cursor);
-        const response = await fetch(endpoint, { signal: controller.signal, credentials: "same-origin", cache: "no-store" });
-        if (!response.ok) {
-          setState({ status: "error", message: messages.http_error.replace("%{status}", String(response.status)) });
-          return;
-        }
-        const page = decodeTracePage(await response.json());
-        setState({ status: "ready", ...page });
-      } catch (error) {
-        if (!controller.signal.aborted) setState({ status: "error", message: error instanceof InvalidTracePage ? messages.invalid_data : messages.load_error });
+    setError(null);
+    let previous = "";
+    const stop = startLivePoll(async (signal: AbortSignal) => {
+      const endpoint = new URL(url, window.location.origin);
+      if (cursor) endpoint.searchParams.set("before", cursor);
+      const response = await fetch(endpoint, { signal, credentials: "same-origin", cache: "no-store" });
+      if (response.redirected || response.status === 401 || response.status === 403) {
+        setState({ status: "error", message: messages.denied });
+        setError(null);
+        stop();
+        return;
       }
-    }
-    void load();
-    return () => controller.abort();
-  }, [url, cursor, revision, messages]);
+      if (!response.ok) throw new HttpError(response.status);
+      const payload = await response.json();
+      signal.throwIfAborted();
+      const page = decodeTracePage(payload);
+      const fingerprint = JSON.stringify(payload);
+      if (previous !== fingerprint) setState({ status: "ready", ...page });
+      previous = fingerprint;
+      setError(null);
+    }, (failure: unknown) => {
+      setError(failure instanceof InvalidTracePage ? messages.invalid_data :
+        failure instanceof HttpError ? messages.http_error.replace("%{status}", String(failure.status)) : messages.load_error);
+    });
+    return stop;
+  }, [url, cursor, messages]);
 
   return <>
     <div className="ops-toolbar">
       <h1>{messages.title}</h1>
-      <button onClick={() => { setCursor(null); setRevision(value => value + 1); }}>{messages.refresh}</button>
-      {state.status === "ready" && state.nextCursor &&
-        <button onClick={() => setCursor(state.nextCursor)}>{messages.earlier}</button>}
+      {state.status !== "error" && <span className="admin-live" role="status" data-state={error ? "offline" : "live"}>{error ? messages.offline : messages.live}</span>}
+      <div className="ops-pagination">
+        {cursor && <button onClick={() => setCursor(null)}>{messages.latest}</button>}
+        {state.status === "ready" && state.nextCursor &&
+          <button onClick={() => setCursor(state.nextCursor)}>{messages.earlier}</button>}
+      </div>
     </div>
-    {state.status === "loading" && <p className="ops-message" role="status">{messages.loading}</p>}
+    {error && <p className="ops-message" role="alert">{error}</p>}
+    {state.status === "loading" && !error && <p className="ops-message" role="status">{messages.loading}</p>}
     {state.status === "error" && <p className="ops-message" role="alert">{state.message}</p>}
     {state.status === "ready" && (state.data.length ?
-      <div className="ops-viewer" lang="en"><TraceViewer key={`${cursor}:${revision}`} data={state.data} /></div> :
+      <div className="ops-viewer" lang="en"><TraceViewer key={cursor ?? "latest"} data={state.data} /></div> :
       <p className="ops-message">{messages.empty}</p>)}
   </>;
+}
+
+class HttpError extends Error {
+  constructor(public status: number) { super(`HTTP ${status}`); }
 }
 
 class ViewerBoundary extends Component<{ children: ReactNode; message: string }, { failed: boolean }> {

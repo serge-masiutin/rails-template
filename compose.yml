@@ -67,6 +67,11 @@ services:
         bind:
           create_host_path: false
       - prometheus_data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9090/-/ready"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
   anycable:
     image: anycable/anycable-go:1.6.16-alpine
     profiles: [realtime]
@@ -99,12 +104,29 @@ services:
       # Go включает содержимое команд в warn; ошибки RPC видны в Rails.error и метриках.
       ANYCABLE_LOG_LEVEL: error
       ANYCABLE_DISABLE_TELEMETRY: "true"
+  loki:
+    image: grafana/loki:3.7.8
+    profiles: [monitoring]
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./config/observability/loki.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+  alloy:
+    image: grafana/alloy:v1.19.2
+    profiles: [monitoring]
+    command: ["run", "--disable-reporting", "--storage.path=/var/lib/alloy", "/etc/alloy/config.alloy"]
+    depends_on: [loki]
+    volumes:
+      - ./config/observability/config.alloy:/etc/alloy/config.alloy:ro
+      - ./log:/var/log/app:ro
+      - alloy_data:/var/lib/alloy
   grafana:
     image: grafana/grafana:13.2.2
     profiles: [monitoring]
     ports:
       - "127.0.0.1:3001:3000"
     environment:
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/starterapp.json
       GF_AUTH_ANONYMOUS_ENABLED: "true"
       GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
       GF_AUTH_DISABLE_LOGIN_FORM: "true"
@@ -116,7 +138,14 @@ services:
       - ./config/observability/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./config/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
 volumes:
+  loki_data:
+  alloy_data:
   prometheus_data:
   grafana_data:
   postgres_data:

@@ -9,7 +9,7 @@
     "format:erb": "bin/erb-format",
     "build:agents": "node script/build-agents.mjs",
     "watch:agents": "node script/build-agents.mjs --watch",
-    "check:agents": "tsc --project tsconfig.agents.json && node script/check-agent-prism.mjs && node --test test/frontend/agent_prism_test.mjs"
+    "check:agents": "tsc --project tsconfig.agents.json && node script/check-agent-prism.mjs && node --test test/frontend/*_test.mjs"
   },
   "devDependencies": {
     "@herb-tools/formatter": "0.10.4",

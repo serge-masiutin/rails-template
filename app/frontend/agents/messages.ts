@@ -1,4 +1,4 @@
-const keys = ["title", "refresh", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"] as const;
+const keys = ["title", "live", "offline", "latest", "denied", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"] as const;
 export type Messages = Record<typeof keys[number], string>;
 
 export function decodeMessages(input: unknown): Messages {

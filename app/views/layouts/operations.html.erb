@@ -10,7 +10,7 @@
     <%= render "shared/typography" %>
     <%= javascript_include_tag "agent-prism", defer: true, nonce: true %>
   </head>
-  <body>
+  <body class="admin-shell admin-shell--agents">
     <%= render "admin/navigation" %>
     <%= yield %>
   </body>

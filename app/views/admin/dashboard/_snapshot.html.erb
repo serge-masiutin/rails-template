@@ -1,0 +1,37 @@
+<% if health.key?(:error) %>
+  <%= render Ui::NoticeComponent.new(message: t("admin.dashboard.unavailable"), variant: :alert) %>
+<% else %>
+  <% queue = health.fetch(:queue) %>
+  <section class="admin-section" aria-labelledby="queue-title">
+    <div class="admin-section-heading">
+      <h2 id="queue-title"><%= t("admin.dashboard.jobs") %></h2>
+      <%= link_to "Mission Control ↗", mission_control_jobs_path, class: "admin-text-link", data: { turbo: false } %>
+    </div>
+    <dl class="admin-metrics">
+      <% { ready: "Ready", claimed: "Claimed", scheduled: "Scheduled", blocked: "Blocked", failed: "Failed" }.each do |state, label| %>
+        <div class="admin-metric <%= "admin-metric--error" if state == :failed && queue.fetch(:jobs).fetch(state).positive? %>">
+          <dt><%= label %></dt>
+          <dd data-queue-state="<%= state %>"><%= queue.fetch(:jobs).fetch(state) %></dd>
+        </div>
+      <% end %>
+    </dl>
+    <% if queue.fetch(:oldest_ready_age_seconds).positive? %>
+      <p class="admin-caption"><%= t("admin.dashboard.oldest_ready", count: queue.fetch(:oldest_ready_age_seconds)) %></p>
+    <% end %>
+  </section>
+  <section class="admin-section" aria-labelledby="workers-title">
+    <div class="admin-section-heading">
+      <h2 id="workers-title"><%= t("admin.dashboard.workers") %></h2>
+      <span class="admin-health" data-healthy="<%= health.fetch(:healthy) %>"><%= t(health.fetch(:healthy) ? "admin.dashboard.healthy" : "admin.dashboard.unhealthy") %></span>
+    </div>
+    <dl class="admin-processes">
+      <% { "worker" => "Worker", "dispatcher" => "Dispatcher", "scheduler" => "Scheduler" }.each do |kind, label| %>
+        <div><dt><%= label %></dt><dd><%= queue.fetch(:processes).fetch(kind) %></dd></div>
+      <% end %>
+    </dl>
+  </section>
+<% end %>
+<section class="admin-section" aria-labelledby="tools-title">
+  <div class="admin-section-heading"><h2 id="tools-title"><%= t("admin.navigation.observability") %></h2></div>
+  <%= render "admin/shared/tools", operations: Rails.configuration.x.operations %>
+</section>

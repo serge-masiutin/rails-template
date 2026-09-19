@@ -4,7 +4,7 @@ description: "Поддерживать и настраивать Rails/Hotwire �
 metadata:
   upstream: inertia-rails-setup
   adapted-for: StarterApp
-  version: "8"
+  version: "9"
 ---
 
 # hotwire-rails-setup
@@ -22,6 +22,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 - Источники версий: `.ruby-version`, `mise.toml`, `Gemfile.lock`, Dockerfile и native build files.
 - Для нового проекта сначала выполни `bin/configure --name my_app --android-id com.example.myapp` в чистом Git checkout; контракт и ограничения — `docs/template.md`. Повторно переименовывать действующее приложение этой командой нельзя.
 - Запуск: `mise install`, `mise exec -- bin/setup`, затем `mise exec -- bin/dev`.
+- `bin/dev` автоматически запускает Prometheus, Grafana, Loki и Alloy; контейнеры мониторинга живут отдельно от Overmind. Конфиги и остановка — `docs/observability.md`. Не публикуй локальный anonymous Grafana или Loki в production.
 - Overmind читает `Procfile.dev` и запускает web, CSS watcher, jobs, AnyCable, imgproxy и AgentPrism watcher; PostgreSQL поднимается через Compose.
 - AnyCable использует HTTP RPC и общий секрет Rails/Go. Локальный запуск, закрытые порты и Kamal accessory — `docs/realtime.md`; после изменения транспорта запускай `bin/realtime-test`.
 - Используй importmap и vendored JavaScript в `vendor/javascript`; Tailwind собирается Ruby gem. Node.js используется для Herb и отдельной сборки AgentPrism.

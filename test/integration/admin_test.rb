@@ -62,7 +62,7 @@ class AdminTest < ActionDispatch::IntegrationTest
   test "панель показывает настоящий heartbeat и сообщает об остановленной очереди" do
     sign_in_as(users(:admin))
     get admin_root_path
-    assert_select '[role="alert"]', text: /some required queue processes/
+    assert_select '[data-healthy="false"]', text: "Needs attention"
     %w[Worker Dispatcher Scheduler Ready Scheduled Claimed Blocked Failed].each do |label|
       assert_select "dt", text: label
     end
@@ -70,7 +70,7 @@ class AdminTest < ActionDispatch::IntegrationTest
       SolidQueue::Process.create!(kind: kind, name: kind, last_heartbeat_at: Time.current, pid: 1, hostname: "test")
     end
     get admin_root_path
-    assert_select '[role="status"]', text: /All required queue processes are sending heartbeats/
+    assert_select '[data-healthy="true"]', text: "Healthy"
   end
 
   test "сбой БД очереди показан явно и не выдаёт успешные счётчики" do
@@ -79,7 +79,7 @@ class AdminTest < ActionDispatch::IntegrationTest
       SolidQueue::Record.connection.execute("ALTER TABLE solid_queue_processes RENAME TO unavailable_processes")
       get admin_root_path
       assert_response :success
-      assert_select '[role="alert"]', text: /Could not read the database/
+      assert_select '[role="alert"]', text: /Database unavailable/
       assert_select "#queue-title", 0
       refute_includes response.body, "PG::UndefinedTable"
       raise ActiveRecord::Rollback
@@ -94,7 +94,7 @@ class AdminTest < ActionDispatch::IntegrationTest
     get admin_observability_path
     assert_response :success
     assert_select 'a[href="https://metrics.example.com/dashboard"][rel="noopener noreferrer"]'
-    assert_select "p", text: "URL not configured", count: 2
+    assert_select "span", text: "Not configured", count: 2
     refute_includes response.body, "a" * 32
     refute_includes response.body, "b" * 32
     assert_equal "same-origin", response.headers.fetch("Referrer-Policy")

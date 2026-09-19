@@ -3,7 +3,7 @@
   "title": "StarterApp",
   "schemaVersion": 39,
   "version": 1,
-  "refresh": "15s",
+  "refresh": "5s",
   "time": {
     "from": "now-1h",
     "to": "now"
@@ -456,6 +456,14 @@
         },
         "overrides": []
       }
+    }
+  ],
+  "links": [
+    {
+      "title": "Logs",
+      "type": "link",
+      "url": "/d/starterapp-logs",
+      "keepTime": true
     }
   ]
 }

@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require "securerandom"
 require "yaml"
+require "net/http"
 
+# rubocop:disable ThreadSafety/DirChdir -- Изолированный CLI-процесс до загрузки Rails.
 Dir.chdir File.expand_path("..", __dir__) do
   case ARGV
   when [ "setup" ]
@@ -16,10 +18,23 @@ Dir.chdir File.expand_path("..", __dir__) do
     end
   when [ "monitoring" ]
     system("bin/rails", "runner", "script/prepare_monitoring.rb", exception: true)
-    exec "docker", "compose", "--profile", "monitoring", "up", "--detach", "prometheus", "grafana"
+    system("docker", "compose", "--profile", "monitoring", "up", "--detach", "--wait", "--wait-timeout", "60", "prometheus", "grafana", "loki", "alloy", exception: true)
+    # Loki начинает принимать запросы после восстановления своего ring.
+    uri = URI("http://127.0.0.1:3001/api/datasources/proxy/uid/loki/ready")
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 60
+    loop do
+      response = Net::HTTP.start(uri.host, uri.port, open_timeout: 2, read_timeout: 3) { |http| http.get(uri.request_uri) }
+      break if response.is_a?(Net::HTTPSuccess)
+      abort "Loki не готов: HTTP #{response.code}. Проверь docker compose logs loki alloy." unless response.code == "503"
+      abort "Loki не запустился за 60 секунд. Проверь docker compose logs loki alloy." if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+      sleep 2
+    end
+    puts "Мониторинг готов: http://localhost:3001"
   when [ "queue" ]
     exec "bin/rails", "runner", "puts JSON.pretty_generate(Operations::QueueSnapshot.capture)"
   else
     abort "Использование: bin/ops setup | queue | monitoring"
   end
 end
+
+# rubocop:enable ThreadSafety/DirChdir

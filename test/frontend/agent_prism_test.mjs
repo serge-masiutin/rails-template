@@ -30,9 +30,9 @@ test("Нарушение версии, структуры или числово�
 
 test("AgentPrism принимает полный словарь и отклоняет неполные переводы", async () => {
   const { decodeMessages } = await import("../../app/frontend/agents/messages.ts");
-  const messages = Object.fromEntries(["title", "refresh", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"].map(key => [key, key === "http_error" ? "HTTP %{status}" : key]));
-  assert.equal(decodeMessages(messages).refresh, "refresh");
-  assert.throws(() => decodeMessages({ ...messages, refresh: undefined }), /refresh/);
+  const messages = Object.fromEntries(["title", "live", "offline", "latest", "denied", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"].map(key => [key, key === "http_error" ? "HTTP %{status}" : key]));
+  assert.equal(decodeMessages(messages).live, "live");
+  assert.throws(() => decodeMessages({ ...messages, live: undefined }), /live/);
   assert.throws(() => decodeMessages({ ...messages, http_error: "HTTP" }), /status/);
   assert.throws(() => decodeMessages([]), /Invalid/);
 });

@@ -7,4 +7,6 @@ done
 docker compose up --detach --wait postgres
 bin/cable setup
 bin/images setup
+bin/ops setup
+bin/ops monitoring
 exec overmind start -f Procfile.dev "$@"

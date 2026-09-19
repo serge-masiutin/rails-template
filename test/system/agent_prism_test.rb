@@ -26,6 +26,9 @@ class AgentPrismTest < ApplicationSystemTestCase
     assert_text "request-123"
     click_button "RAW"
     assert_text "agent_invocation"
+    capture_trace
+    assert_text "Traces 2", normalize_ws: true, wait: 12
+    assert_selector '[role="tab"][data-state="active"]', text: "RAW"
     assert_no_text "PRIVATE_"
     assert page.evaluate_script("getComputedStyle(document.body).backgroundColor") != "rgba(0, 0, 0, 0)"
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-desktop.png"))
@@ -35,8 +38,8 @@ class AgentPrismTest < ApplicationSystemTestCase
     visit operations_agents_path
     assert_text "No traces yet"
     users(:admin).update!(admin: false)
-    click_button "Refresh"
-    assert_selector '[role="alert"]', text: "HTTP 403"
+    assert_selector '[role="alert"]', text: "Access expired", wait: 12
+    assert_no_selector ".ops-viewer"
   end
 
   test "на узком экране можно открыть ошибку tool call" do
@@ -49,12 +52,12 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-mobile.png"))
   end
 
-  test "пустое состояние и явное обновление" do
+  test "новые traces появляются автоматически" do
     visit operations_agents_path
     assert_text "No traces yet"
     capture_trace
-    click_button "Refresh"
-    assert_text "TestAgent.summarize"
+    assert_no_button "Refresh"
+    assert_text "TestAgent.summarize", wait: 12
     assert_no_text "No traces yet"
   end
 end

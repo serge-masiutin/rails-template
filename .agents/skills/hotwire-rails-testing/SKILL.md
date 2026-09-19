@@ -4,7 +4,7 @@ description: "Тестировать StarterApp: Rails Minitest, ViewComponent, 
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "14"
+  version: "15"
 ---
 
 # hotwire-rails-testing
@@ -15,6 +15,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 
 ## Рабочий контракт
 
+- Для автообновления проверяй поступление новых данных без клика, сохранение выбранного trace/ввода, 401/403 с очисткой панели, паузу скрытой вкладки и disconnect. Polling проверяется в `test/frontend/live_poll_test.mjs`, интеграция — в браузере.
 - Для админки проверяй гостя, обычного пользователя, администратора, отзыв роли, JSON 401/403, CSRF Mission Control и no-store. Сессия не заменяет Basic/Bearer технических endpoints; обратное тоже запрещено. Общую навигацию и Native HTML проверяет `test/system/admin_test.rb`.
 
 - Для AgentPrism проверяй настоящий цикл Active Agent → SDK local_store → очищенный JSON, usage без двойного счёта, ошибку записи, retention и доступ по роли администратора. UI проверяет `test/system/agent_prism_test.rb`; сначала `npm run build:agents`. Новые SDK-поля не должны автоматически попадать в БД/RAW.

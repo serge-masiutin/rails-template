@@ -26,6 +26,19 @@ Git remotes, identity, ключи и настройки компьютера к�
 Проверь `git diff`, выполни `bin/setup --skip-server`, затем `bin/ci` и сохрани изменения в Git.
 GitHub CI настраивает пример, пока шаблон не персонализирован; после настройки проверяет твой проект.
 
+## Первый аккаунт
+
+После `bin/setup` открой `mise exec -- bin/rails console`:
+
+```ruby
+require "io/console"
+User.create!(email_address: "you@example.com", password: IO.console.getpass("Пароль (от 12 символов): "))
+```
+
+Самостоятельной регистрации нет. Выдай роль через
+`mise exec -- bin/rails admin:grant EMAIL=you@example.com` и открой `/admin`.
+Письма разработки сохраняются в `tmp/mail`. Подробности доступа — в [наблюдаемости](observability.md#админка).
+
 ## Локальное окружение и публикация
 
 - В `bin/setup` создаются новые локальные ключи операций, AnyCable и imgproxy. Не копируй их между проектами.
