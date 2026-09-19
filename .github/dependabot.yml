@@ -25,7 +25,7 @@ updates:
     schedule: { interval: weekly }
     groups:
       android-build:
-        patterns: ["com.android.*", "org.jetbrains.kotlin:*"]
+        patterns: ["com.android.*", "org.jetbrains.kotlin:*", "gradle-wrapper"]
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }

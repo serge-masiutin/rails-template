@@ -44,7 +44,7 @@ APK находятся в `app/build/outputs/apk`. Перед публикаци
 AGP 9 использует встроенный Kotlin: отдельный `org.jetbrains.kotlin.android` не применяется.
 Версия компилятора задаётся в корневом `buildscript`, Gradle wrapper — в `gradle/wrapper` с SHA-256.
 Обновляй AGP, compiler и wrapper совместно по [таблице совместимости](https://developer.android.com/build/releases/agp-9-4-0-release-notes)
-и [инструкции Kotlin](https://developer.android.com/build/releases/agp-9-0-0-release-notes#kotlin).
+и [инструкции Kotlin](https://developer.android.com/build/migrate-to-built-in-kotlin).
 Версии — в build files и `app/gradle.lockfile`; при обновлении зависимостей пересоздай lockfile
 с `--write-locks` и проверь diff. Constraint для Error Prone устраняет сбой R8
 ([исправление библиотеки](https://github.com/google/error-prone/pull/5386)).

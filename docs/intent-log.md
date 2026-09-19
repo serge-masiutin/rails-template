@@ -20,12 +20,12 @@
 
 - Обновлены Puma 8.0.2, ImageProcessing 2.1.0 с явным ruby-vips, Lucide 1.46.0 и setup-node 7.
   Puma сохраняет IPv4 listener. Android переведён на AGP 9.4.1, встроенный Kotlin 2.4.20
-  и Gradle 9.6.0; wrapper и dependency lock пересозданы и проверены.
+  и Gradle 9.7.1; wrapper и dependency lock пересозданы и проверены.
 - Node остаётся на 24 LTS, panels — на v3 до совместимого обновления AgentPrism.
   Причины и условия перехода — в [разработке](development.md) и [AI](agents.md).
   Dependabot продолжает проверять эти зависимости; Android build-зависимости сгруппированы.
 - Локально прошли полный `bin/ci`: 117 Rails-тестов / 509 проверок,
   8 браузерных / 39, AnyCable / 12, imgproxy / 10 и k6 / 44. Проверены skills и сохранность vendor.
-  Собраны Android Debug и unsigned Release. Lint: 0 ошибок, 4 предупреждения о SDK,
-  версии Gradle и сжатии ресурсов; запуск на устройстве не выполнялся.
+  Собраны Android Debug и unsigned Release. Lint: 0 ошибок, 3 предупреждения о SDK
+  и сжатии ресурсов; запуск на устройстве не выполнялся.
 - Следующий шаг после публикации — проверить CI основной ветки GitHub и закрытие заменённых PR.
