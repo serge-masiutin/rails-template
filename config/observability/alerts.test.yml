@@ -19,7 +19,7 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: AnyCable не отдаёт метрики
+              summary: AnyCable is not exposing metrics
   - name: Короткий сбой не вызывает тревогу, устойчивый вызывает
     interval: 1m
     input_series:
@@ -37,7 +37,7 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: StarterApp не отдаёт метрики
+              summary: StarterApp is not exposing metrics
   - name: Worker пропал, dispatcher продолжает работать
     interval: 1m
     input_series:
@@ -53,7 +53,7 @@ tests:
               kind: worker
               severity: critical
             exp_annotations:
-              summary: Нет активного процесса очереди worker
+              summary: No active queue process worker
   - name: imgproxy недоступен дольше двух минут
     interval: 1m
     input_series:
@@ -71,7 +71,7 @@ tests:
               instance: test
               severity: critical
             exp_annotations:
-              summary: imgproxy не отдаёт метрики
+              summary: imgproxy is not exposing metrics
   - name: Метрики jobs недоступны дольше двух минут
     interval: 1m
     input_series:
@@ -89,7 +89,7 @@ tests:
               instance: test
               severity: warning
             exp_annotations:
-              summary: Процесс jobs не отдаёт метрики
+              summary: The jobs process is not exposing metrics
   - name: Потеря traces видна в alert
     interval: 1m
     input_series:
@@ -105,4 +105,4 @@ tests:
           - exp_labels:
               severity: warning
             exp_annotations:
-              summary: Не удалось сохранить traces Active Agent
+              summary: Could not store Active Agent traces

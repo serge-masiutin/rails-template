@@ -25,5 +25,14 @@ test("Нарушение версии, структуры или числово�
     value => { value.data[0].spans[0].children = null; },
     value => { value.data[0].spans[0].duration = -1; },
   ];
-  for (const mutate of mutations) { const payload = page(); mutate(payload); assert.throws(() => decodeTracePage(payload), /Некорректный формат данных AgentPrism/); }
+  for (const mutate of mutations) { const payload = page(); mutate(payload); assert.throws(() => decodeTracePage(payload), /Invalid AgentPrism data format/); }
+});
+
+test("AgentPrism принимает полный словарь и отклоняет неполные переводы", async () => {
+  const { decodeMessages } = await import("../../app/frontend/agents/messages.ts");
+  const messages = Object.fromEntries(["title", "refresh", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"].map(key => [key, key === "http_error" ? "HTTP %{status}" : key]));
+  assert.equal(decodeMessages(messages).refresh, "refresh");
+  assert.throws(() => decodeMessages({ ...messages, refresh: undefined }), /refresh/);
+  assert.throws(() => decodeMessages({ ...messages, http_error: "HTTP" }), /status/);
+  assert.throws(() => decodeMessages([]), /Invalid/);
 });

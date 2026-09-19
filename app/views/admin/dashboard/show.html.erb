@@ -1,19 +1,19 @@
-<% content_for :title, "Обзор" %>
+<% content_for :title, t("admin.navigation.overview") %>
 <div class="flex flex-wrap items-start justify-between gap-4">
   <div>
     <p class="text-sm text-muted"><%= Rails.env %> · Ruby <%= RUBY_VERSION %> · Rails <%= Rails.version %></p>
-    <h1 class="mt-2 text-3xl font-semibold">Состояние приложения</h1>
-    <p class="mt-3 text-sm text-muted">Снимок на <%= Time.current.utc.strftime("%d.%m.%Y %H:%M:%S UTC") %></p>
+    <h1 class="mt-2 text-3xl font-semibold"><%= t("admin.dashboard.heading") %></h1>
+    <p class="mt-3 text-sm text-muted"><%= t("admin.dashboard.snapshot", time: l(Time.current.utc, format: :snapshot)) %></p>
   </div>
-  <%= link_to "Обновить", admin_root_path, class: "rounded-xl border border-line bg-surface px-4 py-3 text-sm", data: { turbo: false } %>
+  <%= link_to t("actions.refresh"), admin_root_path, class: "rounded-xl border border-line bg-surface px-4 py-3 text-sm", data: { turbo: false } %>
 </div>
 <% if @health.key?(:error) %>
-  <%= render Ui::NoticeComponent.new(message: "Не удалось прочитать состояние БД и очереди. Проверьте подключение и логи приложения.", variant: :alert) %>
+  <%= render Ui::NoticeComponent.new(message: t("admin.dashboard.unavailable"), variant: :alert) %>
 <% else %>
   <% queue = @health.fetch(:queue) %>
   <section class="space-y-4" aria-labelledby="workers-title">
-    <h2 id="workers-title" class="text-xl font-semibold">База данных и Solid Queue</h2>
-    <%= render Ui::NoticeComponent.new(message: @health.fetch(:healthy) ? "БД отвечает. Обязательные процессы очереди передают heartbeat." : "БД отвечает, но не все обязательные процессы очереди передают heartbeat.", variant: @health.fetch(:healthy) ? :notice : :alert) %>
+    <h2 id="workers-title" class="text-xl font-semibold"><%= t("admin.dashboard.workers") %></h2>
+    <%= render Ui::NoticeComponent.new(message: @health.fetch(:healthy) ? t("admin.dashboard.healthy") : t("admin.dashboard.unhealthy"), variant: @health.fetch(:healthy) ? :notice : :alert) %>
     <dl class="grid gap-4 sm:grid-cols-3">
       <% { "worker" => "Worker", "dispatcher" => "Dispatcher", "scheduler" => "Scheduler" }.each do |kind, label| %>
         <div class="rounded-xl border border-line bg-surface p-5">
@@ -22,10 +22,10 @@
         </div>
       <% end %>
     </dl>
-    <p class="text-sm text-muted">Число процессов с актуальным heartbeat. В production обязательны все три типа. Это проверка БД и очереди; состояние WebSocket, SMTP и внешних API смотрите в мониторинге.</p>
+    <p class="text-sm text-muted"><%= t("admin.dashboard.heartbeat_help") %></p>
   </section>
   <section class="space-y-4" aria-labelledby="queue-title">
-    <h2 id="queue-title" class="text-xl font-semibold">Задания</h2>
+    <h2 id="queue-title" class="text-xl font-semibold"><%= t("admin.dashboard.jobs") %></h2>
     <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       <% { ready: "Ready", scheduled: "Scheduled", claimed: "Claimed", blocked: "Blocked", failed: "Failed" }.each do |state, label| %>
         <div class="rounded-xl border border-line bg-surface p-4">
@@ -34,17 +34,17 @@
         </div>
       <% end %>
     </dl>
-    <p class="text-sm">Самое старое задание в Ready ожидает запуска <%= queue.fetch(:oldest_ready_age_seconds) %> с.</p>
-    <%= link_to "Открыть Mission Control →", mission_control_jobs_path, class: "inline-block py-3 text-accent underline", data: { turbo: false } %>
+    <p class="text-sm"><%= t("admin.dashboard.oldest_ready", count: queue.fetch(:oldest_ready_age_seconds)) %></p>
+    <%= link_to t("admin.dashboard.open_jobs"), mission_control_jobs_path, class: "inline-block py-3 text-accent underline", data: { turbo: false } %>
   </section>
 <% end %>
-<section class="grid gap-4 sm:grid-cols-2" aria-label="Диагностика">
+<section class="grid gap-4 sm:grid-cols-2" aria-label="<%= t("admin.dashboard.diagnostics") %>">
   <%= link_to operations_agents_path, class: "block rounded-xl border border-line bg-surface p-6", data: { turbo: false } do %>
     <h2 class="font-semibold text-accent">AgentPrism →</h2>
-    <p class="mt-3 text-sm text-muted">Вызовы агентов, LLM и tools, ошибки и расход токенов за 7 дней.</p>
+    <p class="mt-3 text-sm text-muted"><%= t("admin.dashboard.agents") %></p>
   <% end %>
   <%= link_to admin_observability_path, class: "block rounded-xl border border-line bg-surface p-6" do %>
-    <h2 class="font-semibold text-accent">Метрики и логи →</h2>
-    <p class="mt-3 text-sm text-muted">Графики, alerts и поиск событий по request_id и job_id.</p>
+    <h2 class="font-semibold text-accent"><%= t("admin.dashboard.observability_link") %></h2>
+    <p class="mt-3 text-sm text-muted"><%= t("admin.dashboard.observability") %></p>
   <% end %>
 </section>

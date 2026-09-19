@@ -8,6 +8,8 @@ Ruby/Rails, PostgreSQL, Turbo/Stimulus, Tailwind и ViewComponent; версии 
 Локальный запуск — Overmind, деплой — Kamal, проверки — GitHub Actions.
 Внутри проекта: 30 адаптированных skills Evil Martians и `clear-writing`.
 
+Интерфейс и письма — на английском. [Добавление языков через i18n](docs/architecture.md#языки-интерфейса).
+
 ## Создать проект
 
 1. [Создай репозиторий из шаблона](https://github.com/serge-masiutin/rails-template/generate), выбери имя и видимость.

@@ -80,7 +80,8 @@
 | Рост concurrency / конкурентная запись | Общий ConcurrencyConfig, бюджет подключений, индекс/блокировка в БД и детерминированный тест с барьером |
 | AI-функция | `ApplicationAgent`, версия промпта, job после commit, явное сохранение и приватный Turbo Stream для веба/Android; WebMock, usage и ошибки, отдельные quality evals |
 | Админка и диагностика | `/admin`, очередь и AgentPrism закрыты сессией и AdminPolicy; отзыв роли, CSRF, no-store, общая навигация и узкий экран; Basic health и Bearer metrics изолированы |
-| Термины UI и документации | Названия AgentPrism/Mission Control и trace/span согласованы; обычные действия остаются русскими; API, метрики и vendor не переименованы; случаи — `clear-writing/references/review-cases.md` |
+| Термины UI и документации | Названия AgentPrism/Mission Control и trace/span согласованы; UI и письма английские через i18n, документация русская; API, метрики и vendor не переименованы; случаи — `clear-writing/references/review-cases.md` |
+| Новый язык интерфейса | Полный словарь, allowlist, locale в ссылках и jobs, Android resources, отсутствие fallback и тесты `localization_test.rb` |
 | Просмотр AI traces | AgentPrism в закрытом `/ops/agents`, local_store без тел, allowlist и retention; UI/data/types одного commit, отдельная сборка и проверки доступа/браузера |
 | Обновление AI SDK | Проверка контракта Active Agent/RubyLLM; локальный `StarterappProvider` сохраняет API tokens/finish_reason RubyLLM 2; проверяются ответ, токены, схемы и ошибки |
 | Медленная загрузка Rails | Замер до изменения, профиль, повторный замер |

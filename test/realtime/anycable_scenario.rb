@@ -18,8 +18,8 @@ class AnyCableScenario < ApplicationSystemTestCase
   test "реальный Go сервер доставляет Turbo Stream, восстанавливает пропуск и отзывает сессию" do
     visit root_path
     fill_in "Email", with: users(:one).email_address
-    fill_in "Пароль", with: "password"
-    click_button "Войти"
+    fill_in "Password", with: "password"
+    click_button "Sign in"
     assert_selector "turbo-cable-stream-source[connected]", visible: :all
 
     publish_notice("Первое обновление")
@@ -54,7 +54,7 @@ class AnyCableScenario < ApplicationSystemTestCase
     perform_enqueued_jobs(only: DisconnectSessionsJob) { Session.revoke_all!(users(:one).sessions) }
     assert_no_selector "turbo-cable-stream-source[connected]", visible: :all
     visit account_path
-    assert_text "Войти в StarterApp"
+    assert_text "Sign in to StarterApp"
   end
 
   private

@@ -1,4 +1,4 @@
-<% content_for :title, "Доступ закрыт" %>
-<h1 class="text-3xl font-semibold">Доступ закрыт</h1>
-<p class="mt-4 text-muted">У вашего аккаунта нет прав администратора. Обратитесь к владельцу приложения.</p>
-<%= link_to "Вернуться в приложение", main_app.root_path, class: "mt-6 inline-block py-3 text-accent underline", data: { turbo: false } %>
+<% content_for :title, t("admin.access_denied.heading") %>
+<h1 class="text-3xl font-semibold"><%= t("admin.access_denied.heading") %></h1>
+<p class="mt-4 text-muted"><%= t("admin.access_denied.description") %></p>
+<%= link_to t("actions.back_to_app"), main_app.root_path, class: "mt-6 inline-block py-3 text-accent underline", data: { turbo: false } %>

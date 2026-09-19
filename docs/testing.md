@@ -127,3 +127,6 @@ PARALLEL_WORKERS=1 mise exec -- bin/rails test test/system/authentication_test.r
 и реальную ошибку SQL очереди. `test/system/admin_test.rb` проходит вход с возвратом,
 общую навигацию четырёх экранов и узкий экран с Native User-Agent.
 Это браузерная проверка общего HTML; она не заменяет запуск Android на устройстве.
+
+Проверки i18n — `test/integration/localization_test.rb`: английский UI и письма,
+валидация locale, добавление языка, ссылки и изоляция между запросами, ошибка при пропущенном переводе.

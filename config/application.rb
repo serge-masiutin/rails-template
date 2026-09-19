@@ -59,8 +59,10 @@ module StarterApp
       end
     end
     config.action_mailer.default_url_options = config.x.web.url_options
-    config.i18n.default_locale = :ru
-    config.i18n.available_locales = %i[ru en]
+    config.i18n.default_locale = :en
+    config.i18n.available_locales = %i[en]
+    config.i18n.fallbacks = false
+    config.i18n.raise_on_missing_translations = true
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.

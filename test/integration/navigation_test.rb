@@ -10,7 +10,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
     sign_in_as users(:one)
     get root_path, headers: { "User-Agent" => "StarterApp; Hotwire Native Android; Turbo Native Android" }
     assert_response :success
-    assert_select "h1", "Рабочее пространство"
+    assert_select "h1", "Workspace"
     assert_select "nav", count: 0
   end
 

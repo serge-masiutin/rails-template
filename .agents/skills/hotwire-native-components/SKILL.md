@@ -4,7 +4,7 @@ description: "Развивать мобильную часть StarterApp на H
 metadata:
   upstream: shadcn-svelte-inertia
   adapted-for: StarterApp
-  version: "4"
+  version: "5"
 ---
 
 # hotwire-native-components
@@ -17,6 +17,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 
 - Прочитай `docs/native.md`, Kotlin entrypoints, versioned JSON в `public/configurations`.
 - Нативный текст использует `Theme.StarterApp`, `TextAppearance.StarterApp.*` и `res/font/martian_mono.xml`; WebView — общий Martian Mono из Rails. Не подменяй семейство в новых элементах. При обновлении SDK сверяй локальный `hotwire_error.xml`.
+- Нативные строки храни в `res/values/strings.xml` на английском, переводы — в `values-*`. В `localeFilters` и `locales_config.xml` включай только опубликованные языки; общий список и синхронизация языка WebView описаны в `docs/architecture.md#языки-интерфейса`.
 - Общий продуктовый экран рендерит Rails; нативный слой обеспечивает навигацию, системные возможности и platform UX.
 - Изменение маршрута оцени сразу для Android. Правила модальности/refresh задаются в android_v1.json.
 - Для bridge-событий используй `hotwire-bridge-contracts`; регистрируй компонент в Android-приложении.

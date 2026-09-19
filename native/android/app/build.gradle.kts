@@ -24,6 +24,8 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
+    // Включаем только опубликованные языки, в том числе для ресурсов SDK.
+    androidResources { localeFilters += setOf("en") }
     buildFeatures { buildConfig = true }
     buildTypes {
         debug {

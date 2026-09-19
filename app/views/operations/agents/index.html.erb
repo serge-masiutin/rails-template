@@ -1,7 +1,7 @@
 <header class="ops-header">
-  <div><strong>StarterApp · AgentPrism</strong><p>AI traces за 7 дней. Тексты промптов, ответов, аргументы и результаты tool calls не сохраняются.</p></div>
+  <div><strong>StarterApp · AgentPrism</strong><p><%= t("operations.agents.description") %></p></div>
 </header>
-<main id="agent-prism" data-url="<%= operations_agents_path(format: :json) %>">
-  <p role="status">Загрузка данных AgentPrism…</p>
+<main id="agent-prism" data-url="<%= operations_agents_path(format: :json) %>" data-messages="<%= t("agent_prism").to_json %>">
+  <p role="status"><%= t("agent_prism.loading") %></p>
 </main>
-<noscript>Для работы AgentPrism включите JavaScript.</noscript>
+<noscript><%= t("operations.agents.enable_javascript") %></noscript>

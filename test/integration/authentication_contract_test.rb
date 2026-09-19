@@ -34,7 +34,7 @@ class AuthenticationContractTest < ActionDispatch::IntegrationTest
         post path, params: { email_address: users(:one).email_address, password: "password" }
       end
       assert_response :see_other
-      assert_equal "Повторите попытку позже.", flash[:alert]
+      assert_equal "Try again later.", flash[:alert]
     end
   end
 

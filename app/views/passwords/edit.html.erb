@@ -1,18 +1,18 @@
-<% content_for :title, "Новый пароль · StarterApp" %>
+<% content_for :title, t("layout.page_title", title: t("passwords.edit.title"), app: t("app.name")) %>
 <section class="mx-auto max-w-md space-y-6">
-  <h1 class="text-3xl font-semibold">Новый пароль</h1>
+  <h1 class="text-3xl font-semibold"><%= t("passwords.edit.heading") %></h1>
   <% if @user.errors.any? %>
     <%= render Ui::NoticeComponent.new(message: @user.errors.full_messages.to_sentence, variant: :alert) %>
   <% end %>
   <%= form_with url: password_path(params[:token]), method: :put, class: "space-y-5" do |form| %>
     <div>
-      <%= form.label :password, "Пароль", class: "mb-2 block text-sm font-medium" %>
+      <%= form.label :password, t("fields.password"), class: "mb-2 block text-sm font-medium" %>
       <%= form.password_field :password, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
     </div>
     <div>
-      <%= form.label :password_confirmation, "Повторите пароль", class: "mb-2 block text-sm font-medium" %>
+      <%= form.label :password_confirmation, t("fields.password_confirmation"), class: "mb-2 block text-sm font-medium" %>
       <%= form.password_field :password_confirmation, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
     </div>
-    <%= form.submit "Сохранить пароль", class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
+    <%= form.submit t("actions.save_password"), class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
   <% end %>
 </section>

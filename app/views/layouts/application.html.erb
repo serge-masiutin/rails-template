@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<%= I18n.locale %>" dir="<%= t("layout.direction") %>">
   <head>
     <title><%= content_for(:title) || "StarterApp" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -16,17 +16,17 @@
     <% if authenticated? %>
       <%= turbo_stream_from Current.user.updates_stream_name, channel: "UserUpdatesChannel" %>
     <% end %>
-    <a href="#main" class="sr-only focus:not-sr-only">Перейти к содержимому</a>
+    <a href="#main" class="sr-only focus:not-sr-only"><%= t("layout.skip_content") %></a>
     <% unless hotwire_native_app? %>
       <header class="border-b border-line bg-surface">
-        <nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5" aria-label="Основная навигация">
+        <nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5" aria-label="<%= t("layout.main_navigation") %>">
           <%= link_to "StarterApp", main_app.root_path, class: "text-xl font-semibold tracking-tight" %>
           <% if authenticated? %>
             <div class="flex flex-wrap gap-4">
               <% if allowed_to?(:access?, :admin) %>
-                <%= link_to "Админка", main_app.admin_root_path, class: "text-sm font-medium text-accent", data: { turbo: false } %>
+                <%= link_to t("admin.navigation.admin"), main_app.admin_root_path, class: "text-sm font-medium text-accent", data: { turbo: false } %>
               <% end %>
-              <%= link_to "Профиль", main_app.account_path, class: "text-sm font-medium text-accent" %>
+              <%= link_to t("accounts.show.heading"), main_app.account_path, class: "text-sm font-medium text-accent" %>
             </div>
           <% end %>
         </nav>

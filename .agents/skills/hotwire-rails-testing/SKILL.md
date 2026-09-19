@@ -4,7 +4,7 @@ description: "Тестировать StarterApp: Rails Minitest, ViewComponent, 
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "13"
+  version: "14"
 ---
 
 # hotwire-rails-testing
@@ -22,6 +22,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 - Для Active Storage/imgproxy запускай `bin/image-test`: реальное преобразование, размеры/формат, подпись, срок ссылки и запрет внешних источников. Обычные тесты генерации URL не доказывают обработку в Go.
 
 - Для AI проверяй HTTP-запрос/ответ, usage, ошибки без повторов, commit/rollback, request/job ID и отсутствие текстов в логах; пример — `test/agents/application_agent_test.rb`. Тесты транспорта не заменяют quality evals: каждой функции нужен версионируемый набор обычных, ошибочных и adversarial случаев.
+- Для UI проверяй английские тексты, `lang`, ошибки форм и письма; i18n должен отклонять неизвестные locale, обнаруживать отсутствующий перевод и восстанавливать язык после запроса. Пример — `test/integration/localization_test.rb`.
 - Используй Minitest и fixtures по существующему test/. Внешний HTTP закрыт WebMock, localhost разрешён для system tests.
 - Сначала запускай конкретный файл, затем релевантный набор и `bin/ci`. Команды, диагностика и артефакты — `docs/testing.md`.
 - Для медленных тестов сначала измерь SQL через `bin/test-profile sql` или CPU через `bin/test-profile cpu`, затем сравни тот же набор после изменения. Профили выполняются в одном процессе; обычный Linux CI сохраняет параллелизм.

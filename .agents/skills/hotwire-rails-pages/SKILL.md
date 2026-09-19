@@ -4,7 +4,7 @@ description: "Создавать страницы, навигацию, филь�
 metadata:
   upstream: inertia-rails-pages
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # hotwire-rails-pages
@@ -16,6 +16,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 ## Рабочий контракт
 
 - Прочитай `app/views/layouts/application.html.erb`, маршруты и `docs/hotwire.md`.
+- Тексты UI бери из `config/locales/en.yml` через `t`; даты — через `l`, числительные — через `count`. Правила добавления языков — `docs/architecture.md#языки-интерфейса`.
 - Заголовок страницы задавай через content_for :title; семантические heading и основной контент должны сохраняться в Native.
 - Ссылки навигации — link_to; мутации — form/button_to. Фильтры и пагинацию храни в query string.
 - Для локального обновления используй frame с постоянным id; для нескольких областей — stream templates.

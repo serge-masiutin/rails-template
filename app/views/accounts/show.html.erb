@@ -1,12 +1,12 @@
-<% content_for :title, "Профиль · StarterApp" %>
+<% content_for :title, t("layout.page_title", title: t("accounts.show.title"), app: t("app.name")) %>
 <section class="max-w-xl space-y-6">
-  <h1 class="text-3xl font-semibold">Профиль</h1>
+  <h1 class="text-3xl font-semibold"><%= t("accounts.show.heading") %></h1>
   <dl class="rounded-2xl border border-line bg-surface p-6">
-    <dt class="text-sm text-muted">Email</dt>
+    <dt class="text-sm text-muted"><%= t("fields.email") %></dt>
     <dd class="mt-2 break-words font-medium"><%= Current.user.email_address %></dd>
   </dl>
   <% if allowed_to?(:access?, :admin) %>
-    <%= link_to "Открыть админку", admin_root_path, class: "inline-flex rounded-xl bg-accent px-5 py-3 font-medium text-white", data: { turbo: false } %>
+    <%= link_to t("actions.open_admin"), admin_root_path, class: "inline-flex rounded-xl bg-accent px-5 py-3 font-medium text-white", data: { turbo: false } %>
   <% end %>
-  <%= button_to "Выйти", session_path, method: :delete, class: "rounded-xl border border-line px-5 py-3 font-medium" %>
+  <%= button_to t("actions.sign_out"), session_path, method: :delete, class: "rounded-xl border border-line px-5 py-3 font-medium" %>
 </section>

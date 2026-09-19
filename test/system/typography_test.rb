@@ -9,7 +9,7 @@ class TypographyTest < ApplicationSystemTestCase
   test "веб-форма загружает Martian Mono и помещается на узком экране" do
     page.current_window.resize_to(390, 844)
     visit new_session_path
-    assert_text "Войти в StarterApp"
+    assert_text "Sign in to StarterApp"
     assert_martian_mono
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
     page.save_screenshot(Rails.root.join("tmp/screenshots/martian-mono-mobile.png"))

@@ -1,31 +1,151 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
+---
 en:
-  hello: "Hello world"
+  app:
+    name: StarterApp
+  layout:
+    direction: ltr
+    page_title: "%{title} · %{app}"
+    admin_title: "%{title} · %{app} Admin"
+    components_title: "%{app} components"
+    skip_content: Skip to content
+    main_navigation: Main navigation
+  home:
+    index:
+      title: Workspace
+      heading: Workspace
+      intro: You're signed in and ready to work.
+  accounts:
+    show:
+      title: Profile
+      heading: Profile
+  sessions:
+    new:
+      title: Sign in
+      heading: Sign in to %{app}
+      intro: Use your work account.
+      help: Need help signing in?
+  passwords:
+    new:
+      title: Reset password
+      heading: Reset your password
+    edit:
+      title: New password
+      heading: New password
+  admin:
+    access_denied:
+      heading: Access denied
+      description: Your account does not have administrator access. Contact the application
+        owner.
+    dashboard:
+      heading: Application status
+      workers: Database and Solid Queue
+      jobs: Jobs
+      heartbeat_help: Processes with a current heartbeat. All three types are required
+        in production. This checks the database and queue; use monitoring for WebSocket,
+        SMTP, and external APIs.
+      agents: Agent, LLM, and tool calls, errors, and token usage over the past 7
+        days.
+      observability_link: Metrics and logs →
+      observability: Charts, alerts, and event search by request_id and job_id.
+      open_jobs: Open Mission Control →
+      snapshot: Snapshot at %{time}
+      oldest_ready:
+        one: The oldest Ready job has been waiting for %{count} second.
+        other: The oldest Ready job has been waiting for %{count} seconds.
+      diagnostics: Diagnostics
+      unavailable: Could not read the database and queue status. Check the connection
+        and application logs.
+      healthy: The database is responding. All required queue processes are sending
+        heartbeats.
+      unhealthy: The database is responding, but some required queue processes are
+        not sending heartbeats.
+    observability:
+      heading: Metrics and logs
+      external_service: This service has separate access controls. A configured link
+        does not confirm its availability.
+      not_configured: URL not configured
+      find_error: Investigate an error
+      step_one: Open the failed job in Mission Control or the failed generation in
+        AgentPrism.
+      step_two: Copy the request_id or job_id. For HTTP requests, the request_id is
+        also in the X-Request-Id response header.
+      step_three: Search for this ID in the web and worker logs to follow the request
+        through its background job.
+      production_logs: Production logs go to container stdout. To search in a browser,
+        connect a log collector and configure its URL above. Until then, use Kamal
+        to read the logs.
+      local_html: Start local Grafana and Prometheus with <code>bin/ops monitoring</code>.
+        Localhost links open on the computer running these containers.
+      local_search_html: Search locally with <code>bin/logs --request-id REQUEST_ID</code>
+        or <code>bin/logs --job-id JOB_ID</code>. See docs/observability.md for service
+        URLs and access.
+      open: Open %{service} ↗
+      configure: Set %{variable} in the environment configuration.
+      grafana_description: HTTP, queue, WebSocket, and AI charts.
+      prometheus_description: PromQL, scrape targets, and alert rules.
+      logs: Logs
+      logs_description: Search web application and worker events.
+    navigation:
+      overview: Overview
+      admin: Admin
+      label: Administration
+      observability: Metrics and logs
+      app: App
+  actions:
+    open_admin: Open admin
+    sign_out: Sign out
+    open_profile: Open profile
+    sign_in: Sign in
+    reset_password: Reset password
+    send_reset: Send reset instructions
+    back_to_sign_in: Back to sign in
+    save_password: Save password
+    back_to_app: Back to app
+    refresh: Refresh
+  fields:
+    password: Password
+    email: Email
+    password_confirmation: Confirm password
+  time:
+    formats:
+      snapshot: "%Y-%m-%d %H:%M:%S UTC"
+  auth:
+    rate_limited: Try again later.
+    invalid_credentials: Incorrect email or password.
+    reset_sent: If an account exists, reset instructions have been sent by email.
+    password_changed: Password updated.
+    invalid_reset_link: This link is invalid or has expired.
+  passwords_mailer:
+    reset:
+      subject: Reset your %{app} password
+      intro: To reset your %{app} password, open the link below.
+      link: Reset password
+      expiry: This link expires in 15 minutes. If you didn't request a password reset,
+        ignore this email.
+  activerecord:
+    attributes:
+      user:
+        email_address: Email
+        password: Password
+        password_confirmation: Password confirmation
+  components:
+    notice:
+      saved: Changes saved.
+      invalid: Check the values you entered.
+  agent_prism:
+    title: AgentPrism
+    refresh: Refresh
+    earlier: Earlier traces
+    loading: Loading AgentPrism data…
+    empty: No traces yet. They will appear after an agent runs.
+    load_error: Could not load AgentPrism data. Try refreshing the page.
+    http_error: 'Could not load AgentPrism data: HTTP %{status}. Try refreshing the
+      page.'
+    invalid_data: AgentPrism returned an invalid data format.
+    render_error: Could not display AgentPrism data. Refresh the page; if the error
+      persists, check the AgentPrism contract.
+  operations:
+    agents:
+      description: AI traces from the past 7 days. Prompt text, responses, tool arguments,
+        and tool results are not stored.
+      enable_javascript: Enable JavaScript to use AgentPrism.

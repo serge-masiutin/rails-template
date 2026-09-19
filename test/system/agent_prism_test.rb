@@ -33,9 +33,9 @@ class AgentPrismTest < ApplicationSystemTestCase
 
   test "панель показывает отказ загрузки вместо пустого списка" do
     visit operations_agents_path
-    assert_text "Пока нет данных"
+    assert_text "No traces yet"
     users(:admin).update!(admin: false)
-    click_button "Обновить"
+    click_button "Refresh"
     assert_selector '[role="alert"]', text: "HTTP 403"
   end
 
@@ -51,10 +51,10 @@ class AgentPrismTest < ApplicationSystemTestCase
 
   test "пустое состояние и явное обновление" do
     visit operations_agents_path
-    assert_text "Пока нет данных"
+    assert_text "No traces yet"
     capture_trace
-    click_button "Обновить"
+    click_button "Refresh"
     assert_text "TestAgent.summarize"
-    assert_no_text "Пока нет данных"
+    assert_no_text "No traces yet"
   end
 end
