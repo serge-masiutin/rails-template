@@ -4,9 +4,52 @@
 в [Rails Startup Stack Evil Martians](https://evilmartians.com/rails-startup-stack).
 Rails Semantic Logger пишет JSON, Mission Control показывает Solid Queue.
 
+## Админка
+
+Открой `/admin` после обычного входа в приложение. Ссылка есть в верхней навигации
+и в профиле, в том числе в Android. Обзор показывает доступность БД, heartbeat процессов,
+число заданий и возраст очереди. Из общей навигации доступны Mission Control, AgentPrism,
+метрики и логи. Снимок обновляется кнопкой «Обновить»; это не проверка SMTP и внешних API.
+
+Права выдаются существующему пользователю через CLI:
+
+```sh
+mise exec -- bin/rails admin:grant EMAIL=you@example.com
+mise exec -- bin/rails admin:revoke EMAIL=you@example.com
+```
+
+Первый аккаунт создаётся по [README](../README.md#первый-аккаунт-и-проверки).
+В production выполни ту же задачу через `bin/kamal app exec --reuse`, например:
+`bin/kamal app exec --reuse 'bin/rails admin:grant EMAIL=you@example.com'`.
+Прямой деплой на реальный сервер этой командой ещё не проверен.
+
+Новые пользователи получают `admin: false`. Самостоятельной выдачи прав в HTTP нет.
+`Admin::BaseController` и `AdminPolicy` проверяют роль на каждом запросе, включая
+JSON AgentPrism и мутации Mission Control. После отзыва права следующий запрос получает 403.
+Гость переходит на форму входа; JSON получает 401. Сброс пароля отзывает сессии.
+Страницы закрыты от HTTP/Turbo-кэширования. Отдельная роль не даёт автоматически доступ
+к чужим продуктовым данным: их policies остаются самостоятельными.
+
+### Метрики и логи в админке
+
+`/admin/observability` содержит переходы во внешние сервисы и порядок поиска по request/job ID.
+Адреса задаются через Anyway Config (`config/operations.local.yml`) или ENV:
+
+| ENV | Назначение |
+| --- | --- |
+| `OPERATIONS_GRAFANA_URL` | Дашборд Grafana |
+| `OPERATIONS_PROMETHEUS_URL` | Интерфейс Prometheus и alerts |
+| `OPERATIONS_LOGS_URL` | Интерфейс подключённого хранилища логов |
+
+В production обязательна схема HTTPS. Не помещай credentials и секретные токены в URL.
+Ссылки не проксируют сервисы и не передают им сессию или Bearer-токен приложения;
+каждый сервис должен иметь собственную защиту. Пустой адрес показывается как «Адрес не настроен».
+Наличие ссылки не проверяет доступность сервиса и не подключает сборщик логов.
+GitHub Environment variables с этими именами передаются через workflow и Kamal.
+
 ## Локальный запуск
 
-`bin/setup` создаёт `config/operations.local.yml` с доступом к панели и отдельным токеном метрик.
+`bin/setup` создаёт `config/operations.local.yml` с HTTP Basic для `/ops/health` и отдельным токеном метрик.
 Файл исключён из Git и Docker. Для уже установленного проекта выполни `mise exec -- bin/ops setup`.
 После изменения credentials перезапусти Rails.
 
@@ -21,15 +64,18 @@ mise exec -- bin/ops monitoring
 
 | Адрес | Назначение и доступ |
 | --- | --- |
-| `http://localhost:3000/ops/jobs` | Очереди, ошибки, повтор заданий и процессы; HTTP Basic из локального конфига |
-| `http://localhost:3000/ops/health` | БД и heartbeat воркеров; тот же HTTP Basic |
+| `http://localhost:3000/admin` | Обзор и навигация; сессия пользователя с `admin: true` |
+| `http://localhost:3000/ops/jobs` | Очереди, ошибки, повтор заданий и процессы; та же сессия администратора |
+| `http://localhost:3000/ops/health` | БД и heartbeat воркеров; отдельный HTTP Basic из локального конфига |
 | `http://localhost:3000/ops/metrics` | Prometheus-метрики; отдельный Bearer `metrics_token` |
 | `http://localhost:3001/d/starterapp` | Дашборд Grafana, локальный режим просмотра |
 | `http://localhost:9090` | Запросы PromQL, состояние сбора и alerts |
 | `http://localhost:8091/metrics` | Метрики AnyCable; доступ только с локального компьютера |
 | `http://localhost:9394/metrics` | Метрики jobs; Bearer `metrics_token`, остальные маршруты закрыты |
 
-Grafana и Prometheus слушают только loopback. Это конфигурация разработки.
+Адреса локальных Grafana и Prometheus уже заданы в `config/operations.yml` для development.
+Grafana и Prometheus слушают только loopback. Это конфигурация разработки; ссылки на localhost
+работают на компьютере с этими контейнерами, а не на отдельном Android-устройстве.
 Prometheus собирает данные раз в 15 секунд и хранит до 7 дней, не более 1 ГБ.
 Графики скорости требуют нескольких измерений. Остановка: `docker compose --profile monitoring stop prometheus grafana`.
 

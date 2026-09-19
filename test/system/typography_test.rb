@@ -16,9 +16,7 @@ class TypographyTest < ApplicationSystemTestCase
   end
 
   test "служебные панели используют тот же локальный шрифт" do
-    previous = Rails.configuration.x.operations
-    Rails.configuration.x.operations = OperationsConfig.new(username: "operator", password: "p" * 32)
-    page.driver.add_headers("Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("operator", "p" * 32))
+    sign_in_through_form(users(:admin))
 
     visit operations_agents_path
     assert_text "Трассы агентов"
@@ -26,8 +24,6 @@ class TypographyTest < ApplicationSystemTestCase
     visit "/ops/jobs"
     assert_selector "body .container"
     assert_martian_mono
-  ensure
-    Rails.configuration.x.operations = previous
   end
 
   private

@@ -1,0 +1,3 @@
+development:
+  grafana_url: http://localhost:3001/d/starterapp
+  prometheus_url: http://localhost:9090

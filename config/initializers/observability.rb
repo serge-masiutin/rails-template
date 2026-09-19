@@ -3,7 +3,7 @@ Rails.error.subscribe(Observability::ErrorSubscriber.new)
 
 # Yabeda Rails автоматически подключается к server; runner и tests подключаем явно.
 Yabeda::Rails.install! unless defined?(Rails::Server) || defined?(Puma::CLI) || defined?(Unicorn::Launcher) || defined?(PhusionPassenger)
-Yabeda::Rails.config.ignore_actions = [ /\AOperations::/, /\AMissionControl::/, "Rails::HealthController#show" ]
+Yabeda::Rails.config.ignore_actions = [ /\AAdmin::/, /\AOperations::/, /\AMissionControl::/, "Rails::HealthController#show" ]
 
 Yabeda.configure do
   group :starterapp do

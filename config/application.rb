@@ -40,7 +40,7 @@ module StarterApp
     config.active_job.log_arguments = false
     config.active_agent.show_previews = false
     config.mission_control.jobs.adapters = [ :solid_queue ]
-    config.mission_control.jobs.base_controller_class = "Operations::BaseController"
+    config.mission_control.jobs.base_controller_class = "Admin::BaseController"
     config.mission_control.jobs.http_basic_auth_enabled = false
     config.log_tags = { request_id: :request_id }
     config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")

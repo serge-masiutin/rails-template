@@ -26,10 +26,4 @@ module AgentTraceTestHelper
     AgentTrace::Capture.call(trace_payload, {})
     AgentTrace.order(:id).last
   end
-
-  def operator_credentials
-    @previous_operations = Rails.configuration.x.operations
-    Rails.configuration.x.operations = OperationsConfig.new(username: "operator", password: "p" * 32)
-    ActionController::HttpAuthentication::Basic.encode_credentials("operator", "p" * 32)
-  end
 end

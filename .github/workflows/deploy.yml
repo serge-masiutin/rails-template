@@ -31,6 +31,9 @@ jobs:
       WEB_HOST: ${{ vars.WEB_HOST }}
       SMTP_ADDRESS: ${{ vars.SMTP_ADDRESS }}
       MAIL_FROM: ${{ vars.MAIL_FROM }}
+      OPERATIONS_GRAFANA_URL: ${{ vars.OPERATIONS_GRAFANA_URL }}
+      OPERATIONS_PROMETHEUS_URL: ${{ vars.OPERATIONS_PROMETHEUS_URL }}
+      OPERATIONS_LOGS_URL: ${{ vars.OPERATIONS_LOGS_URL }}
       KAMAL_IMAGE: ${{ vars.KAMAL_IMAGE }}
       KAMAL_REGISTRY_USERNAME: ${{ github.actor }}
       KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

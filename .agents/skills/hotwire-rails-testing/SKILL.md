@@ -4,7 +4,7 @@ description: "Тестировать StarterApp: Rails Minitest, ViewComponent, 
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "12"
+  version: "13"
 ---
 
 # hotwire-rails-testing
@@ -15,7 +15,9 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 
 ## Рабочий контракт
 
-- Для AgentPrism проверяй настоящий цикл Active Agent → SDK local_store → очищенный JSON, usage без двойного счёта, ошибку записи, retention и Basic-доступ. UI проверяет `test/system/agent_prism_test.rb`; сначала `npm run build:agents`. Новые SDK-поля не должны автоматически попадать в БД/RAW.
+- Для админки проверяй гостя, обычного пользователя, администратора, отзыв роли, JSON 401/403, CSRF Mission Control и no-store. Сессия не заменяет Basic/Bearer технических endpoints; обратное тоже запрещено. Общую навигацию и Native HTML проверяет `test/system/admin_test.rb`.
+
+- Для AgentPrism проверяй настоящий цикл Active Agent → SDK local_store → очищенный JSON, usage без двойного счёта, ошибку записи, retention и доступ по роли администратора. UI проверяет `test/system/agent_prism_test.rb`; сначала `npm run build:agents`. Новые SDK-поля не должны автоматически попадать в БД/RAW.
 
 - Для Active Storage/imgproxy запускай `bin/image-test`: реальное преобразование, размеры/формат, подпись, срок ссылки и запрет внешних источников. Обычные тесты генерации URL не доказывают обработку в Go.
 

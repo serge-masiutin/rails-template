@@ -5,5 +5,8 @@
     <dt class="text-sm text-muted">Email</dt>
     <dd class="mt-2 break-words font-medium"><%= Current.user.email_address %></dd>
   </dl>
+  <% if allowed_to?(:access?, :admin) %>
+    <%= link_to "Открыть админку", admin_root_path, class: "inline-flex rounded-xl bg-accent px-5 py-3 font-medium text-white", data: { turbo: false } %>
+  <% end %>
   <%= button_to "Выйти", session_path, method: :delete, class: "rounded-xl border border-line px-5 py-3 font-medium" %>
 </section>

@@ -4,12 +4,14 @@
     <title>Трассы агентов — StarterApp</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-visit-control" content="reload">
+    <meta name="turbo-cache-control" content="no-cache">
     <meta name="referrer" content="same-origin">
-    <%= stylesheet_link_tag "agent-prism" %>
+    <%= stylesheet_link_tag "agent-prism", "admin_navigation" %>
     <%= render "shared/typography" %>
     <%= javascript_include_tag "agent-prism", defer: true, nonce: true %>
   </head>
   <body>
+    <%= render "admin/navigation" %>
     <%= yield %>
   </body>
 </html>

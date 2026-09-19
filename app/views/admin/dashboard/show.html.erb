@@ -1,0 +1,50 @@
+<% content_for :title, "Обзор" %>
+<div class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <p class="text-sm text-muted"><%= Rails.env %> · Ruby <%= RUBY_VERSION %> · Rails <%= Rails.version %></p>
+    <h1 class="mt-2 text-3xl font-semibold">Состояние приложения</h1>
+    <p class="mt-3 text-sm text-muted">Снимок на <%= Time.current.utc.strftime("%d.%m.%Y %H:%M:%S UTC") %></p>
+  </div>
+  <%= link_to "Обновить", admin_root_path, class: "rounded-xl border border-line bg-surface px-4 py-3 text-sm", data: { turbo: false } %>
+</div>
+<% if @health.key?(:error) %>
+  <%= render Ui::NoticeComponent.new(message: "Не удалось прочитать состояние БД и очереди. Проверьте подключение и логи приложения.", variant: :alert) %>
+<% else %>
+  <% queue = @health.fetch(:queue) %>
+  <section class="space-y-4" aria-labelledby="workers-title">
+    <h2 id="workers-title" class="text-xl font-semibold">База данных и воркеры</h2>
+    <%= render Ui::NoticeComponent.new(message: @health.fetch(:healthy) ? "БД отвечает. Обязательные процессы очереди передают heartbeat." : "БД отвечает, но не все обязательные процессы очереди передают heartbeat.", variant: @health.fetch(:healthy) ? :notice : :alert) %>
+    <dl class="grid gap-4 sm:grid-cols-3">
+      <% { "worker" => "Выполнение", "dispatcher" => "Диспетчер", "scheduler" => "Планировщик" }.each do |kind, label| %>
+        <div class="rounded-xl border border-line bg-surface p-5">
+          <dt class="text-sm text-muted"><%= label %></dt>
+          <dd class="mt-2 text-3xl font-semibold"><%= queue.fetch(:processes).fetch(kind) %></dd>
+        </div>
+      <% end %>
+    </dl>
+    <p class="text-sm text-muted">Число процессов с актуальным heartbeat. В production обязательны все три типа. Это проверка БД и очереди; состояние WebSocket, SMTP и внешних API смотрите в мониторинге.</p>
+  </section>
+  <section class="space-y-4" aria-labelledby="queue-title">
+    <h2 id="queue-title" class="text-xl font-semibold">Задания</h2>
+    <dl class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <% { ready: "Готовы", scheduled: "Отложены", claimed: "В работе", blocked: "Заблокированы", failed: "Ошибки" }.each do |state, label| %>
+        <div class="rounded-xl border border-line bg-surface p-4">
+          <dt class="break-words text-sm text-muted"><%= label %></dt>
+          <dd class="mt-2 text-3xl font-semibold <%= state == :failed && queue.fetch(:jobs).fetch(state).positive? ? "text-danger" : "text-ink" %>"><%= queue.fetch(:jobs).fetch(state) %></dd>
+        </div>
+      <% end %>
+    </dl>
+    <p class="text-sm">Самое старое готовое задание ждёт <%= queue.fetch(:oldest_ready_age_seconds) %> с.</p>
+    <%= link_to "Открыть очередь и ошибки →", mission_control_jobs_path, class: "inline-block py-3 text-accent underline", data: { turbo: false } %>
+  </section>
+<% end %>
+<section class="grid gap-4 sm:grid-cols-2" aria-label="Диагностика">
+  <%= link_to operations_agents_path, class: "block rounded-xl border border-line bg-surface p-6", data: { turbo: false } do %>
+    <h2 class="font-semibold text-accent">Трассы AI →</h2>
+    <p class="mt-3 text-sm text-muted">Генерации, инструменты, ошибки и расход токенов за 7 дней.</p>
+  <% end %>
+  <%= link_to admin_observability_path, class: "block rounded-xl border border-line bg-surface p-6" do %>
+    <h2 class="font-semibold text-accent">Метрики и логи →</h2>
+    <p class="mt-3 text-sm text-muted">Графики, alerts и поиск событий по request_id и job_id.</p>
+  <% end %>
+</section>

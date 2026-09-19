@@ -79,6 +79,7 @@
 | Коллекция с ассоциациями | Проверка N+1 на растущем объёме данных |
 | Рост concurrency / конкурентная запись | Общий ConcurrencyConfig, бюджет подключений, индекс/блокировка в БД и детерминированный тест с барьером |
 | AI-функция | `ApplicationAgent`, версия промпта, job после commit, явное сохранение и приватный Turbo Stream для веба/Android; WebMock, usage и ошибки, отдельные quality evals |
+| Админка и диагностика | `/admin`, очередь и AgentPrism закрыты сессией и AdminPolicy; отзыв роли, CSRF, no-store, общая навигация и узкий экран; Basic health и Bearer metrics изолированы |
 | Просмотр AI-трасс | AgentPrism в закрытом `/ops/agents`, local_store без тел, allowlist и retention; UI/data/types одного commit, отдельная сборка и проверки доступа/браузера |
 | Обновление AI SDK | Проверка контракта Active Agent/RubyLLM; локальный `StarterappProvider` сохраняет API tokens/finish_reason RubyLLM 2; проверяются ответ, токены, схемы и ошибки |
 | Медленная загрузка Rails | Замер до изменения, профиль, повторный замер |

@@ -15,6 +15,10 @@ Rails.application.routes.draw do
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
+  namespace :admin do
+    root "dashboard#show"
+    resource :observability, only: :show, controller: "observability"
+  end
   namespace :operations, path: "ops" do
     resources :agents, only: :index
     resource :health, only: :show, controller: "health"

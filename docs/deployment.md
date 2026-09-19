@@ -36,6 +36,7 @@ Node и node_modules не входят в runtime. Типы, SHA-256 upstream и
 | `KAMAL_IMAGE` | `owner/starterapp` в нижнем регистре |
 | `SMTP_ADDRESS` | Адрес SMTP |
 | `MAIL_FROM` | Адрес отправителя |
+| `OPERATIONS_GRAFANA_URL`, `OPERATIONS_PROMETHEUS_URL`, `OPERATIONS_LOGS_URL` | Необязательные HTTPS-ссылки в админке; без credentials и токенов |
 
 ### Secrets
 
@@ -48,7 +49,7 @@ Node и node_modules не входят в runtime. Типы, SHA-256 upstream и
 | `IMGPROXY_KEY`, `IMGPROXY_SALT` | Два отдельных результата `openssl rand -hex 32`; общие для Rails и imgproxy |
 | `DB_PASSWORD` | Постоянный пароль PostgreSQL |
 | `SMTP_USERNAME`, `SMTP_PASSWORD` | Доступ к SMTP |
-| `OPERATIONS_USERNAME`, `OPERATIONS_PASSWORD` | Отдельный доступ к панелям очереди и AgentPrism; пароль от 32 символов |
+| `OPERATIONS_USERNAME`, `OPERATIONS_PASSWORD` | Технический HTTP Basic для `/ops/health`; пароль от 32 символов |
 | `OPERATIONS_METRICS_TOKEN` | Отдельный токен чтения метрик, от 32 символов |
 
 Для GHCR workflow использует `GITHUB_TOKEN` с `packages:write`.
@@ -89,3 +90,6 @@ Kamal собирает закоммиченное Git-состояние.
 Это прервёт WebSocket-соединения и очистит историю в памяти. Порядок проверки — в [AnyCable](realtime.md).
 
 Логи, worker health, метрики и подключение сборщика — в [инструкции наблюдаемости](observability.md).
+
+После первого запуска выдайте нужному аккаунту роль администратора по [инструкции](observability.md#админка).
+Откройте `/admin`: миграция не выдаёт доступ существующим пользователям автоматически.

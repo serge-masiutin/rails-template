@@ -12,7 +12,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
   end
 
   test "диагностика и панель закрыты без доступа оператора" do
-    %w[/ops/health /ops/metrics /ops/jobs].each do |path|
+    %w[/ops/health /ops/metrics].each do |path|
       get path
       assert_response :unauthorized
       get path, headers: { "Authorization" => ActionController::HttpAuthentication::Basic.encode_credentials("operator", "wrong") }
@@ -21,7 +21,8 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
   end
 
   test "панель показывает Solid Queue после аутентификации" do
-    get "/ops/jobs", headers: { "Authorization" => @authorization }
+    sign_in_as(users(:admin))
+    get "/ops/jobs"
     follow_redirect! while response.redirect?
     assert_response :success
     assert_select "a[href*=solid_queue]", text: "Workers"
@@ -35,7 +36,7 @@ class ObservabilityTest < ActionDispatch::IntegrationTest
   end
 
   test "токен сборщика не открывает панель и health" do
-    %w[/ops/jobs /ops/health].each do |path|
+    %w[/ops/health].each do |path|
       get path, headers: { "Authorization" => "Bearer #{"b" * 32}" }
       assert_response :unauthorized
     end

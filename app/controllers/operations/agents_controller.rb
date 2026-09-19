@@ -1,5 +1,5 @@
 module Operations
-  class AgentsController < BaseController
+  class AgentsController < Admin::BaseController
     def index
       respond_to do |format|
         format.html { render layout: "operations" }

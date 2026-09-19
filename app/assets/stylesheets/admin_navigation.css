@@ -1,0 +1,31 @@
+/* Общая навигация трёх сборок: Tailwind, AgentPrism и Bulma Mission Control. */
+.admin-navigation {
+  background: var(--color-surface, #fff);
+  border-bottom: 1px solid var(--color-line, #dce2d9);
+  color: var(--color-ink, #17251e);
+  padding: 1rem 1.5rem;
+}
+.admin-navigation__brand {
+  display: inline-block;
+  color: var(--color-ink, #17251e);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: .75rem;
+  text-decoration: none;
+}
+.admin-navigation__brand span {
+  color: var(--color-muted, #536258);
+  font-size: .8rem;
+  font-weight: 400;
+}
+.admin-navigation nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
+.admin-navigation nav a {
+  color: var(--color-accent, #276749);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: .8rem;
+  text-decoration: none;
+}
+.admin-navigation nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: .3em; font-weight: 600; }
+.admin-navigation a:focus-visible { outline: 2px solid var(--color-accent, #276749); outline-offset: 4px; }

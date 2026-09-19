@@ -16,7 +16,7 @@
 - Список фильтруй через `authorized_scope` и соответствующий `relation_scope` в policy;
   добавь `verify_authorized_scoped` для action списка. Один `authorize!` строки не фильтрует.
 - Исключение из проверки допустимо для отдельного механизма доступа:
-  пароль/подписанный токен в sessions/passwords, Basic Auth в `/ops`.
+  пароль/подписанный токен в sessions/passwords, Basic Auth в `/ops/health` и Bearer в `/ops/metrics`. Панели требуют `AdminPolicy#access?`.
   Новый публичный action требует явного решения и теста.
 - Native User-Agent не является авторизацией. Cookies, CSRF и policies общие для веба и Android.
 

@@ -1,6 +1,10 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
+  test "новый пользователь не получает права администратора" do
+    assert_equal false, User.new.admin?
+  end
+
   test "нормализует email и отклоняет дубликаты" do
     user = User.new(email_address: " ONE@EXAMPLE.COM ", password: "valid-password-2026")
     assert_not user.valid?

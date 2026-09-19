@@ -25,6 +25,9 @@ env:
     DB_HOST: starterapp-db
     SMTP_ADDRESS: <%= ENV.fetch("SMTP_ADDRESS") %>
     MAIL_FROM: <%= ENV.fetch("MAIL_FROM") %>
+    OPERATIONS_GRAFANA_URL: <%= ENV.fetch("OPERATIONS_GRAFANA_URL", "").inspect %>
+    OPERATIONS_PROMETHEUS_URL: <%= ENV.fetch("OPERATIONS_PROMETHEUS_URL", "").inspect %>
+    OPERATIONS_LOGS_URL: <%= ENV.fetch("OPERATIONS_LOGS_URL", "").inspect %>
     LLM_PROVIDER: <%= ENV.fetch("LLM_PROVIDER", "").inspect %>
     LLM_MODEL: <%= ENV.fetch("LLM_MODEL", "").inspect %>
   secret:

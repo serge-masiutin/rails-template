@@ -14,8 +14,7 @@
 body { margin: 0; background: oklch(var(--agentprism-background)); color: oklch(var(--agentprism-foreground)); }
 .ops-header { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid oklch(var(--agentprism-border)); }
 .ops-header p { font-size: .8rem; margin-top: .25rem; color: oklch(var(--agentprism-muted-foreground)); }
-.ops-header nav, .ops-toolbar { display: flex; align-items: center; gap: 1rem; }
-.ops-header a { text-decoration: underline; }
+.ops-toolbar { display: flex; align-items: center; gap: 1rem; }
 .ops-toolbar { padding: .75rem 1.5rem; flex-wrap: wrap; }
 .ops-toolbar h1 { font-weight: 600; margin-right: auto; }
 .ops-toolbar button { padding: .35rem .75rem; border: 1px solid oklch(var(--agentprism-border)); border-radius: .375rem; cursor: pointer; }

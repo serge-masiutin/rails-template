@@ -26,7 +26,7 @@ mise exec -- bin/dev
 имена БД и сервисов, метрики, интерфейс, Kotlin package, тесты и документацию.
 Её выполняют один раз, до создания локальных данных. Контракт и `--dry-run` — [настройка шаблона](docs/template.md).
 
-[Приложение](http://localhost:3000) · [Компоненты](http://localhost:3000/lookbook)
+[Приложение](http://localhost:3000) · [Компоненты](http://localhost:3000/lookbook) · [Админка](http://localhost:3000/admin)
 
 Overmind запускает web, Tailwind, jobs, AnyCable, imgproxy и сборку AgentPrism.
 `Ctrl+C` останавливает процессы; `docker compose stop` — БД с сохранением данных.
@@ -42,6 +42,9 @@ User.create!(email_address: "you@example.com", password: IO.console.getpass("П�
 ```
 
 Самостоятельной регистрации нет; письма разработки сохраняются в `tmp/mail`.
+Для доступа к очереди, трассам и диагностике выдай аккаунту роль через
+`mise exec -- bin/rails admin:grant EMAIL=you@example.com` и открой `/admin`.
+[Доступ и мониторинг](docs/observability.md#админка).
 Полная проверка при запущенной БД: `mise exec -- bin/ci`.
 Android Debug использует локальный сервер; для Release нужны HTTPS-адрес и свой keystore.
 

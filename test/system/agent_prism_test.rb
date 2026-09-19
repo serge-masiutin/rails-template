@@ -5,12 +5,10 @@ class AgentPrismTest < ApplicationSystemTestCase
   include AgentTraceTestHelper
 
   setup do
-    authorization = operator_credentials
-    page.driver.add_headers("Authorization" => authorization)
+    sign_in_through_form(users(:admin))
   end
 
   teardown do
-    Rails.configuration.x.operations = @previous_operations
     page.driver.headers = {}
     page.current_window.resize_to(1280, 900)
   end
@@ -34,9 +32,9 @@ class AgentPrismTest < ApplicationSystemTestCase
   test "панель показывает отказ загрузки вместо пустого списка" do
     visit operations_agents_path
     assert_text "Трасс пока нет"
-    Rails.configuration.x.operations = OperationsConfig.new(username: nil, password: nil)
+    users(:admin).update!(admin: false)
     click_button "Обновить"
-    assert_selector '[role="alert"]', text: "HTTP 401"
+    assert_selector '[role="alert"]', text: "HTTP 403"
   end
 
   test "на узком экране можно открыть ошибку инструмента" do

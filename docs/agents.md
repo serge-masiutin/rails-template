@@ -57,10 +57,10 @@ Structured output, tools и потоковая выдача требуют от�
 
 ## AgentPrism
 
-Открой [localhost:3000/ops/agents](http://localhost:3000/ops/agents). Доступ — через
-`OPERATIONS_USERNAME` и `OPERATIONS_PASSWORD`; локальные значения создаёт `bin/ops setup`
-в игнорируемом `config/operations.local.yml`. Без них HTML и JSON возвращают 401.
-В production используй HTTPS и служебные учётные данные из Kamal secrets.
+Открой «Трассы AI» в `/admin` или перейди на `/ops/agents`.
+Доступ — через обычную сессию пользователя с `admin: true`; выдача и отзыв прав описаны
+в [наблюдаемости](observability.md#админка). HTML гостя переходит на вход, JSON возвращает 401;
+пользователь без роли получает 403. HTTP Basic и токен метрик просмотрщик не открывают.
 
 После вызова `ApplicationAgent` нажми «Обновить»: панель показывает дерево генерации,
 LLM и tools, длительность, статусы, версию промпта, request/job ID и сообщённый usage.

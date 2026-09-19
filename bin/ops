@@ -12,7 +12,7 @@ Dir.chdir File.expand_path("..", __dir__) do
       File.open(path, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
         file.write({ "username" => "starterapp", "password" => SecureRandom.hex(32), "metrics_token" => SecureRandom.hex(32) }.to_yaml)
       end
-      puts "Доступ к /ops/jobs и /ops/agents: имя и пароль в #{path}. Файл исключён из Git и Docker."
+      puts "Доступ к /ops/health и токен метрик в #{path}. Вход в /admin — через аккаунт администратора."
     end
   when [ "monitoring" ]
     system("bin/rails", "runner", "script/prepare_monitoring.rb", exception: true)
