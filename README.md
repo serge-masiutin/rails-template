@@ -42,7 +42,7 @@ User.create!(email_address: "you@example.com", password: IO.console.getpass("П�
 ```
 
 Самостоятельной регистрации нет; письма разработки сохраняются в `tmp/mail`.
-Для доступа к очереди, трассам и диагностике выдай аккаунту роль через
+Для доступа к Mission Control, AgentPrism и диагностике выдай аккаунту роль через
 `mise exec -- bin/rails admin:grant EMAIL=you@example.com` и открой `/admin`.
 [Доступ и мониторинг](docs/observability.md#админка).
 Полная проверка при запущенной БД: `mise exec -- bin/ci`.

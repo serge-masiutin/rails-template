@@ -2,8 +2,8 @@
   <a class="admin-navigation__brand" href="<%= main_app.admin_root_path %>" data-turbo="false">StarterApp <span>Админка</span></a>
   <nav aria-label="Администрирование">
     <%= link_to "Обзор", main_app.admin_root_path, aria: { current: request.path == main_app.admin_root_path ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "Очередь", main_app.mission_control_jobs_path, aria: { current: request.path.start_with?(main_app.mission_control_jobs_path) ? "page" : nil }, data: { turbo: false } %>
-    <%= link_to "Трассы AI", main_app.operations_agents_path, aria: { current: request.path == main_app.operations_agents_path ? "page" : nil }, data: { turbo: false } %>
+    <%= link_to "Mission Control", main_app.mission_control_jobs_path, aria: { current: request.path.start_with?(main_app.mission_control_jobs_path) ? "page" : nil }, data: { turbo: false } %>
+    <%= link_to "AgentPrism", main_app.operations_agents_path, aria: { current: request.path == main_app.operations_agents_path ? "page" : nil }, data: { turbo: false } %>
     <%= link_to "Метрики и логи", main_app.admin_observability_path, aria: { current: request.path == main_app.admin_observability_path ? "page" : nil }, data: { turbo: false } %>
     <%= link_to "Приложение", main_app.root_path, data: { turbo: false } %>
   </nav>

@@ -15,7 +15,7 @@ class Operations::AgentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'script[type="importmap"]', 0
   end
 
-  test "JSON пагинируется и не выдаёт старые трассы или исходные тексты" do
+  test "JSON пагинируется и не выдаёт старые traces или исходные тексты" do
     expired = capture_trace
     expired.update!(started_at: 8.days.ago)
     21.times { capture_trace }

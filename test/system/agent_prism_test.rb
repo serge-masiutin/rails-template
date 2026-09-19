@@ -13,10 +13,12 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.current_window.resize_to(1280, 900)
   end
 
-  test "AgentPrism показывает трассу, инструмент, атрибуты и очищенный JSON" do
+  test "AgentPrism показывает trace, tool call, атрибуты и очищенный JSON" do
     capture_trace
     visit operations_agents_path
-    assert_text "Трассы агентов"
+    assert_selector "h1", text: "AgentPrism"
+    assert_selector '.ops-viewer[lang="en"]'
+    assert_title(/AgentPrism/)
     assert_text "TestAgent.summarize"
     assert_text "tool.lookup_record"
     click_button "Attributes"
@@ -31,13 +33,13 @@ class AgentPrismTest < ApplicationSystemTestCase
 
   test "панель показывает отказ загрузки вместо пустого списка" do
     visit operations_agents_path
-    assert_text "Трасс пока нет"
+    assert_text "Пока нет данных"
     users(:admin).update!(admin: false)
     click_button "Обновить"
     assert_selector '[role="alert"]', text: "HTTP 403"
   end
 
-  test "на узком экране можно открыть ошибку инструмента" do
+  test "на узком экране можно открыть ошибку tool call" do
     capture_trace
     page.current_window.resize_to(390, 844)
     visit operations_agents_path
@@ -49,10 +51,10 @@ class AgentPrismTest < ApplicationSystemTestCase
 
   test "пустое состояние и явное обновление" do
     visit operations_agents_path
-    assert_text "Трасс пока нет"
+    assert_text "Пока нет данных"
     capture_trace
     click_button "Обновить"
     assert_text "TestAgent.summarize"
-    assert_no_text "Трасс пока нет"
+    assert_no_text "Пока нет данных"
   end
 end

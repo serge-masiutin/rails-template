@@ -11,6 +11,20 @@ Rails Semantic Logger пишет JSON, Mission Control показывает Soli
 число заданий и возраст очереди. Из общей навигации доступны Mission Control, AgentPrism,
 метрики и логи. Снимок обновляется кнопкой «Обновить»; это не проверка SMTP и внешних API.
 
+Обзор сохраняет имена процессов Solid Queue: `Worker`, `Dispatcher`, `Scheduler`.
+Состояния заданий соответствуют ключам метрик:
+
+| Название в обзоре | Ключ | Значение |
+| --- | --- | --- |
+| Ready | `ready` | Ожидает запуска |
+| Scheduled | `scheduled` | Запланировано на указанное время |
+| Claimed | `claimed` | Назначено Worker для выполнения |
+| Blocked | `blocked` | Ожидает освобождения лимита concurrency |
+| Failed | `failed` | Завершилось с ошибкой |
+
+Готовое к запуску задание не означает завершённое. Подробнее о фоновых задачах — в Mission Control;
+AI traces и spans — в [AgentPrism](agents.md#agentprism).
+
 Права выдаются существующему пользователю через CLI:
 
 ```sh
@@ -132,7 +146,7 @@ Kamal-команды проверены по CLI; подключение к prod
 В development worker и dispatcher запускаются через Overmind; в production — отдельной ролью Kamal `job`.
 Число потоков, процессы и пулы БД — в [конфигурации concurrency](architecture.md#конкурентное-выполнение);
 `queue.yml` задаёт очереди и интервалы polling.
-Периодические задания — в [recurring.yml](../config/recurring.yml); production scheduler очищает завершённые задания раз в час; development/production также удаляют AI-трассы старше семи дней.
+Периодические задания — в [recurring.yml](../config/recurring.yml); production scheduler очищает завершённые задания раз в час; development/production также удаляют AI traces старше семи дней.
 Упавшие задания автоматически не удаляются. Глобальных автоматических retries нет.
 
 `/up` проверяет загрузку Rails и служит healthcheck для Kamal Proxy.
@@ -145,7 +159,7 @@ Heartbeat обновляется раз в минуту, устаревает ч
 
 | Метрика | Смысл |
 | --- | --- |
-| `starterapp_agent_trace_failures` | Сбои сохранения AI-трасс; label stage: storage/sdk |
+| `starterapp_agent_trace_failures` | Сбои сохранения AI traces; label stage: storage/sdk |
 | `imgproxy_requests_total`, `imgproxy_status_codes_total` | Запросы и HTTP-ответы обработки изображений |
 | `imgproxy_request_duration_seconds` | Время ответа imgproxy |
 | `imgproxy_errors_total`, `imgproxy_workers_utilization` | Ошибки и загрузка обработчиков |
@@ -154,7 +168,7 @@ Heartbeat обновляется раз в минуту, устаревает ч
 | `rails_db_runtime_seconds`, `rails_view_runtime_seconds` | Время БД и рендера |
 | `starterapp_queue_jobs{state=...}` | ready, scheduled, claimed, blocked, failed |
 | `starterapp_queue_processes{kind=...}` | Процессы с актуальным heartbeat |
-| `starterapp_queue_oldest_ready_age_seconds` | Возраст старейшего готового задания |
+| `starterapp_queue_oldest_ready_age_seconds` | Время ожидания старейшего задания в ready |
 | `anycable_go_clients_num` | Активные WebSocket-соединения |
 | `anycable_go_publications_total` | Полученные сервером публикации |
 | `anycable_go_rpc_error_total` | Ошибки обращений AnyCable к Rails |

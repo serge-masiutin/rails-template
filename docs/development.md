@@ -7,7 +7,7 @@ Node.js также указан в `package.json` для npm и GitHub Actions.
 переход на следующую LTS выполняется согласованно. Dependabot обновляет Docker Node в пределах
 выбранной major-ветки. [Статус релизов Node.js](https://nodejs.org/en/about/previous-releases).
 Node.js нужен Herb и сборке закрытого просмотрщика AgentPrism. Продуктовые экраны используют importmap.
-Команды просмотра трасс и сборки — в [agents.md](agents.md#agentprism).
+Команды просмотра AI traces и сборки AgentPrism — в [agents.md](agents.md#agentprism).
 
 ## Редактор
 

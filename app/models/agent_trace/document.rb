@@ -37,7 +37,7 @@ class AgentTrace::Document
     record[:totalTokens] = first.fetch(:tokensCount) if first.key?(:tokensCount)
     { trace_id: id, started_at: started, document: { traceRecord: record, spans: spans } }
   rescue KeyError, TypeError, ArgumentError
-    raise InvalidTrace, "Некорректный контракт трассы Active Agent"
+    raise InvalidTrace, "Некорректный формат trace Active Agent"
   end
 
   private
@@ -81,6 +81,6 @@ class AgentTrace::Document
   end
 
   def valid!(condition)
-    raise InvalidTrace, "Некорректный контракт трассы Active Agent" unless condition
+    raise InvalidTrace, "Некорректный формат trace Active Agent" unless condition
   end
 end

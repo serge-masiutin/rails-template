@@ -21,7 +21,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
     refute document.fetch(:traceRecord).key?(:totalCost)
   end
 
-  test "ошибочные и слишком большие графы не превращаются в пустые трассы" do
+  test "ошибочные и слишком большие графы не превращаются в пустые traces" do
     invalid = []
     invalid << trace_payload.tap { |trace| trace.fetch("spans").last["parent_span_id"] = "missing" }
     invalid << trace_payload.tap { |trace| trace.fetch("spans") << trace.fetch("spans").first.dup }
@@ -32,7 +32,7 @@ class AgentTrace::DocumentTest < ActiveSupport::TestCase
     invalid.each { |trace| assert_raises(AgentTrace::Document::InvalidTrace) { AgentTrace::Document.new(trace).attributes } }
   end
 
-  test "очистка удаляет только трассы старше семи дней" do
+  test "очистка удаляет только traces старше семи дней" do
     fresh = capture_trace
     expired = capture_trace
     expired.update!(started_at: 8.days.ago)

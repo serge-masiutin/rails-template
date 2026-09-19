@@ -100,7 +100,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     refute_includes @log.string, "PRIVATE_"
   end
 
-  test "одновременные генерации изолируют трассы и освобождают контекст" do
+  test "одновременные генерации изолируют traces и освобождают контекст" do
     barrier = Concurrent::CyclicBarrier.new(2)
     stub_completion(barrier: barrier)
     threads = 2.times.map do |index|

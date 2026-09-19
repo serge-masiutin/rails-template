@@ -25,5 +25,5 @@ test("Нарушение версии, структуры или числово�
     value => { value.data[0].spans[0].children = null; },
     value => { value.data[0].spans[0].duration = -1; },
   ];
-  for (const mutate of mutations) { const payload = page(); mutate(payload); assert.throws(() => decodeTracePage(payload), /контракт/); }
+  for (const mutate of mutations) { const payload = page(); mutate(payload); assert.throws(() => decodeTracePage(payload), /Некорректный формат данных AgentPrism/); }
 });

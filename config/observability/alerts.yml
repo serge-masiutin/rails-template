@@ -6,7 +6,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Не удалось сохранить трассы Active Agent"
+          summary: "Не удалось сохранить traces Active Agent"
       - alert: StarterAppJobMetricsUnavailable
         expr: up{job="starterapp_jobs"} == 0
         for: 2m

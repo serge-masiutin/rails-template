@@ -47,6 +47,8 @@ class AdminTest < ActionDispatch::IntegrationTest
       follow_redirect! while response.redirect?
       assert_response :success
       assert_select 'nav[aria-label="Администрирование"] a', 5
+      assert_select 'nav[aria-label="Администрирование"] a', text: "AgentPrism"
+      assert_select 'nav[aria-label="Администрирование"] a', text: "Mission Control"
       assert_equal "no-store", response.headers.fetch("Cache-Control")
       assert_select 'meta[name="turbo-cache-control"][content="no-cache"]'
     end
@@ -61,6 +63,9 @@ class AdminTest < ActionDispatch::IntegrationTest
     sign_in_as(users(:admin))
     get admin_root_path
     assert_select '[role="alert"]', text: /не все обязательные процессы/
+    %w[Worker Dispatcher Scheduler Ready Scheduled Claimed Blocked Failed].each do |label|
+      assert_select "dt", text: label
+    end
     %w[Worker Dispatcher].each do |kind|
       SolidQueue::Process.create!(kind: kind, name: kind, last_heartbeat_at: Time.current, pid: 1, hostname: "test")
     end

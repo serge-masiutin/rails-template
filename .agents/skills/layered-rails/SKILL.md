@@ -4,7 +4,7 @@ description: "Проектировать и проверять слои Rails в
 metadata:
   upstream: layered-rails
   adapted-for: StarterApp
-  version: "9"
+  version: "10"
 ---
 
 # layered-rails
@@ -17,7 +17,7 @@ Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
 
 - Служебный UI входит в `/admin`: `Admin::BaseController` проверяет сессию и `AdminPolicy`, отключает кэширование; добавь общую навигацию. Роль не заменяет продуктовые policies. Basic `/ops/health` и Bearer `/ops/metrics` сохраняют отдельный доступ. Контракт и выдача прав — `docs/observability.md`.
 
-- Трассы Active Agent обслуживает `AgentTrace::Document` → PostgreSQL → закрытый `/ops/agents`. Сохраняй allowlist, отсутствие текстов/secret-полей, семидневный retention и наблюдаемый отказ записи. React AgentPrism — отдельный операционный экран; продуктовый HTML остаётся общим для Hotwire/Android.
+- Traces Active Agent обслуживает `AgentTrace::Document` → PostgreSQL → закрытый `/ops/agents`. Сохраняй allowlist, отсутствие текстов/secret-полей, семидневный retention и наблюдаемый отказ записи. React AgentPrism — отдельный операционный экран; продуктовый HTML остаётся общим для Hotwire/Android.
 
 - Сначала прочитай `docs/architecture.md`, затем затронутые вызовы, модели и тесты.
 - Контроллер принимает HTTP, проверяет параметры и делегирует. Доменные правила живут в моделях и именованных операциях рядом с ними.

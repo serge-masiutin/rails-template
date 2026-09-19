@@ -10,7 +10,7 @@
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=4.0.7
 
-# Node нужен только для сборки закрытого просмотрщика трасс.
+# Node нужен только для сборки закрытого просмотрщика AgentPrism.
 FROM docker.io/library/node:24.21.0-slim AS agent-assets
 WORKDIR /build
 COPY package.json package-lock.json .npmrc ./

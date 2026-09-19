@@ -90,7 +90,7 @@ tests:
               severity: warning
             exp_annotations:
               summary: Процесс jobs не отдаёт метрики
-  - name: Потеря трасс видна в alert
+  - name: Потеря traces видна в alert
     interval: 1m
     input_series:
       - series: 'starterapp_agent_trace_failures{stage="storage"}'
@@ -105,4 +105,4 @@ tests:
           - exp_labels:
               severity: warning
             exp_annotations:
-              summary: Не удалось сохранить трассы Active Agent
+              summary: Не удалось сохранить traces Active Agent

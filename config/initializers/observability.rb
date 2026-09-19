@@ -10,7 +10,7 @@ Yabeda.configure do
     gauge :queue_jobs, tags: [ :state ], comment: "Число заданий Solid Queue по состояниям"
     gauge :queue_processes, tags: [ :kind ], comment: "Число процессов Solid Queue с актуальным heartbeat"
     gauge :queue_oldest_ready_age_seconds, comment: "Время ожидания самого старого готового задания"
-    counter :agent_trace_failures, tags: [ :stage ], comment: "Сбои сохранения трасс Active Agent"
+    counter :agent_trace_failures, tags: [ :stage ], comment: "Сбои сохранения traces Active Agent"
     counter :agent_generations, tags: %i[agent action status], comment: "Завершённые генерации Active Agent"
     histogram :agent_generation_duration_seconds, tags: %i[agent action status],
       buckets: [ 0.1, 0.5, 1, 5, 15, 30, 60, 120, 300 ], comment: "Длительность генерации Active Agent"

@@ -19,7 +19,7 @@ class TypographyTest < ApplicationSystemTestCase
     sign_in_through_form(users(:admin))
 
     visit operations_agents_path
-    assert_text "Трассы агентов"
+    assert_selector "h1", text: "AgentPrism"
     assert_martian_mono
     visit "/ops/jobs"
     assert_selector "body .container"

@@ -13,10 +13,12 @@ class AdminNavigationTest < ApplicationSystemTestCase
     click_button "Войти"
     assert_text "Состояние приложения"
     page.save_screenshot(Rails.root.join("tmp/screenshots/admin-desktop.png"))
-    within('nav[aria-label="Администрирование"]') { click_link "Очередь" }
+    within('nav[aria-label="Администрирование"]') { click_link "Mission Control" }
     assert_link "Workers"
-    within('nav[aria-label="Администрирование"]') { click_link "Трассы AI" }
-    assert_text "Трасс пока нет"
+    assert_selector 'section[lang="en"]'
+    assert_title(/Mission Control/)
+    within('nav[aria-label="Администрирование"]') { click_link "AgentPrism" }
+    assert_text "Пока нет данных"
     within('nav[aria-label="Администрирование"]') { click_link "Метрики и логи" }
     assert_text "Как найти ошибку"
     within('nav[aria-label="Администрирование"]') { click_link "Обзор" }
