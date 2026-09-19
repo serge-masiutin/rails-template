@@ -4,6 +4,7 @@ class RequestCorrelatedJobTest < ActiveSupport::TestCase
   class ProbeJob < ApplicationJob
     def perform
       Rails.logger.info("Job context probe", payload: { request_id: Current.request_id })
+      Current.request_id
     end
   end
 
@@ -32,9 +33,12 @@ class RequestCorrelatedJobTest < ActiveSupport::TestCase
     SemanticLogger.remove_appender(appender) if appender
   end
 
-  test "older jobs without request_id still execute" do
-    serialized = ProbeJob.new.serialize.except("request_id")
-    assert_nothing_raised { ActiveJob::Base.deserialize(serialized).perform_now }
+  test "a job without HTTP context does not inherit the caller request ID" do
+    serialized = Current.set(request_id: nil) { ProbeJob.new.serialize }
+    Current.set(request_id: "outer-context") do
+      assert_nil ActiveJob::Base.deserialize(serialized).perform_now
+      assert_equal "outer-context", Current.request_id
+    end
   end
 
   test "failed jobs do not leak context into the next job" do

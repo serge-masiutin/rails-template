@@ -34,22 +34,6 @@ class ConcurrencyTest < ActiveSupport::TestCase
     end
   end
 
-  test "Executor clears Current after failure and returns the connection" do
-    pool = ApplicationRecord.connection_pool
-    results = concurrently do |index|
-      begin
-        Rails.application.executor.wrap do
-          Current.request_id = "failed-#{index}"
-          pool.lease_connection
-          raise ArgumentError, "Cleanup probe"
-        end
-      rescue ArgumentError
-        [ Current.request_id, Current.session, pool.active_connection? ]
-      end
-    end
-    assert_equal [ [ nil, nil, nil ], [ nil, nil, nil ] ], results
-  end
-
   test "unique index protects email against concurrent inserts after validation" do
     email = "concurrency-#{SecureRandom.hex(8)}@example.test"
     digest = users(:one).password_digest

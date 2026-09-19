@@ -42,13 +42,15 @@ class AdminTest < ActionDispatch::IntegrationTest
 
   test "administrator sees shared navigation and revocation applies on the next request" do
     sign_in_as(users(:admin))
+    destinations = [ admin_root_path, admin_observability_path, mission_control_jobs_path, operations_agents_path, root_path ]
     PAGES.each do |path|
       get path
       follow_redirect! while response.redirect?
       assert_response :success
-      assert_select 'nav[aria-label="Administration"] a', 5
-      assert_select 'nav[aria-label="Administration"] a', text: "AgentPrism"
-      assert_select 'nav[aria-label="Administration"] a', text: "Mission Control"
+      assert_select 'nav[aria-label="Administration"] a[href]' do |links|
+        paths = links.map { |link| URI.parse(link["href"]).path }
+        destinations.each { |destination| assert_includes paths, destination }
+      end
       assert_select 'nav[aria-label="Development tools"]', 0
       assert_equal "no-store", response.headers.fetch("Cache-Control")
       assert_select 'meta[name="turbo-cache-control"][content="no-cache"]'

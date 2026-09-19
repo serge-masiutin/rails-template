@@ -26,10 +26,6 @@ class AgentPrismTest < ApplicationSystemTestCase
     assert_text "request-123"
     click_button "RAW"
     assert_text "agent_invocation"
-    capture_trace
-    announce_update("agents")
-    assert_text "Traces 2", normalize_ws: true, wait: 12
-    assert_selector '[role="tab"][data-state="active"]', text: "RAW"
     assert_no_text "PRIVATE_"
     assert page.evaluate_script("getComputedStyle(document.body).backgroundColor") != "rgba(0, 0, 0, 0)"
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-desktop.png"))
@@ -54,15 +50,6 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-mobile.png"))
   end
 
-  test "new traces appear automatically" do
-    visit operations_agents_path
-    assert_text "No traces yet"
-    capture_trace
-    announce_update("agents")
-    assert_no_button "Refresh"
-    assert_text "TestAgent.summarize", wait: 12
-    assert_no_text "No traces yet"
-  end
   private
 
   # This suite checks rendering; bin/realtime-test verifies actual transport.

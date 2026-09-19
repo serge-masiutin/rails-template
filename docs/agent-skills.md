@@ -67,6 +67,9 @@ Structural checks do not evaluate agent decisions. Review affected cases when in
 | Native button | Shared JS/Kotlin JSON contract and a working browser HTML button |
 | Dependency update | Lockfile, official source, audit and consumer builds |
 | Editor/linter setup | Project-local LSP/hooks, pinned tools, Herb in CI and reviewed explicit ERB formatting |
+| Documentation or cosmetic change | Relevant lint/build/visual check; no new behavioral test without a changed contract |
+| Duplicate password reset test | One HTTP scenario checks password change, owner-session revocation and foreign-session preservation; transactional and WebSocket boundaries retain separate tests |
+| Known worker reload regression | Keep the subprocess guard with test-only configuration; do not dismiss it as a dependency test |
 | Slow/flaky tests | TestProf sql/cpu, seed reproduction and a cause fix without automatic retries |
 | Chrome startup timeout | driven_by options, actual driver verification, separate process_timeout and enabled JavaScript errors |
 | Load checks | Local k6 HTTP/WS thresholds, real delivery, required reports and cleanup; no production capacity claims |

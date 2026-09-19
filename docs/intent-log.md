@@ -21,3 +21,10 @@ Keep operational instructions in their respective guides; Git history and PRs ho
 - Added development-only links to Lookbook, mail previews, Rails routes and Alloy; mail previews use an unsaved example account.
 - Reproduced stale Solid Queue models/callbacks after Active Job reload. The standalone worker now keeps its classes until restart; web reloading remains enabled.
 - `test/lib/jobs_boot_test.rb` checks the real development worker boot and reload boundary in a separate process.
+
+## 2026-09-19 — testing policy
+
+- The [testing guide](testing.md), AGENTS and testing skill now define risk-based coverage, test boundaries and criteria for removing redundant tests.
+- Consolidated authentication and AgentPrism checks and removed tests of upstream behavior. Retained our integration, security, transaction and real transport guards; strengthened forms, session isolation and job context checks.
+- Full local `bin/ci` passed: 136 Rails tests, 12 browser tests, JavaScript, AnyCable, imgproxy and k6. Documentation, skills and local links were checked.
+- Automated Android device navigation and product AI quality evals remain absent; the guide defines when they are required.

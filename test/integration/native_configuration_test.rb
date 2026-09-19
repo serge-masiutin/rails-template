@@ -5,7 +5,6 @@ class NativeConfigurationTest < ActionDispatch::IntegrationTest
     get "/configurations/android_v1.json"
     assert_response :success
     assert_equal JSON.parse(Rails.root.join("native/android/app/src/main/assets/json/android_v1.json").read), response.parsed_body
-    assert_equal({}, response.parsed_body.fetch("settings"))
   end
 
   test "account is modal with no pull-to-refresh and sign-in uses regular navigation" do

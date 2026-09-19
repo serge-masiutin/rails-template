@@ -20,14 +20,6 @@ class AuthenticationContractTest < ActionDispatch::IntegrationTest
     assert_redirected_to account_path
   end
 
-  test "password reset revokes existing sessions" do
-    user = users(:one)
-    user.sessions.create!(user_agent: "test", ip_address: "127.0.0.1")
-    put password_path(user.password_reset_token), params: { password: "a-new-password-2026", password_confirmation: "a-new-password-2026" }
-    assert_response :see_other
-    assert_empty user.sessions.reload
-  end
-
   test "sign-in and reset rate limits use 303" do
     [ session_path, passwords_path ].each do |path|
       11.times do

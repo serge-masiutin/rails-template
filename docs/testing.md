@@ -3,6 +3,64 @@
 Run `mise exec -- bin/setup --skip-server` first. PostgreSQL, Docker and Chrome are required.
 Run the full suite with `mise exec -- bin/ci`.
 
+## What to test, and at which level
+
+Start with the risk: what incorrect behavior would a user or operator observe, and what data
+could be lost or exposed? Each test needs a concrete failure scenario and an observable result.
+Choose the simplest level that reproduces the risk; extend an existing test when it already owns
+the contract. Neither coverage percentage nor test count is a target.
+
+| Contract | Primary level and examples |
+| --- | --- |
+| Access rules, validation, data conversion | Ruby policy/model/parser tests: foreign records, invalid configuration, unsupported versions and value boundaries |
+| Sign-in, password reset, routes, forms, HTML/JSON | HTTP integration: status, redirects, form fields, database state, authorization and side effects; do not call private controller methods |
+| Atomicity, uniqueness, commit/rollback, races | Real PostgreSQL and our operation; concurrent calls with barriers/timeouts, without fixture transactions when a real commit is required |
+| Jobs and external APIs | Serialization, request/job IDs, enqueue after commit, failures and attempt counts; replace HTTP/transport while retaining our adapter and SDK |
+| ViewComponent and Stimulus | Semantic DOM, escaping and accessibility for components; timers, coalescing, cancellation and cleanup for JS, with controlled clocks and DOM boundaries |
+| Turbo and critical user journeys | A few browser paths: sign-in and navigation without reload, JavaScript behavior, preserved input, revoked access and narrow screens; keep the full HTTP validation matrix below the browser |
+| WebSocket, images, infrastructure | Short real AnyCable/imgproxy checks for signatures and delivery; native configuration and alert validators. A mocked broadcast does not prove delivery |
+| Android | Shared HTTP/JSON contracts plus build/lint; Kotlin/bridge changes require the corresponding behavior to be checked on an emulator or device |
+| AI | Deterministic adapter/tool/usage/error/privacy tests; assess output quality with a separate task dataset when adding a product AI feature |
+
+Check authorization at each public boundary: HTTP and WebSocket protect separate entry points.
+Multiple levels are justified when they catch different failures: a policy checks a rule, an HTTP
+request checks enforcement, a browser checks the client, and the Go server checks delivery.
+Keep error matrices at the lowest sufficient level.
+
+## When not to add a test
+
+- Documentation, comments, formatting or simple presentation changes without behavior changes:
+  use the relevant linter, link check, build or visual inspection.
+- The same contract is already protected at the same level: extend or run the existing test.
+- The test exercises only Ruby/Rails/a gem: a standard getter, a library's unknown-method error,
+  `FrozenError` semantics or a callback our code does not invoke.
+- Assertions mirror implementation: private methods, internal call order, complete CSS class lists,
+  whole-page HTML snapshots or exact link counts instead of required destinations.
+- The only assertion is `assert_nothing_raised` or HTTP 200: identify and check the useful result.
+  Status alone can be the contract for a health endpoint; a form also needs its action and fields.
+
+Our integration with dependencies and known regressions are exceptions. Keep the Bootsnap,
+external HTTP isolation, Cuprite and worker boot checks: they guard actual configuration and
+previous failures, not the libraries' implementation. Small size is not a reason to delete a test.
+
+Before removing a test, explain in the PR which test or native check retains the contract,
+or why the contract belongs to a dependency. Where possible, reproduce the original defect for
+a regression test: applying the fix must change its result. Do not delete a failure to make CI green.
+
+## Test data and boundaries
+
+- Use explicit fixtures such as `users(:one)`, not `User.take` or an arbitrary first record.
+- Create only the required data. Other HTTP features may use `sign_in_as`; authentication and
+  transport scenarios exercise real passwords, CSRF and cookies.
+- Replace external boundaries rather than the logic under test. Add a real transport smoke where
+  transport matters; PR tests must not require paid APIs or production credentials.
+- Restore ENV, locale, configuration, clocks and subscriptions in ensure/teardown. Subprocess tests
+  provide their own test configuration instead of using local secrets or development databases.
+- Assert the negative side of the contract: another session survives, rollback sends nothing,
+  and secrets do not reach logs. Absence of an exception is insufficient on its own.
+
+## Check commands
+
 | Layer | Tool and command |
 | --- | --- |
 | Models, jobs, policies, HTTP and components | Minitest: `mise exec -- bin/rails test` |
@@ -11,6 +69,11 @@ Run the full suite with `mise exec -- bin/ci`.
 | Real image transformations | imgproxy: `mise exec -- bin/image-test` |
 | HTTP/WS load smoke | k6: `mise exec -- bin/load-test smoke` |
 | Android contracts | `mise exec -- bin/native check`; [builds](native.md) |
+
+Start with the changed test, then its related suite; run `bin/ci` and GitHub CI before merging.
+Use profiles or additional seeds when changing setup/order or fixing instability; do not repeat
+a green full run without a new reason. The short k6 smoke validates the harness and delivery;
+longer load runs belong to an explicit Test diagnostics task.
 
 ## Test boundaries
 
@@ -99,7 +162,11 @@ time helpers, explicit fixture relationships and ensure/teardown cleanup. Test c
 with barriers and timeouts. Fix the cause instead of adding automatic retries or rerunning
 until the suite happens to pass.
 
-Sources: [Evil Martians testing stack](https://evilmartians.com/rails-startup-stack#testing),
+This is a project policy, not a universal ratio of unit/integration/system tests.
+Sources: [Rails: when to use system tests](https://guides.rubyonrails.org/testing.html#when-to-use-system-tests),
+[System of a test, Evil Martians](https://evilmartians.com/chronicles/system-of-a-test-setting-up-end-to-end-rails-testing),
+[profiling and valuable optimizations](https://evilmartians.com/chronicles/railing-against-time-tools-and-techniques-that-got-us-5x-faster-results),
+[Evil Martians testing stack](https://evilmartians.com/rails-startup-stack#testing),
 [TestProf EventProf](https://test-prof.evilmartians.io/guide/profilers/event_prof),
 [AnyCable, k6 and Yabeda](https://evilmartians.com/chronicles/real-time-stress-anycable-k6-websockets-and-yabeda),
 [flaky tests](https://evilmartians.com/chronicles/flaky-tests-be-gone-long-lasting-relief-chronic-ci-retry-irritation).
@@ -123,3 +190,7 @@ removal. Run `npm run build:agents` before an isolated browser test; `bin/ci` bu
 
 `test/integration/localization_test.rb` checks English UI/email, locale validation, links,
 request isolation, adding a locale and failure on missing translations.
+
+There are currently no automated Android device navigation tests or product AI evals.
+A Native User-Agent in a browser and a successful APK build do not establish Android SDK behavior;
+ProbeAgent tests the integration, not output quality. Add these checks with the corresponding feature.
