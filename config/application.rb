@@ -17,15 +17,17 @@ require "rails/test_unit/railtie"
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
-# Isolator выбирает HTTP-адаптер при загрузке; в test WebMock уже должен быть загружен.
+# Isolator selects its HTTP adapter at load time; test must load WebMock first.
 require "isolator" if Rails.env.development? || Rails.env.test?
-# Subscriber должен существовать до настройки Rails Semantic Logger, в том числе при lazy loading.
+# Load the subscriber before Rails Semantic Logger configuration, including lazy loading.
 require "active_job/log_subscriber"
 require_relative "../app/configs/web_config"
 require_relative "../app/configs/operations_config"
 require_relative "../app/configs/llm_config"
 require_relative "../app/configs/concurrency_config"
 require_relative "../lib/observability/json_formatter"
+require_relative "../lib/observability/log_filter"
+require_relative "../lib/observability/local_log"
 
 module StarterApp
   class Application < Rails::Application
@@ -35,7 +37,7 @@ module StarterApp
     config.x.operations = OperationsConfig.new
     config.x.llm = LlmConfig.new
     config.x.concurrency = ConcurrencyConfig.new
-    # Puma и Solid Queue исполняют прикладной код в потоках; Current привязан к потоку.
+    # Puma and Solid Queue execute application code in threads; Current is thread-scoped.
     config.active_support.isolation_level = :thread
     config.active_job.log_arguments = false
     config.active_agent.show_previews = false
@@ -51,11 +53,11 @@ module StarterApp
     config.rails_semantic_logger.rendered = false
     config.rails_semantic_logger.appenders do |appenders|
       if Rails.env.production?
-        appenders.add(io: $stdout, formatter: Observability::JsonFormatter.new)
+        appenders.add(io: $stdout, formatter: Observability::JsonFormatter.new, filter: Observability::LogFilter)
       else
-        appenders.add(file_name: "log/#{Rails.env}.jsonl", formatter: Observability::JsonFormatter.new,
-          permissions: 0o600)
-        appenders.add(io: $stdout, formatter: Observability::JsonFormatter.new) unless Rails.env.test?
+        appenders.add(logger: Observability::LocalLog.build(directory: Rails.root.join("log"), environment: Rails.env),
+          formatter: Observability::JsonFormatter.new, filter: Observability::LogFilter)
+        appenders.add(io: $stdout, formatter: Observability::JsonFormatter.new, filter: Observability::LogFilter) unless Rails.env.test?
       end
     end
     config.action_mailer.default_url_options = config.x.web.url_options

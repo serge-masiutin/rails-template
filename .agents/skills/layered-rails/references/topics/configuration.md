@@ -1,10 +1,10 @@
-# Конфигурация на границе
+# Configuration boundaries
 
-- Источники: Anyway Config в app/configs и штатные конфиги интеграций. Общие параметры читаются через Rails.configuration.x; ENV не размазываются по запросам.
-- Объявляй типы, обязательность, диапазоны и согласованные группы параметров. Частично заданный LLM-провайдер или недостаточный DB pool должны останавливать загрузку.
-- Переопределения разработчика находятся в игнорируемых config/*.local.yml; секреты production поступают из Kamal env.secret. Не добавляй их в image, docs и Git.
-- Изменяй конфигурацию при запуске процесса. Не меняй общий SDK, ENV или singleton config во время обработки запроса.
-- Источник дефолта один: например, ConcurrencyConfig. Проверяй крайние значения, malformed input, test/development/production и build с SECRET_KEY_BASE_DUMMY.
-- Сверяй precedence по установленной версии Anyway Config и фактическому загрузчику; не придумывай приоритет credentials/local/ENV.
+- Use Anyway Config in app/configs and native integration configuration. Read shared settings through Rails.configuration.x; do not scatter ENV reads across requests.
+- Declare types, required fields, ranges and parameter groups. Partial LLM settings or an undersized database pool must fail boot.
+- Developer overrides live in ignored config/*.local.yml; production secrets come from Kamal env.secret. Keep them out of images, docs and Git.
+- Configure at process startup. Never mutate shared SDKs, ENV or singleton settings per request.
+- Keep one source of defaults, such as ConcurrencyConfig. Test boundaries, malformed input, each environment and SECRET_KEY_BASE_DUMMY builds.
+- Verify precedence from the installed Anyway Config version and actual loader; do not guess credential/local/ENV ordering.
 
-Источники поведения: [app/configs/concurrency_config.rb](../../../../../app/configs/concurrency_config.rb), [app/configs/llm_config.rb](../../../../../app/configs/llm_config.rb), [test/models/concurrency_config_test.rb](../../../../../test/models/concurrency_config_test.rb), [test/models/llm_test.rb](../../../../../test/models/llm_test.rb).
+Behavior sources: [app/configs/concurrency_config.rb](../../../../../app/configs/concurrency_config.rb), [app/configs/llm_config.rb](../../../../../app/configs/llm_config.rb), [test/models/concurrency_config_test.rb](../../../../../test/models/concurrency_config_test.rb), [test/models/llm_test.rb](../../../../../test/models/llm_test.rb).

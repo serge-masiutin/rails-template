@@ -9,7 +9,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     prepend_view_path Rails.root.join("test/fixtures/agents")
 
     def lookup
-      prompt message: "Тестовая инструкция", instructions: "Тестовая инструкция", max_tool_turns: 2,
+      prompt message: "Test instruction", instructions: "Test instruction", max_tool_turns: 2,
         tools: [ { type: "function", function: { name: "lookup_record", description: "Read a record",
           parameters: { type: "object", properties: { query: { type: "string" } }, required: [ "query" ] } } } ]
     end
@@ -49,7 +49,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     super
   end
 
-  test "ERB-промпт отправляется через RubyLLM с явной моделью и отдельным контекстом" do
+  test "ERB prompt uses RubyLLM with an explicit model and isolated context" do
     request = stub_completion
     labels = { agent: ProbeAgent.name, action: "summarize", direction: :input }
     previous_tokens = Yabeda.starterapp.agent_tokens.get(labels) || 0
@@ -79,7 +79,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     %w[PRIVATE_INPUT OTHER_INPUT PRIVATE_OUTPUT agent-test-key].each { |secret| refute_includes @log.string, secret }
   end
 
-  test "реальный цикл инструмента записывает span без аргументов и результата" do
+  test "a real tool loop records a span without arguments or output" do
     final = { id: "resp_done", object: "response", status: "completed", model: "gpt-4.1-mini",
       output: [ { id: "msg_done", type: "message", role: "assistant", status: "completed",
         content: [ { type: "output_text", text: "PRIVATE_OUTPUT", annotations: [] } ] } ],
@@ -100,7 +100,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     refute_includes @log.string, "PRIVATE_"
   end
 
-  test "одновременные генерации изолируют traces и освобождают контекст" do
+  test "concurrent generations isolate traces and release context" do
     barrier = Concurrent::CyclicBarrier.new(2)
     stub_completion(barrier: barrier)
     threads = 2.times.map do |index|
@@ -114,7 +114,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     end
     ActiveSupport::Dependencies.interlock.permit_concurrent_loads do
       threads.each do |thread|
-        raise Timeout::Error, "Генерация не завершилась" unless thread.join(10)
+        raise Timeout::Error, "Generation did not finish" unless thread.join(10)
         assert_nil thread.value
       end
     end
@@ -128,7 +128,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     threads&.each(&:join)
   end
 
-  test "без конфигурации или версии промпта генерация завершается до сети" do
+  test "missing configuration or prompt version fails before network IO" do
     Rails.configuration.x.llm = LlmConfig.new(provider: nil, model: nil, api_key: nil)
     assert_raises(Anyway::Config::ValidationError) { ProbeAgent.summarize(text: "private").generate_now }
     Rails.configuration.x.llm = LlmConfig.new(provider: "openai", model: "gpt-4.1-mini", api_key: "agent-test-key")
@@ -136,7 +136,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     assert_not_requested :post, endpoint
   end
 
-  test "адаптер сохраняет кэш и reasoning из RubyLLM 2" do
+  test "adapter preserves RubyLLM 2 cached input and reasoning usage" do
     stub_completion(usage: { input_tokens: 12, output_tokens: 4, total_tokens: 16,
       input_tokens_details: { cached_tokens: 4 }, output_tokens_details: { reasoning_tokens: 1 } })
     response = ProbeAgent.summarize(text: "PRIVATE_INPUT").generate_now
@@ -147,7 +147,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     assert_equal 16, AgentTrace.last.document.dig("traceRecord", "totalTokens")
   end
 
-  test "отсутствующий usage не подменяется нулевым расходом" do
+  test "missing usage is not replaced with zero consumption" do
     stub_completion(usage: nil)
     response = ProbeAgent.summarize(text: "PRIVATE_INPUT").generate_now
     assert_nil response.usage
@@ -155,7 +155,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     refute agent_records.last.fetch("payload").key?("usage")
   end
 
-  test "генерация запускается после commit с request_id и без секретов в очереди" do
+  test "generation enqueues after commit with request_id and no queue secrets" do
     request = stub_completion
     Current.request_id = "agent-request"
     User.transaction do
@@ -180,7 +180,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     assert_empty SemanticLogger.named_tags
   end
 
-  test "rollback отменяет генерацию" do
+  test "rollback cancels generation" do
     assert_no_enqueued_jobs do
       User.transaction do
         User.count
@@ -191,7 +191,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     assert_not_requested :post, endpoint
   end
 
-  test "синхронная генерация внутри транзакции запрещена" do
+  test "synchronous generation inside a transaction is rejected" do
     stub_completion
     assert_raises(Isolator::HTTPError) do
       User.transaction do
@@ -201,7 +201,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     end
   end
 
-  test "ошибка провайдера сохраняется без скрытого повтора и утечки текста" do
+  test "provider failure remains visible without hidden retries or body leakage" do
     request = stub_request(:post, endpoint).to_return(status: 503,
       headers: { "Content-Type" => "application/json" },
       body: { error: { message: "PRIVATE_ERROR", type: "server_error" } }.to_json)
@@ -221,7 +221,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     %w[PRIVATE_INPUT PRIVATE_ERROR agent-test-key].each { |secret| refute_includes @log.string, secret }
   end
 
-  test "телеметрия и веб-консоль не публикуют тексты" do
+  test "telemetry and web console do not publish content" do
     assert ActiveAgent::Telemetry.enabled?
     assert_nil ActiveAgent::Telemetry.configuration.endpoint
     assert_nil ActiveAgent::Telemetry.configuration.api_key
@@ -236,9 +236,9 @@ class ApplicationAgentTest < ActiveJob::TestCase
 
   def stub_completion(usage: { input_tokens: 12, output_tokens: 4, total_tokens: 16 }, barrier: nil)
     stub_request(:post, endpoint)
-      .with(headers: { "Authorization" => "Bearer agent-test-key" }) { |request| request.body.include?("Тестовая инструкция") }
+      .with(headers: { "Authorization" => "Bearer agent-test-key" }) { |request| request.body.include?("Test instruction") }
       .to_return do
-        raise Timeout::Error, "HTTP-вызовы не достигли барьера" if barrier && !barrier.wait(5)
+        raise Timeout::Error, "HTTP calls did not reach the barrier" if barrier && !barrier.wait(5)
         { headers: { "Content-Type" => "application/json" }, body: {
         id: "resp_test", object: "response", status: "completed", model: "gpt-4.1-mini",
         output: [ { id: "msg_test", type: "message", role: "assistant", status: "completed",

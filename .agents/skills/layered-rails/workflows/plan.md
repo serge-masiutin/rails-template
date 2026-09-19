@@ -1,11 +1,11 @@
-# План локального изменения
+# Plan a local change
 
-1. Опиши требуемое поведение и ограничения веба/Android. Прочитай затронутые реализации, контракты и проверки.
-2. Найди существующий слой, которому принадлежит ответственность. Переиспользуй конфигурацию, policy, delivery, job, компонент и тестовые инструменты проекта.
-3. Выбери минимальное изменение; перечисли затронутые потребители и порядок проверки. Отдельную dependency, кэш или orchestration обоснуй измеримой потребностью.
-4. Предусмотри ошибочный ввод, чужие данные, rollback, конкурентность и недоступность внешнего сервиса, если они относятся к сценарию.
-5. Обнови docs и рабочие skills в том же изменении. Начинай выполнение после достаточного исследования, без отдельного процесса согласования для обратимых локальных правок.
+1. Define required behavior and web/Android constraints. Read affected implementations, contracts and checks.
+2. Identify the owning layer; reuse configuration, policies, deliveries, jobs, components and test tools.
+3. Choose the smallest change, affected consumers and validation order. Justify a dependency, cache or orchestration with a measurable need.
+4. Cover malformed input, foreign data, rollback, concurrency and external-service failure where relevant.
+5. Update docs and working skills in the same change. Proceed after adequate investigation without a separate approval process for reversible local edits.
 
-Результат: короткий исполнимый план с критериями готовности. Не создавай файл плана, если он не нужен сопровождению.
+Provide a short executable plan with completion criteria. Do not create a plan file unless maintenance needs it.
 
-Источники поведения: [AGENTS.md](../../../../AGENTS.md), [docs/architecture.md](../../../../docs/architecture.md), [docs/testing.md](../../../../docs/testing.md).
+Behavior sources: [AGENTS.md](../../../../AGENTS.md), [docs/architecture.md](../../../../docs/architecture.md), [docs/testing.md](../../../../docs/testing.md).

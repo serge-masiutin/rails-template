@@ -1,10 +1,10 @@
-# Права доступа
+# Authorization
 
-- HTTP-контроллер вызывает authorize! до чтения защищённых данных или изменения. ApplicationController включает verify_authorized; конкретные правила — наследники ApplicationPolicy.
-- Для коллекции применяй authorized_scope и проверку применения scope. Авторизация одной записи не фильтрует остальные строки.
-- Домен получает actor или owner явно. UI может скрыть кнопку, но сервер повторно проверяет действие; Native User-Agent не даёт прав.
-- В job заново загружай пользователя и запись, проверяй доступ на момент выполнения. Current.user из HTTP туда не переносится.
-- Sessions/passwords используют отдельные проверенные пароль/токен-контракты. Админка, Mission Control и AgentPrism проверяют сессию и AdminPolicy на каждом запросе. Технический /ops/health использует OperationsConfig и Basic, метрики — отдельный Bearer.
-- Проверяй гостя, владельца, чужую запись, отзыв сессии и неизвестное правило; default_rule nil сохраняет громкую ошибку неизвестного policy API.
+- Call authorize! before private reads or mutations. Keep ApplicationController verify_authorized and named ApplicationPolicy rules.
+- Collections need authorized_scope and scope verification; authorizing one record does not filter others.
+- Pass actor/owner to the domain explicitly. Hidden buttons and Native User-Agent never grant permission.
+- Jobs reload user and record and authorize at execution time; HTTP Current.user is not inherited.
+- Sessions/passwords have separate tested password/token boundaries. Admin, Mission Control and AgentPrism check session/AdminPolicy on every request. Health uses OperationsConfig Basic credentials; metrics uses separate Bearer credentials.
+- Test guest, owner, foreign record, session revocation and unknown rules. default_rule nil preserves a loud failure for unknown policy API.
 
-Источники поведения: [app/policies/application_policy.rb](../../../../../app/policies/application_policy.rb), [app/policies/user_policy.rb](../../../../../app/policies/user_policy.rb), [test/controllers/authorization_test.rb](../../../../../test/controllers/authorization_test.rb), [test/policies/user_policy_test.rb](../../../../../test/policies/user_policy_test.rb).
+Behavior sources: [app/policies/application_policy.rb](../../../../../app/policies/application_policy.rb), [app/policies/user_policy.rb](../../../../../app/policies/user_policy.rb), [test/controllers/authorization_test.rb](../../../../../test/controllers/authorization_test.rb), [test/policies/user_policy_test.rb](../../../../../test/policies/user_policy_test.rb).

@@ -12,7 +12,7 @@ class ImgproxyScenario < ActiveSupport::TestCase
 
   teardown { @blob.purge }
 
-  test "Go преобразует файл Active Storage и защищает обработку" do
+  test "Go transforms an Active Storage file and protects processing" do
     path = Rails.application.routes.url_helpers.polymorphic_url(@blob.variant(resize_to_limit: [ 32, 32 ], format: :webp))
     response = fetch_image(path)
     assert_equal "200", response.code

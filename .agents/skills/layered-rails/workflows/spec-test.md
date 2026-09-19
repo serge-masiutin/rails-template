@@ -1,11 +1,11 @@
-# Спроектировать регрессионный тест
+# Design a regression test
 
-1. Сформулируй один пользовательский контракт и наблюдаемую ошибку. Выбери ближайший уровень проверки из docs/testing.md.
-2. Для HTTP проверь доступ/параметры/ответ, для домена — инвариант и rollback, для UI — пользовательское действие, для Native — общий контракт и платформенную сборку.
-3. Используй Minitest 6 и существующие fixtures. Сеть подменяй WebMock; SQL/конкурентность проверяй реальной БД, когда от них зависит результат.
-4. Сначала воспроизведи ошибку, затем исправь причину. Не добавляй sleep, скрытые retries, пропуск проверки или fixture, которая повторяет реализацию.
-5. После исправления запусти связанные сценарии. Для AI malformed/adversarial inputs и quality evals определяются продуктовой задачей.
+1. State one user contract and observable failure. Choose the nearest level from docs/testing.md.
+2. Test HTTP access/input/response, domain invariants/rollback, UI actions or shared Native contracts plus a platform build as appropriate.
+3. Use current Minitest 6 and fixtures. Stub network boundaries with WebMock; use real SQL/concurrency when correctness depends on them.
+4. Reproduce the failure before fixing it. Do not add sleeps, hidden retries, skipped checks or fixtures that duplicate implementation.
+5. Run related scenarios afterward. Define AI malformed/adversarial cases and quality evals from the product task.
 
-Результат: команда, наблюдаемое падение до исправления, успешный результат после и непроверенные части.
+Report the command, observed failure before the correction, success afterward and unverified behavior.
 
-Источники поведения: [docs/testing.md](../../../../docs/testing.md), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb), [test/system/authentication_test.rb](../../../../test/system/authentication_test.rb).
+Behavior sources: [docs/testing.md](../../../../docs/testing.md), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb), [test/system/authentication_test.rb](../../../../test/system/authentication_test.rb).

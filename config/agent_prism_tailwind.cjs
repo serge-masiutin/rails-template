@@ -1,7 +1,7 @@
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 
-// Палитра upstream остаётся единственным источником имён цветов.
+// The upstream palette remains the source of color names.
 const theme = readFileSync(join(__dirname, "../vendor/agent-prism/components/theme/index.ts"), "utf8");
 const tokens = theme.split("AGENT_PRISM_TOKENS = [")[1].split("] as const")[0].matchAll(/"([a-z-]+)"/g);
 module.exports = {

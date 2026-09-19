@@ -9,12 +9,12 @@ function page() {
       startTime: "2026-09-19T01:00:00Z", endTime: "2026-09-19T01:00:00.010Z", children: [], attributes: [] }],
   }] };
 }
-test("Даты декодируются, отсутствующий usage остаётся неизвестным", () => {
+test("dates are decoded and missing usage remains unknown", () => {
   const decoded = decodeTracePage(page());
   assert.ok(decoded.data[0].spans[0].startTime instanceof Date);
   assert.equal(decoded.data[0].traceRecord.totalTokens, undefined);
 });
-test("Нарушение версии, структуры или числового контракта отклоняется", () => {
+test("invalid version structure or numeric contract is rejected", () => {
   const mutations = [
     value => { value.version = 2; },
     value => { value.next_cursor = "bad"; },
@@ -28,7 +28,7 @@ test("Нарушение версии, структуры или числово�
   for (const mutate of mutations) { const payload = page(); mutate(payload); assert.throws(() => decodeTracePage(payload), /Invalid AgentPrism data format/); }
 });
 
-test("AgentPrism принимает полный словарь и отклоняет неполные переводы", async () => {
+test("AgentPrism accepts a complete dictionary and rejects incomplete translations", async () => {
   const { decodeMessages } = await import("../../app/frontend/agents/messages.ts");
   const messages = Object.fromEntries(["title", "live", "offline", "latest", "denied", "earlier", "loading", "empty", "load_error", "http_error", "invalid_data", "render_error"].map(key => [key, key === "http_error" ? "HTTP %{status}" : key]));
   assert.equal(decodeMessages(messages).live, "live");

@@ -1,12 +1,12 @@
-# Проверка операций и обёрток
+# Review operations and wrappers
 
-1. Найди реальные операции в моделях и их namespaces, контроллерах и jobs. Не предполагай существование app/services или общего базового класса.
-2. Для каждого кандидата выпиши единственный use case, вход, результат, ошибки, транзакцию и внешний эффект.
-3. Отличи доменное поведение, query, форму, policy, компонент и инфраструктурный адаптер. Переименование само по себе архитектуру не меняет.
-4. Найди пустые обёртки, скрытые зависимости от Current/request, дубли правил и несовместимые контракты результатов. Проверяй конкретный путь выполнения.
-5. Оставь простой CRUD на месте, доменные инварианты — в модели; отдельную операцию добавляй по устойчивой ответственности.
-6. Проверяй Minitest на публичном входе, WebMock на HTTP-границе и реальные commit/rollback. Не удаляй полезный тест только потому, что его файл принадлежит другому слою.
+1. Find actual operations in models/namespaces, controllers and jobs. Do not assume app/services or a shared base class exists.
+2. Define each candidate's use case, input, result, errors, transaction and external effects.
+3. Distinguish domain behavior, queries, forms, policies, components and infrastructure adapters. Renaming alone does not change architecture.
+4. Trace empty wrappers, hidden Current/request dependencies, duplicated rules and incompatible results through real execution paths.
+5. Keep simple CRUD local and invariants in models; extract operations for stable responsibility.
+6. Check public behavior with Minitest, HTTP boundaries with WebMock and real commit/rollback. Do not remove a useful test solely because it resides in another layer.
 
-Результат: короткий список доказанных проблем, пути потребителей, локальные исправления и проверки. Не генерируй базовые классы/DSL, большой HTML-отчёт или новые dependencies без необходимости.
+Report confirmed problems, consumer paths, local corrections and checks. Do not generate unnecessary base classes, DSLs, long HTML reports or dependencies.
 
-Источники поведения: [docs/architecture.md](../../../../docs/architecture.md), [app/models/user.rb](../../../../app/models/user.rb), [app/models/agent_trace/capture.rb](../../../../app/models/agent_trace/capture.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb).
+Behavior sources: [docs/architecture.md](../../../../docs/architecture.md), [app/models/user.rb](../../../../app/models/user.rb), [app/models/agent_trace/capture.rb](../../../../app/models/agent_trace/capture.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb).

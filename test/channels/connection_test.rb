@@ -3,7 +3,7 @@ require "test_helper"
 class ConnectionTest < ActionCable::Connection::TestCase
   tests ApplicationCable::Connection
 
-  test "подписанная cookie определяет пользователя" do
+  test "signed cookie identifies the user" do
     session = users(:one).sessions.create!
     cookies.signed[:session_id] = session.id
     connect
@@ -11,13 +11,13 @@ class ConnectionTest < ActionCable::Connection::TestCase
     assert_equal users(:one), connection.current_user
   end
 
-  test "гость и поддельная cookie не получают соединение" do
+  test "guest and forged cookie cannot connect" do
     assert_reject_connection { connect }
     cookies[:session_id] = "1"
     assert_reject_connection { connect }
   end
 
-  test "удалённая сессия больше не действует" do
+  test "deleted session is no longer valid" do
     session = users(:one).sessions.create!
     cookies.signed[:session_id] = session.id
     session.destroy!

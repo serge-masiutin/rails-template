@@ -1,11 +1,12 @@
-# Логи, метрики и traces
+# Logs, metrics and traces
 
-- Используй существующие Rails.logger, Rails.error, ActiveSupport::Notifications и Yabeda. Subscriber отделяет форматирование и измерение от доменной операции.
-- Событие имеет устойчивое имя, статус, длительность и технические идентификаторы. Request/job ID принадлежат логам, а labels метрик — ограниченным наборам значений.
-- Сохраняй exception cause/stack; не интерполируй exception.message, пользовательский текст, URL с токеном, params, документы и ключи в message.
-- StarterApp JsonFormatter скрывает известные чувствительные поля, но не очищает произвольно собранные строки. Проверяй отрицательный сценарий с маркерами секретов.
-- Web и jobs имеют разные endpoints метрик; счётчики fork-воркеров объединяет WorkerMetrics. Очередь измеряется по общей БД, поэтому её gauges нельзя суммировать с нескольких web-инстансов.
-- Новая метрика меняется вместе с dashboard, alert и promtool-сценарием. Начальные thresholds не объявляй production SLO без измерений.
-- AI traces проходят allowlist AgentTrace::Document и retention. Потеря диагностики наблюдаема и не должна повторять оплаченный вызов модели.
+- Reuse Rails.logger, Rails.error, ActiveSupport::Notifications and Yabeda. Subscribers separate formatting/measurement from domain operations.
+- Events use stable names, statuses, durations and technical IDs. Request/job IDs belong in log fields; metric/Loki labels use bounded sets.
+- Preserve exception causes/stacks. Never interpolate arbitrary exception messages, user text, tokenized URLs, params, documents or keys into log messages.
+- JsonFormatter redacts known sensitive fields, not arbitrary constructed strings. Test negative cases with secret markers.
+- Ordinary logs go through rotated JSON files/stdout and Alloy/Loki, not PostgreSQL. Suppress only successful health/metrics request summaries; retain failures and denied access.
+- Web/jobs have separate metric endpoints. WorkerMetrics aggregates forked worker counters. Queue gauges read shared storage and must not be summed across web instances.
+- Update dashboards, alerts and promtool cases with metric changes. Initial thresholds are not measured production SLOs.
+- AI traces use AgentTrace::Document allowlisting and retention. Diagnostic loss must be observable without repeating a paid generation.
 
-Источники поведения: [docs/observability.md](../../../../../docs/observability.md), [lib/observability/json_formatter.rb](../../../../../lib/observability/json_formatter.rb), [lib/observability/agent_subscriber.rb](../../../../../lib/observability/agent_subscriber.rb), [test/lib/observability/json_formatter_test.rb](../../../../../test/lib/observability/json_formatter_test.rb).
+Behavior sources: [docs/observability.md](../../../../../docs/observability.md), [lib/observability/json_formatter.rb](../../../../../lib/observability/json_formatter.rb), [lib/observability/agent_subscriber.rb](../../../../../lib/observability/agent_subscriber.rb), [test/lib/observability/json_formatter_test.rb](../../../../../test/lib/observability/json_formatter_test.rb).

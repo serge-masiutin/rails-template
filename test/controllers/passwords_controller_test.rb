@@ -63,7 +63,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role=alert]"
   end
 
-  test "сброс пароля отзывает сессии всех устройств и ставит отключение в очередь" do
+  test "password reset revokes all device sessions and enqueues disconnect" do
     session_ids = 2.times.map { @user.sessions.create!.id }
     assert_enqueued_with(job: DisconnectSessionsJob, args: [ session_ids ]) do
       put password_path(@user.password_reset_token), params: { password: "new-password-2026", password_confirmation: "new-password-2026" }

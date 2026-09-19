@@ -1,9 +1,10 @@
-# Сложный HTML в helper
+# Complex HTML in helpers
 
-Признак: Ruby helper собирает дерево HTML, выбирает доменные права или делает скрытые запросы.
+Symptom: A Ruby helper builds an HTML tree, selects domain permissions or hides queries.
 
-Исправление: Перенеси устойчивую разметку в ERB/ViewComponent, данные и доступ подготовь снаружи. Простой форматирующий helper допустим; не переписывай его ради каталога компонентов.
+Correction: Move stable markup to ERB/ViewComponent and prepare data/access outside. Simple formatting helpers are valid; do not rewrite them merely to expand the component catalog.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/components/ui/notice_component.rb](../../../../../app/components/ui/notice_component.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/components/ui/notice_component.rb](../../../../../app/components/ui/notice_component.rb), [docs/architecture.md](../../../../../docs/architecture.md).

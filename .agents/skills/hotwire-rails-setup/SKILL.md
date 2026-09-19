@@ -1,40 +1,40 @@
 ---
 name: hotwire-rails-setup
-description: "Поддерживать и настраивать Rails/Hotwire основу StarterApp, локальный запуск, сборку ассетов и окружения."
+description: "Maintain Rails/Hotwire setup, local processes, assets and environments."
 metadata:
   upstream: inertia-rails-setup
   adapted-for: StarterApp
-  version: "9"
+  version: "10"
 ---
 
 # hotwire-rails-setup
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Node.js собирает отдельный React-просмотрщик AgentPrism в `/ops/agents`: `npm run check:agents` и `npm run build:agents`, watcher в Overmind, отдельный Node-stage Docker. Сохраняй общий Hotwire/importmap для веба и Android; инструкции — `docs/agents.md`.
+- Read versions from `.ruby-version`, `mise.toml`, lockfiles, Dockerfile and native build files.
+- For a new application, run `bin/configure --name my_app --android-id com.example.myapp` in a clean checkout before setup. See `docs/template.md`; do not rename an existing application with this command.
+- Start with `mise install`, `mise exec -- bin/setup`, then `mise exec -- bin/dev`.
+- `bin/dev` starts Prometheus, Grafana, Loki and Alloy. Monitoring containers outlive Overmind; see `docs/observability.md` for configuration and shutdown. Never expose local anonymous Grafana or Loki as a production deployment.
+- Overmind reads `Procfile.dev` for web, CSS, jobs, AnyCable, imgproxy and AgentPrism watchers; Compose supplies PostgreSQL.
+- Keep JSON file/container log rotation bounded. Suppress successful health/metrics summaries only; retain errors and denied requests. Ordinary logs belong in Alloy/Loki, not application tables.
+- AnyCable uses HTTP RPC and a shared Rails/Go secret. Preserve private ports and Kamal accessory configuration; run `bin/realtime-test` after transport changes.
+- Use importmap and vendored JS for the shared app; Tailwind builds through its Ruby gem. Node supports Herb and the isolated AgentPrism viewer.
+- AgentPrism uses `npm run check:agents`, `npm run build:agents`, an Overmind watcher and a separate Docker build stage. Its operations layout loads the shared AnyCable entrypoint without giving Turbo ownership of React DOM. See `docs/agents.md`.
+- Images use the shared `/images` endpoint with imgproxy, read-only storage, signed expiring URLs and restricted sources. See `docs/images.md`; run `bin/image-test`.
+- `bin/setup` installs locked npm packages and local Lefthook. Keep editor/Git/SSH/shell settings project-local; see `docs/development.md`.
+- Run Herb through `bin/erb-check`; RuboCop also checks README/docs Ruby examples. Format ERB explicitly with `bin/erb-format`, inspect the diff and test the screen; hooks must not auto-correct.
+- `ConcurrencyConfig` owns thread/process counts, supervisor mode and database pools. Do not duplicate defaults; validate bad ENV, `bin/jobs check` and the connection budget in `docs/architecture.md`.
+- Validate configuration once through Anyway Config or native Rails configuration with explicit required fields.
+- After changes, check Zeitwerk, production assets, `bin/ci` and Overmind startup. Configure Native SDK/wrapper through `docs/native.md` without changing global shell profiles.
 
-- Изображения: `docs/images.md`; imgproxy запускается через Overmind и Kamal accessory. Сохраняй общий `/images` для веба/Android, read-only storage, подпись, срок URL и ограничения источников; проверяй `bin/image-test`.
+## Completion
 
-- Источники версий: `.ruby-version`, `mise.toml`, `Gemfile.lock`, Dockerfile и native build files.
-- Для нового проекта сначала выполни `bin/configure --name my_app --android-id com.example.myapp` в чистом Git checkout; контракт и ограничения — `docs/template.md`. Повторно переименовывать действующее приложение этой командой нельзя.
-- Запуск: `mise install`, `mise exec -- bin/setup`, затем `mise exec -- bin/dev`.
-- `bin/dev` автоматически запускает Prometheus, Grafana, Loki и Alloy; контейнеры мониторинга живут отдельно от Overmind. Конфиги и остановка — `docs/observability.md`. Не публикуй локальный anonymous Grafana или Loki в production.
-- Overmind читает `Procfile.dev` и запускает web, CSS watcher, jobs, AnyCable, imgproxy и AgentPrism watcher; PostgreSQL поднимается через Compose.
-- AnyCable использует HTTP RPC и общий секрет Rails/Go. Локальный запуск, закрытые порты и Kamal accessory — `docs/realtime.md`; после изменения транспорта запускай `bin/realtime-test`.
-- Используй importmap и vendored JavaScript в `vendor/javascript`; Tailwind собирается Ruby gem. Node.js используется для Herb и отдельной сборки AgentPrism.
-- `bin/setup` устанавливает npm-пакеты из lockfile и локальный Lefthook. Настройки LSP/редактора и команды — `docs/development.md`; не меняй глобальные Git/SSH/editor settings.
-- `bin/erb-check` запускает Herb lint, `bin/rubocop` проверяет также Ruby-примеры README/docs. ERB форматируй явно через `bin/erb-format` с проверкой diff и тестом экрана; не добавляй автоисправления в hooks.
-- Число потоков, процессов, режим supervisor и пулы БД задаёт `ConcurrencyConfig`. Не дублируй их дефолты в Puma, queue.yml, database.yml и Kamal; проверь fail-fast на неверном ENV, `bin/jobs check` и бюджет подключений из `docs/architecture.md`.
-- Новую конфигурацию вводи на границе через Anyway Config либо штатный конфиг Rails, с явными обязательными полями.
-- После изменений проверь `bin/rails zeitwerk:check`, `bin/rails assets:precompile`, `bin/ci`, затем запуск Overmind.
-- Native SDK и Gradle wrapper настраиваются по `docs/native.md`. Новая установка не должна менять глобальный shell profile.
-
-## Результат
-
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/inertia-rails-setup.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/inertia-rails-setup`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/inertia-rails-setup.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/inertia-rails-setup`.

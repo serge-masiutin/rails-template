@@ -1,6 +1,6 @@
 unless Rails.env.test? || ENV["SECRET_KEY_BASE_DUMMY"]
   unless AnyCable.config.secret && AnyCable.config.secret.length >= 64
-    raise "Задайте ANYCABLE_SECRET (от 64 символов); локально выполните bin/cable setup"
+    raise "Set ANYCABLE_SECRET (at least 64 characters); run bin/cable setup locally"
   end
 end
 

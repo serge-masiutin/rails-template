@@ -1,5 +1,5 @@
 module Images
-  # Преобразование выполняет imgproxy; Rails только подписывает URL оригинала на общем диске.
+  # imgproxy transforms images; Rails signs source URLs on shared storage.
   module VariantUrl
     SUPPORTED_TRANSFORMATIONS = (ImgproxyRails::Transformer::MAP.keys +
       ImgproxyRails::Transformer::PASSTHROUGH_OPTIONS.map(&:to_sym) + %i[format imgproxy_options]).freeze
@@ -7,9 +7,9 @@ module Images
     def self.call(variant)
       transformations = variant.variation.transformations.deep_dup
       unknown = transformations.keys - SUPPORTED_TRANSFORMATIONS
-      raise ArgumentError, "imgproxy не поддерживает преобразования: #{unknown.join(', ')}" if unknown.any?
+      raise ArgumentError, "imgproxy does not support transformations: #{unknown.join(', ')}" if unknown.any?
 
-      # В imgproxy-rails 0.3 format не перенесён, а Transformer изменяет входной hash.
+      # imgproxy-rails 0.3 omits format and Transformer mutates its input hash.
       format = transformations.delete(:format)
       options = ImgproxyRails::Transformer.call(transformations)
       options[:format] ||= format if format
@@ -20,10 +20,10 @@ module Images
     def self.source_url(blob)
       service = blob.service
       unless service.is_a?(ActiveStorage::Service::DiskService)
-        raise ArgumentError, "imgproxy настроен на Disk storage; новый backend требует отдельной настройки источника"
+        raise ArgumentError, "imgproxy uses Disk storage; another backend requires explicit source configuration"
       end
       path = Pathname(service.path_for(blob.key)).relative_path_from(Pathname(service.root))
-      raise ArgumentError, "Источник изображения выходит за корень storage" if path.each_filename.include?("..")
+      raise ArgumentError, "Image source escapes the storage root" if path.each_filename.include?("..")
 
       "local:///#{path}"
     end

@@ -1,17 +1,17 @@
 require "test_helper"
 
 class LocalizationTest < ActionDispatch::IntegrationTest
-  test "интерфейс остаётся английским при другом языке браузера и Native" do
+  test "interface stays English with another browser or Native language" do
     get new_session_path, headers: { "Accept-Language" => "ru,fr;q=0.9", "User-Agent" => "Hotwire Native Android" }
     assert_response :success
     assert_equal "en", response.headers.fetch("Content-Language")
     assert_select 'html[lang="en"][dir="ltr"]'
     assert_select "h1", text: "Sign in to StarterApp"
     assert_select "input[type=submit][value='Sign in']"
-    assert_no_match(/[А-Яа-яЁё]/, response.body)
+    assert_no_match(/\p{Cyrillic}/, response.body)
   end
 
-  test "неподдерживаемая или некорректная locale отклоняется" do
+  test "unsupported or malformed locale is rejected" do
     [ "ru", "fr", "", [ "en" ], { language: "en" } ].each do |locale|
       get new_session_path, params: { locale: locale }
       assert_response :bad_request
@@ -21,7 +21,7 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "новая локаль применяется к тексту и ссылкам только внутри запроса" do
+  test "new locale applies to text and links only within the request" do
     previous_backend = I18n.backend
     previous_locales = I18n.available_locales
     catalog = YAML.safe_load_file(Rails.root.join("config/locales/en.yml")).fetch("en")
@@ -45,19 +45,19 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     I18n.available_locales = previous_locales
   end
 
-  test "письмо и сообщения валидации используют английский словарь" do
+  test "email and validation messages use the English dictionary" do
     mail = PasswordsMailer.reset(users(:one))
     assert_equal "Reset your StarterApp password", mail.subject
     assert_includes mail.html_part.body.decoded, "Reset password"
     assert_includes mail.text_part.body.decoded, "This link expires in 15 minutes."
-    assert_no_match(/[А-Яа-яЁё]/, mail.html_part.body.decoded)
+    assert_no_match(/\p{Cyrillic}/, mail.html_part.body.decoded)
     user = User.new(email_address: "", password: "short", password_confirmation: "different")
     assert_not user.valid?
     assert_includes user.errors.full_messages, "Email can't be blank"
     assert user.errors.full_messages.any? { |message| message.start_with?("Password is too short") }
   end
 
-  test "пропущенный перевод в представлении вызывает исключение" do
+  test "missing view translation raises" do
     assert_raises(I18n::MissingTranslationData) do
       ApplicationController.helpers.t("missing.translation.for.test")
     end

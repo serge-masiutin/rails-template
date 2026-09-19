@@ -1,4 +1,4 @@
-# Сохраняет контракт Active Agent и контекст обычных заданий StarterApp.
+# Preserve the Active Agent contract and shared application job context.
 class AgentGenerationJob < ActiveAgent::GenerationJob
   include RequestCorrelatedJob
 

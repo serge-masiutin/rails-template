@@ -1,18 +1,18 @@
 require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
-  test "новый пользователь не получает права администратора" do
+  test "new users have no administrator access" do
     assert_equal false, User.new.admin?
   end
 
-  test "нормализует email и отклоняет дубликаты" do
+  test "normalizes email and rejects duplicates" do
     user = User.new(email_address: " ONE@EXAMPLE.COM ", password: "valid-password-2026")
     assert_not user.valid?
     assert_equal "one@example.com", user.email_address
     assert user.errors.of_kind?(:email_address, :taken)
   end
 
-  test "отклоняет короткий пароль" do
+  test "rejects short passwords" do
     user = User.new(email_address: "new@example.com", password: "short")
     assert_not user.valid?
     assert user.errors.of_kind?(:password, :too_short)

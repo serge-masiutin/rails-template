@@ -1,2 +1,2 @@
-# Аннотированные destination-классы обнаруживаются Hotwire во время навигации.
+# Hotwire discovers annotated destination classes during navigation.
 -keep @dev.hotwire.navigation.destinations.HotwireDestinationDeepLink class * { *; }

@@ -4,15 +4,18 @@
     <title><%= t("layout.admin_title", title: content_for(:title), app: t("app.name")) %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="turbo-cache-control" content="no-cache">
+    <meta name="action-cable-url" content="<%= realtime_url %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "tailwind", "admin_navigation", "data-turbo-track": "reload" %>
     <%= render "shared/typography" %>
     <%= javascript_importmap_tags %>
+    <%= javascript_import_module_tag "operations_stream" %>
   </head>
   <body class="admin-shell min-h-screen antialiased">
     <a href="#main" class="sr-only focus:not-sr-only"><%= t("layout.skip_content") %></a>
     <%= render "admin/navigation" %>
+    <%= render "admin/shared/stream" %>
     <main id="main" class="admin-main">
       <%= yield %>
     </main>

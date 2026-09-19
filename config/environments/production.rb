@@ -24,11 +24,11 @@ Rails.application.configure do
   config.hosts = [ config.x.web.host ]
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
-  # Сборка ассетов не подключается к БД и SMTP; runtime обязан иметь все секреты.
+  # Asset builds need no database or SMTP; runtime requires all secrets.
   unless ENV["SECRET_KEY_BASE_DUMMY"]
-    raise "Задайте OPERATIONS_USERNAME, OPERATIONS_PASSWORD и OPERATIONS_METRICS_TOKEN" unless config.x.operations.configured? && config.x.operations.metrics_configured?
+    raise "Set OPERATIONS_USERNAME, OPERATIONS_PASSWORD and OPERATIONS_METRICS_TOKEN" unless config.x.operations.configured? && config.x.operations.metrics_configured?
     %w[DB_HOST DB_PASSWORD SECRET_KEY_BASE SMTP_ADDRESS SMTP_USERNAME SMTP_PASSWORD MAIL_FROM].each do |key|
-      raise KeyError, "Не задан #{key}" if ENV.fetch(key).empty?
+      raise KeyError, "Missing #{key}" if ENV.fetch(key).empty?
     end
     config.action_mailer.smtp_settings = {
       address: ENV.fetch("SMTP_ADDRESS"),

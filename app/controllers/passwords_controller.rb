@@ -1,6 +1,6 @@
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
-  # Доступ к смене пароля проверяется подписанным токеном, привязанным к password_digest.
+  # Password-reset access uses a signed token tied to password_digest.
   skip_verify_authorized
   before_action :set_user_by_token, only: %i[ edit update ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, status: :see_other, alert: t("auth.rate_limited") }

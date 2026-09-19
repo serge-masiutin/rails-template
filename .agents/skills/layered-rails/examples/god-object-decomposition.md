@@ -1,7 +1,8 @@
-# Разделить независимые роли модели
+# Separate independent model roles
 
-Группируй методы по инвариантам и данным, а не по количеству строк. Вынеси устойчивую ответственность в namespace модели. Образец — AgentTrace хранит и очищает, Document валидирует/преобразует, Capture записывает с политикой отказа. Не дроби маленький User ради гипотетического роста.
+Group methods by invariants and data, not line count. Extract a stable responsibility into the model namespace. AgentTrace stores/prunes, Document validates/converts and Capture persists with a failure policy. Do not split a small User model for hypothetical growth.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/models/agent_trace.rb](../../../../app/models/agent_trace.rb), [app/models/agent_trace/document.rb](../../../../app/models/agent_trace/document.rb), [app/models/agent_trace/capture.rb](../../../../app/models/agent_trace/capture.rb).
+Behavior sources: [app/models/agent_trace.rb](../../../../app/models/agent_trace.rb), [app/models/agent_trace/document.rb](../../../../app/models/agent_trace/document.rb), [app/models/agent_trace/capture.rb](../../../../app/models/agent_trace/capture.rb).

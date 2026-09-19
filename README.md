@@ -1,14 +1,13 @@
 # Rails Template
 
-Основа веб-приложения и Android-клиента на Rails и Hotwire.
-Включает вход, админку, фоновые задачи, AnyCable, imgproxy и AI-инструменты.
-Локальный запуск — Overmind и Docker; деплой — Kamal; CI — GitHub Actions.
+A Rails and Hotwire starter for web and Android apps. Includes authentication,
+an admin area, background jobs, AnyCable, imgproxy, and AI tooling.
+Overmind runs local processes; Kamal deploys the app; GitHub Actions runs CI.
 
-## Создать проект
+## Create an app
 
-[Создай репозиторий из шаблона](https://github.com/serge-masiutin/rails-template/generate)
-и клонируй его. На macOS установи Homebrew, Docker и Chrome, запусти Docker.
-В каталоге нового проекта выполни:
+[Use this template](https://github.com/serge-masiutin/rails-template/generate), then clone your repository.
+On macOS, install Homebrew, Docker, and Chrome. Start Docker and run:
 
 ```sh
 brew bundle
@@ -18,24 +17,24 @@ mise exec -- bin/setup --skip-server
 mise exec -- bin/dev
 ```
 
-Замени имя и Android ID на свои. Настройка выполняется до первого запуска.
-[Создай аккаунт администратора](docs/template.md#первый-аккаунт).
+Choose your own app name and Android ID before the first setup.
+[Create an administrator](docs/template.md#first-account).
 
-[Приложение](http://localhost:3000) · [Админка](http://localhost:3000/admin) ·
+[App](http://localhost:3000) · [Admin](http://localhost:3000/admin) ·
 [Grafana](http://localhost:3001) · [Prometheus](http://localhost:9090)
 
-`bin/dev` также запускает Loki и Alloy для поиска логов в Grafana.
-Админка и дашборды обновляются автоматически. Интерфейс — английский, другие языки подключаются через i18n.
-Проверка проекта: `mise exec -- bin/ci`. `Ctrl+C` останавливает Overmind;
-[контейнеры останавливаются отдельно](docs/observability.md#локальный-запуск).
+`bin/dev` also starts Loki and Alloy for logs. Admin panels update through AnyCable;
+Prometheus collects metrics independently. The UI ships in English with Rails i18n ready for more languages.
+Run checks with `mise exec -- bin/ci`. `Ctrl+C` stops Overmind;
+[stop infrastructure containers separately](docs/observability.md#local-development).
 
-## Документация
+## Documentation
 
-- [Настройка шаблона](docs/template.md) · [Разработка](docs/development.md) · [Тесты](docs/testing.md)
-- [Архитектура и i18n](docs/architecture.md) · [Hotwire](docs/hotwire.md) · [Android](docs/native.md)
-- [Мониторинг и логи](docs/observability.md) · [Деплой](docs/deployment.md)
-- [AnyCable](docs/realtime.md) · [Изображения](docs/images.md) · [Active Agent и AgentPrism](docs/agents.md)
-- [Правила агента](AGENTS.md) · [Skills](docs/agent-skills.md)
+- [Template setup](docs/template.md) · [Development](docs/development.md) · [Testing](docs/testing.md)
+- [Architecture and i18n](docs/architecture.md) · [Hotwire](docs/hotwire.md) · [Android](docs/native.md)
+- [Monitoring and logs](docs/observability.md) · [Deployment](docs/deployment.md)
+- [AnyCable](docs/realtime.md) · [Images](docs/images.md) · [Active Agent and AgentPrism](docs/agents.md)
+- [Agent rules](AGENTS.md) · [Skills](docs/agent-skills.md)
 
-Основано на [Rails Startup Stack](https://evilmartians.com/rails-startup-stack) и skills Evil Martians.
-[MIT](LICENSE) · [Сторонние лицензии](THIRD_PARTY.md).
+Based on the Evil Martians [Rails Startup Stack](https://evilmartians.com/rails-startup-stack) and agent skills.
+[MIT](LICENSE) · [Third-party licenses](THIRD_PARTY.md).

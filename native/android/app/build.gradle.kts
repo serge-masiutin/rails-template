@@ -9,8 +9,8 @@ val productionUrl = providers.gradleProperty("starterapp.productionUrl")
 val developmentUrl = providers.gradleProperty("starterapp.developmentUrl").orElse("http://10.0.2.2:3000")
 fun quotedUrl(value: String): String {
     val uri = URI(value)
-    require(uri.scheme in listOf("http", "https") && !uri.host.isNullOrBlank()) { "Некорректный URL StarterApp" }
-    require(uri.rawUserInfo == null && uri.rawQuery == null && uri.rawFragment == null) { "URL должен содержать только адрес сервера" }
+    require(uri.scheme in listOf("http", "https") && !uri.host.isNullOrBlank()) { "Invalid StarterApp URL" }
+    require(uri.rawUserInfo == null && uri.rawQuery == null && uri.rawFragment == null) { "URL must contain only the server address" }
     return "\"$value\""
 }
 
@@ -24,7 +24,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
-    // Включаем только опубликованные языки, в том числе для ресурсов SDK.
+    // Include only published languages, including SDK resources.
     androidResources { localeFilters += setOf("en") }
     buildFeatures { buildConfig = true }
     buildTypes {
@@ -51,8 +51,8 @@ dependencyLocking { lockAllConfigurations() }
 
 tasks.register("validateProductionUrl") {
     doLast {
-        check(productionUrl.isPresent) { "Задайте -Pstarterapp.productionUrl=https://ваш-домен" }
-        check(URI(productionUrl.get()).scheme == "https") { "Release требует HTTPS" }
+        check(productionUrl.isPresent) { "Set -Pstarterapp.productionUrl=https://your-domain" }
+        check(URI(productionUrl.get()).scheme == "https") { "Release requires HTTPS" }
     }
 }
 tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn("validateProductionUrl") }
@@ -60,7 +60,7 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn("valid
 dependencies {
     constraints {
         implementation("com.google.errorprone:error_prone_annotations:2.50.0") {
-            because("Старые аннотации с javax.lang.model.element.Modifier ломают Android R8; google/error-prone#5386")
+            because("Older annotations referencing javax.lang.model.element.Modifier break Android R8; google/error-prone#5386")
         }
     }
     implementation("dev.hotwire:core:1.3.1")

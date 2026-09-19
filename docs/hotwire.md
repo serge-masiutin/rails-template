@@ -1,33 +1,34 @@
-# Формы и навигация
+# Forms and navigation
 
-Rails возвращает HTML для веба и Android. Turbo Drive подключён в layout,
-Stimulus-контроллеры — в `app/javascript/controllers`.
+Rails returns shared HTML for web and Android. Turbo Drive is loaded by the layout;
+Stimulus controllers live in `app/javascript/controllers`.
 
-## HTTP-контракт
+## HTTP contract
 
-- GET возвращает страницу или Turbo Frame. Успешная мутация перенаправляет с кодом 303.
-- Невалидная форма возвращает HTML с кодом 422; отсутствие обязательного поля — 400 через `params.expect`.
-- Изменяй данные через формы и `button_to`, читай — через ссылки. Сохраняй CSRF для Native.
-- Ответ Turbo Frame содержит запрошенный frame id; Turbo Streams используют стабильные `dom_id`.
-- Повторное подключение Stimulus не дублирует подписки; `disconnect` освобождает ресурсы.
-- Native User-Agent меняет отображение навигации, но не права доступа.
-- Ошибка входа и ответ на запрос сброса пароля не раскрывают наличие аккаунта.
-- Смена пароля и отзыв сессий выполняются одной транзакцией через `User#reset_password`.
-  Сбой отзыва откатывает пароль; отключение WebSocket ставится в очередь после commit.
-- Превышение лимита входа/восстановления и недействительный reset token возвращают 303 к соответствующей форме.
-- Истёкшая сессия перенаправляет на вход через 303. Адрес возврата сохраняется только для GET/HEAD:
-  после входа приложение не пытается повторить DELETE или открыть его путь как страницу.
+- GET returns a page or Turbo Frame. Successful mutations redirect with 303.
+- Invalid forms return HTML with 422; missing required parameters return 400 through `params.expect`.
+- Mutate through forms and `button_to`; read through links. Keep CSRF protection for Native.
+- Frame responses contain the requested frame ID; Turbo Streams use stable `dom_id` targets.
+- Stimulus reconnects do not duplicate subscriptions; `disconnect` releases resources.
+- Native User-Agent changes presentation, not authorization.
+- Sign-in errors and password-reset responses do not reveal account existence.
+- Password changes and session revocation share the `User#reset_password` transaction.
+  Revocation failure rolls back the password; WebSocket disconnect is enqueued after commit.
+- Sign-in/reset rate limits and invalid reset tokens redirect to the relevant form with 303.
+- Expired sessions redirect to sign-in with 303. Store return URLs only for GET/HEAD;
+  sign-in must not replay DELETE or open a mutation route as a page.
 
-## Компоненты
+## Components
 
-ViewComponent принимает явные keyword arguments и проверяет фиксированные варианты через `Hash#fetch`.
-Токены интерфейса — `app/assets/tailwind/application.css`. Lookbook доступен в development.
-Bridge runtime подключён в `app/javascript/application.js`; компоненты добавляй под конкретную функцию.
+ViewComponent takes explicit keyword arguments and checks fixed variants with `Hash#fetch`.
+UI tokens live in `app/assets/tailwind/application.css`. Lookbook is available in development.
+The Native Bridge runtime is loaded in `app/javascript/application.js`; add components for concrete features.
 
-Обновления по WebSocket доставляет [AnyCable](realtime.md). Его клиент уже регистрирует
-`turbo-cable-stream-source`; не подключай параллельно JavaScript `@hotwired/turbo-rails`.
-Ruby gem `turbo-rails` остаётся источником Rails helpers и broadcasting API.
+[AnyCable](realtime.md) delivers WebSocket updates. Its client already registers
+`turbo-cable-stream-source`; do not also load JS `@hotwired/turbo-rails`.
+The Ruby `turbo-rails` gem still provides Rails helpers and broadcasting APIs.
+Admin screens use invalidation followed by authorized HTML/JSON fetches; they do not poll on a timer.
 
-При изменении формы проверь успешную отправку, ошибки 422/400, доступ гостя и пользователя.
-При изменении навигации — Turbo-переход без перезагрузки, клавиатуру, Android back/modal
-и повторное подключение Stimulus. Команды: [README](../README.md) и [Android](native.md).
+After form changes, verify success, 422/400 errors, guests, and authenticated users.
+After navigation changes, verify Turbo transitions, keyboard access, Android Back/modal behavior,
+and Stimulus reconnection. Commands: [README](../README.md), [Android](native.md).

@@ -2,8 +2,8 @@ require "active_agent/providers/ruby_llm_provider"
 
 module ActiveAgent
   module Providers
-    # Отдельный provider сохраняет стандартный транспорт и API токенов RubyLLM 2.
-    # Удалить после проверки совместимости upstream с RubyLLM 2: usage, finish_reason и контракт tools.
+    # A separate provider preserves standard transport and RubyLLM 2 token APIs.
+    # Remove once upstream supports RubyLLM 2 usage, finish_reason and tool contracts.
     class StarterappProvider < RubyLLMProvider
       ToolDefinition = Data.define(:name, :description, :parameters_schema) do
         def provider_options = {}

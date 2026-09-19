@@ -1,9 +1,10 @@
-# Concern без контракта
+# Concerns without contracts
 
-Признак: Модуль объединяет несвязанные validations, callbacks и HTTP-зависимости только ради размера файла.
+Symptom: A module combines unrelated validations, callbacks and HTTP dependencies just to shorten a file.
 
-Исправление: Выдели одну роль и необходимый host API. Для поведения с собственными данными используй объект рядом с моделью; проверь всех включающих модуль потребителей.
+Correction: Extract one role with a required host API. Behavior with its own data belongs in a model-adjacent object; check every including host.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/jobs/concerns/request_correlated_job.rb](../../../../../app/jobs/concerns/request_correlated_job.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/jobs/concerns/request_correlated_job.rb](../../../../../app/jobs/concerns/request_correlated_job.rb), [docs/architecture.md](../../../../../docs/architecture.md).

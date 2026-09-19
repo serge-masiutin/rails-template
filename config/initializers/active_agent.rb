@@ -2,7 +2,7 @@ require Rails.root.join("lib/observability/agent_subscriber")
 require Rails.root.join("lib/active_agent/providers/starterapp_provider")
 
 ActiveSupport.on_load(:active_agent) do
-  # Встроенный debug subscriber может писать текст ошибки провайдера.
+  # The built-in debug subscriber may log provider error content.
   ActiveAgent::Providers::LogSubscriber.detach_from :active_agent
   ActiveAgent::Providers::LogSubscriber.detach_from :"provider.active_agent"
 end

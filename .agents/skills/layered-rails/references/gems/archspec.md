@@ -1,9 +1,9 @@
-# Проверка архитектурных границ
+# Checking architectural boundaries
 
-- Источник архитектуры — фактические вызовы, схемы и docs/architecture.md. Не добавляй dependency ради декларативной копии дерева каталогов.
-- Rails zeitwerk:check проверяет загрузку классов; RuboCop — стиль и потокобезопасность; Minitest — доступ, транзакции, контракты и отсутствие побочных эффектов.
-- Если одно нарушение повторяется, сначала сделай минимальную проверку соответствующего публичного контракта. Custom cop нужен для устойчивого, однозначного правила.
-- Архитектурный тест не должен запрещать корректный простой Rails CRUD или навязывать пустые services/repositories.
-- Результат ревью — путь вызова, нарушенный инвариант, последствия и проверяемое исправление.
+- Actual calls, schemas and docs/architecture.md define architecture. Do not add a dependency to restate directory structure.
+- Zeitwerk checks loading; RuboCop checks style/thread safety; Minitest checks access, transactions, contracts and effects.
+- For recurring violations, first add a minimal public-contract regression check. A custom cop needs a stable unambiguous rule.
+- Architecture tests must not forbid valid simple CRUD or require empty services/repositories.
+- Report the call path, violated invariant, consequence and verifiable correction.
 
-Источники поведения: [docs/architecture.md](../../../../../docs/architecture.md), [config/ci.rb](../../../../../config/ci.rb), [.rubocop.yml](../../../../../.rubocop.yml), [test/lib/transaction_safety_test.rb](../../../../../test/lib/transaction_safety_test.rb).
+Behavior sources: [docs/architecture.md](../../../../../docs/architecture.md), [config/ci.rb](../../../../../config/ci.rb), [.rubocop.yml](../../../../../.rubocop.yml), [test/lib/transaction_safety_test.rb](../../../../../test/lib/transaction_safety_test.rb).

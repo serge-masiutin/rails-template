@@ -58,8 +58,8 @@ en:
       observability: Monitoring
       app: Back to app ↗
     live:
-      live: Live · 5s
-      offline: Reconnecting…
+      live: Live
+      offline: Connection interrupted
       paused: Paused while editing
       denied: Access expired. Sign in again.
   actions:
@@ -104,12 +104,12 @@ en:
     earlier: Earlier traces
     loading: Loading AgentPrism data…
     empty: No traces yet. They will appear after an agent runs.
-    load_error: Connection lost. Retrying automatically.
-    http_error: HTTP %{status}. Retrying automatically.
+    load_error: Could not load traces.
+    http_error: Could not load traces (HTTP %{status}).
     invalid_data: AgentPrism returned an invalid data format.
     render_error: Could not display this trace. Check the application logs.
-    live: Live · 5s
-    offline: Reconnecting…
+    live: Live
+    offline: Connection interrupted
     latest: Latest traces
     denied: Access expired. Sign in again.
   operations:

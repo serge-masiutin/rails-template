@@ -5,7 +5,7 @@ request_id="" job_id="" level="" follow=true input="log/${RAILS_ENV:-development
 while (($#)); do
   case "$1" in
     --request-id|--job-id|--level|--input)
-      (($# >= 2)) || { echo "Нужно значение для $1" >&2; exit 1; }
+      (($# >= 2)) || { echo "A value is required for $1" >&2; exit 1; }
       case "$1" in
         --request-id) request_id="$2" ;;
         --job-id) job_id="$2" ;;
@@ -17,14 +17,14 @@ while (($#)); do
     --help)
       echo "bin/logs [--request-id ID] [--job-id ID] [--level LEVEL] [--no-follow] [--input FILE|-]"
       exit 0 ;;
-    *) echo "Неизвестный параметр: $1" >&2; exit 1 ;;
+    *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
 case "$level" in
   ""|trace|debug|info|warn|error|fatal) ;;
-  *) echo "Уровень: trace, debug, info, warn, error или fatal" >&2; exit 1 ;;
+  *) echo "Level: trace, debug, info, warn, error or fatal" >&2; exit 1 ;;
 esac
-command -v jq >/dev/null || { echo "Установите jq: brew bundle" >&2; exit 1; }
+command -v jq >/dev/null || { echo "Install jq: brew bundle" >&2; exit 1; }
 read_logs() {
   if [[ "$input" == "-" ]]; then
     cat

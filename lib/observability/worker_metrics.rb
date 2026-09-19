@@ -4,7 +4,7 @@ module Observability
   class WorkerMetrics
     PORT = 9394
 
-    # Отдельный Rack-вход: только метрики, с той же Bearer-проверкой, что у Rails.
+    # Separate metrics-only Rack endpoint with the same Bearer check as Rails.
     def self.call(env)
       if env.fetch("PATH_INFO") == "/metrics" && env.fetch("REQUEST_METHOD") == "GET"
         Operations::MetricsController.action(:workers).call(env)

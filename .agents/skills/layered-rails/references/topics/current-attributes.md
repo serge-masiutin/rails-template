@@ -1,9 +1,9 @@
-# Контекст запроса и задания
+# Request and job context
 
-- Current содержит объявленные session и request_id. Контекст исполнения thread-scoped; не добавляй скрытую instance-variable мемоизацию и общие class variables.
-- Authentication заполняет Current.session, контроллер — request_id. Политика получает пользователя на HTTP-границе; домену передавай зависимости явно.
-- RequestCorrelatedJob переносит request_id, добавляет job_id и сбрасывает HTTP session даже при perform_now. Пользователь в worker задаётся аргументом ID и проверяется заново.
-- Любой собственный поток исполняет прикладную работу через Rails.application.executor.wrap и возвращает соединение в пул. Предпочитай штатный worker самостоятельным потокам.
-- В тесте используй Current.set с блоком. Проверяй два одновременных задания, ошибку, восстановление внешнего контекста и отсутствие утечки в следующий вызов.
+- Current declares session and request_id. Execution context is thread-scoped; do not add hidden instance-variable memoization or shared class variables.
+- Authentication sets Current.session; controllers set request_id. Policies receive the user at the HTTP boundary; pass domain dependencies explicitly.
+- RequestCorrelatedJob carries request_id, adds job_id and clears HTTP session even for perform_now. Workers take user IDs and recheck access.
+- Wrap application work in custom threads with Rails.application.executor.wrap and return database connections. Prefer existing workers over unmanaged threads.
+- Use scoped Current.set in tests. Check simultaneous jobs, failures, restored outer context and absence of leakage into the next call.
 
-Источники поведения: [app/models/current.rb](../../../../../app/models/current.rb), [app/jobs/concerns/request_correlated_job.rb](../../../../../app/jobs/concerns/request_correlated_job.rb), [test/lib/concurrency_test.rb](../../../../../test/lib/concurrency_test.rb), [test/jobs/request_correlated_job_test.rb](../../../../../test/jobs/request_correlated_job_test.rb).
+Behavior sources: [app/models/current.rb](../../../../../app/models/current.rb), [app/jobs/concerns/request_correlated_job.rb](../../../../../app/jobs/concerns/request_correlated_job.rb), [test/lib/concurrency_test.rb](../../../../../test/lib/concurrency_test.rb), [test/jobs/request_correlated_job_test.rb](../../../../../test/jobs/request_correlated_job_test.rb).

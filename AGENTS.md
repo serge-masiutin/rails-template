@@ -1,110 +1,108 @@
-# StarterApp: правила работы агента
+# StarterApp: agent instructions
 
-## Обязательный контекст
+## Start here
 
-- Это шаблон Rails/Hotwire + Android. Перед первым `bin/setup` выполни `bin/configure`; порядок и контракт — `docs/template.md`. В уже настроенном проекте сохраняй его имя и идентификаторы.
+- This is a Rails/Hotwire and Android template. Run `bin/configure` before the first `bin/setup`; see `docs/template.md`. Preserve the identity of an already configured application.
+- Write repository content in English: documentation, instructions, skills, comments, CLI messages and UI copy. Reply to the user in their preferred language. Preserve upstream sources and licenses verbatim.
+- Read related code, contracts, versions, tests and configuration before planning a local change.
+- Sources of truth: manifests and lockfiles, `config/routes.rb`, database schemas, tests, native build files and `docs/architecture.md`.
+- Shared screens serve both the web and Android. Assess changes for both clients.
+- Configure Git identity, SSH and GitHub CLI only for this repository. Preserve the owner's account; never change global settings or switch the global CLI account for this project.
 
-- Отвечай пользователю и пиши новые комментарии и документацию по-русски. Интерфейс приложения и письма — на английском через i18n.
-- Сначала исследуй связанные файлы, вызовы, версии, тесты и конфигурацию; затем сформулируй локальный план и меняй код.
-- Источники правды: `.ruby-version`, `Gemfile.lock`, `config/routes.rb`, схемы БД, тесты, native build files и `docs/architecture.md`.
-- Проект одновременно обслуживает веб и Android. Изменение общего экрана оцени для обоих клиентов.
-- Git identity и SSH настраивай только локально для репозитория. Сохраняй выбранный владельцем аккаунт; не меняй глобальный Git/SSH и активный аккаунт GitHub CLI ради проекта.
+## Project skills
 
-## Skills — рабочие инструкции проекта
+`.agents/skills/` contains 30 Evil Martians adaptations and the project skill `clear-writing`.
+Read the relevant `SKILL.md` and only the references needed for the task.
+Provenance and review cases: `docs/agent-skills.md`.
 
-В `.agents/skills/` находятся 30 адаптаций Evil Martians и проектный skill `clear-writing`.
-Перед соответствующей работой обязательно прочитай нужный `SKILL.md` и только необходимые references.
-Полная таблица происхождения и сценарии проверки: `docs/agent-skills.md`.
-
-| Задача | Прочитать |
+| Task | Read |
 | --- | --- |
-| Новая функция, архитектура, рефакторинг | `.agents/skills/layered-rails/SKILL.md`, `.agents/skills/hotwire-rails-architecture/SKILL.md` |
-| Контроллеры, формы, страницы | `hotwire-rails-controllers`, `hotwire-rails-forms`, `hotwire-rails-pages` |
-| Stimulus и компоненты | `hotwire-stimulus-components`, `hotwire-ui-components`, `tailwind-best-practices` |
-| Android, bridge | `hotwire-native-components`, `hotwire-bridge-contracts`, `rails-serialization` |
-| Каталог и дизайн | `ui-hub`, затем конкретный `ui-*` skill |
-| Тесты | `hotwire-rails-testing` |
-| Setup, зависимости, CI/CD | `hotwire-rails-setup`, `dependency-supply-chain` |
-| README и документация | `good-readme`, `clear-writing` |
-| Тексты интерфейса, письма, пояснения и ответы пользователю | `clear-writing` |
-| Передача контекста долгой работы | `intent-log` |
-| Обновление skills | `agent-skills-maintenance` |
+| Features, architecture, refactoring | `layered-rails`, `hotwire-rails-architecture` |
+| Controllers, forms, pages | `hotwire-rails-controllers`, `hotwire-rails-forms`, `hotwire-rails-pages` |
+| Stimulus and components | `hotwire-stimulus-components`, `hotwire-ui-components`, `tailwind-best-practices` |
+| Android and bridge contracts | `hotwire-native-components`, `hotwire-bridge-contracts`, `rails-serialization` |
+| Design and component catalog | `ui-hub`, then the relevant `ui-*` skill |
+| Tests | `hotwire-rails-testing` |
+| Setup, dependencies, CI/CD | `hotwire-rails-setup`, `dependency-supply-chain` |
+| README and documentation | `good-readme`, `clear-writing` |
+| UI copy, email, explanations | `clear-writing` |
+| Handoff after sustained work | `intent-log` |
+| Skill maintenance | `agent-skills-maintenance` |
 
-Имена без полного пути обозначают `.agents/skills/<имя>/SKILL.md`.
-Рабочие skills содержат наши Rails/Hotwire/Native процессы. Оригиналы в
-`vendor/agent-skills/evilmartians` — материал для сравнения; не исполняй их скрипты автоматически.
-При изменении рабочего skill обнови его metadata.version, проверь сценарии и `bin/skills check`.
+Names refer to `.agents/skills/<name>/SKILL.md`. Working skills describe this project's
+Rails/Hotwire/Native workflows. Originals in `vendor/agent-skills/evilmartians` are comparison
+material; do not execute their scripts automatically. When changing a skill, increment
+`metadata.version`, review affected cases and run `bin/skills check`.
 
-## Документация и тексты
+## Documentation and writing
 
-- Вместе с кодом обновляй затронутые инструкции, примеры, правила и skills. Перед завершением проверь их по фактическому поведению.
-- Сначала обновляй существующий документ. Новый создавай только для отдельной повторяющейся задачи читателя и сразу добавляй ссылку из README или профильного документа.
-- У каждой темы должен быть один основной источник. Удаляй устаревшее и дубли; исправляй входящие ссылки. Архив нужен только для сопровождения старого контракта или сохранения причины решения.
-- README содержит назначение, запуск, проверки и навигацию. Подробности хранятся рядом с подсистемой; результаты разовой проверки — в PR или краткой датированной записи, без отдельного отчёта на каждый шаг.
-- Все авторские тексты редактируй по принципам «Пиши, сокращай» и «Ясно, понятно»: задача читателя, главное в начале, конкретные факты и действия, понятные примеры, удобная структура. Практические приёмы и источники — в `clear-writing`.
-- Сохраняй оригинальные имена инструментов, протоколов, API и технических сущностей в UI и документации. Названия и правила употребления trace/span, Solid Queue и служебных панелей — в `clear-writing`; язык документации — русский, интерфейса и писем — английский.
-- Сокращай повторы и пустые оценки; сохраняй условия, ограничения, причинные связи и точные технические термины. Длина и балл редактора не являются целью.
+- Update affected documentation, examples, rules and skills with the code. Verify them against actual behavior before finishing.
+- Update an existing document first. Create a new one only for a distinct recurring reader task and link it from README or the relevant guide.
+- Keep one authoritative document per topic. Remove outdated instructions and duplication, fixing incoming links. Preserve history only when it explains a current decision or a supported contract.
+- Keep README to purpose, setup, checks and navigation. Put subsystem details in their guide and one-off results in the PR or a short dated handoff.
+- Apply the reader-focused principles in `clear-writing`: lead with the useful result, use concrete facts and actions, explain unfamiliar ideas with relevant examples, and organize by the reader's task.
+- Preserve product names, API fields and precise technical terms. Use AgentPrism, trace/span and Solid Queue terminology consistently across UI and docs.
+- Remove repetition and unsupported claims while retaining conditions, limits, units and causal links. Neither minimum length nor an editing score is the goal.
 
-## Архитектура и контракты
+## Architecture and contracts
 
-- Основной стек: Ruby/Rails, PostgreSQL, Hotwire, importmap, Tailwind, ViewComponent. Точные версии читай в manifests и lockfiles.
-- Доменные правила живут в моделях; сложные операции — рядом с соответствующей моделью в её namespace.
-- Контроллеры и jobs — тонкие входы. ERB/ViewComponent рендерят HTML; Stimulus отвечает за локальное взаимодействие.
-- Доступ проверяй через Action Policy и `authorize!`; прикладные уведомления отправляй через Active Delivery. Контракты и конфигурация gems — в `docs/architecture.md`.
-- Не отключай Isolator для обхода ошибки транзакции. Для выборок коллекций добавляй проверку N+1 на растущем объёме данных.
-- Потоки и пулы БД меняй через `ConcurrencyConfig`; правила — `docs/architecture.md`. Сохраняй изоляцию Current/логов, уникальные индексы и `rubocop-thread_safety`; гонки проверяй реальными потоками с барьерами и таймаутами.
-- Для AI-функции используй `ApplicationAgent`; для прямого вызова без шаблона — `Llm.build_chat`. Общая конфигурация явная; модель, retries и запись текстов не должны появляться скрыто.
-- Разделяй query и command. Сеть, запись, публикация и другие побочные эффекты должны быть явными.
-- Проверяй обязательные данные на границе; дальше обращайся к ним напрямую. Используй params.expect, fetch и явные типы/DTO.
-- Ошибки контрактов должны быть громкими. Не добавляй молчаливые fallback, широкие rescue, fake data, незапрошенные retries или лишние зависимости.
-- Сохраняй существующее поведение, если задача не требует изменения. Обновляй всех потребителей контракта атомарно.
-- Не создавай пустые слои, общий services/utils-контейнер, multi-agent orchestration или кэш без доказанной необходимости.
+- Use Rails, PostgreSQL, Hotwire, importmap, Tailwind and ViewComponent; read exact versions from manifests and lockfiles.
+- Put domain rules in models and complex operations next to the relevant model in its namespace. Keep controllers and jobs thin. ERB/ViewComponent renders HTML; Stimulus handles local interaction.
+- Authorize with Action Policy and `authorize!`; send application notifications through Active Delivery. See `docs/architecture.md`.
+- Keep Isolator enabled. Test collection queries for N+1 behavior with growing datasets.
+- Configure thread counts and database pools through `ConcurrencyConfig`. Preserve Current/log isolation, unique indexes and `rubocop-thread_safety`; test races with real threads, barriers and timeouts.
+- Use `ApplicationAgent` for AI actions and `Llm.build_chat` for direct calls without templates. Make model selection, retries and content capture explicit.
+- Separate commands and queries. Make network calls, writes and publishing explicit.
+- Validate required data at boundaries, then access it directly with `params.expect`, `fetch` and explicit types or DTOs.
+- Fail loudly on contract violations. Do not add silent fallbacks, broad rescue clauses, fake data, unrequested retries or unnecessary dependencies.
+- Preserve behavior unless the task changes it. Update all consumers of a changed contract together.
+- Do not add empty layers, generic services/utils containers, multi-agent orchestration or caching without demonstrated need.
 
-## AI-функции
+## AI features
 
-- Для агентных действий используй `ApplicationAgent`, `PROMPT_VERSION` и текстовые ERB-шаблоны; настройка и ограничения — `docs/agents.md`.
-- Долгую генерацию выполняй в job после commit. Передавай ID записей, заново проверяй доступ, явно валидируй и сохраняй результат; готовый HTML доставляй через приватный Turbo Stream для веба и Android.
-- Не логируй промпты, ответы, тела tools и ключи. Сохраняй метрики, версии и request/job ID; не включай SDK body capture.
-- Диагностика генераций — `/ops/agents` (AgentPrism). Сохраняй allowlist в `AgentTrace::Document`, срок хранения, закрытый доступ и метрику ошибок записи. Настройка — `docs/agents.md`; Node собирает только отдельный просмотрщик.
-- Для новой AI-функции нужны тесты HTTP-границы и набор оценки качества. Смена промпта, модели, schema или tools требует проверки регрессии.
+- Use `ApplicationAgent`, `PROMPT_VERSION` and text ERB templates; see `docs/agents.md`.
+- Run long generations in jobs after commit. Pass record IDs, recheck access, validate and persist results explicitly, then deliver HTML through private Turbo Streams to web and Android.
+- Never log prompts, responses, tool bodies or keys. Record bounded metrics, versions and request/job IDs; keep SDK body capture disabled.
+- AgentPrism lives at `/ops/agents`. Preserve the `AgentTrace::Document` allowlist, retention, administrator access and write-error metric. Node builds only this separate viewer.
+- New AI features need HTTP boundary tests and a versioned quality evaluation set. Recheck quality when prompts, models, schemas or tools change.
 
-## Язык интерфейса
+## Interface language
 
-- Публикуется только `en`. Все собственные тексты страниц, форм, ошибок, уведомлений, писем и previews хранятся в `config/locales/en.yml`; используй `t` / `I18n.t`, даты — через `l`, числительные — через `count`.
-- Не склеивай переводимые предложения; передавай именованные подстановки. Не помещай пользовательский ввод в `html_safe`; HTML допускается только в собственных ключах `_html`.
-- Locale выбирается в `Localization` из явного allowlist, действует внутри `I18n.with_locale` и передаётся в ссылки. Не присваивай глобальную `I18n.locale` в контроллерах. Не включай неполный язык и fallback, скрывающий пропущенный перевод.
-- JS получает необходимый словарь из Rails с проверкой контракта; не создавай второй набор переводов. Android использует `res/values/strings.xml` и список опубликованных языков. Подключение языка, ограничения vendor-панелей и проверка RTL — в `docs/architecture.md#языки-интерфейса`.
+- Publish only `en` initially. Put first-party page, form, error, notification, email and preview text in `config/locales/en.yml`; use `t`/`I18n.t`, `l` for dates and `count` for plurals.
+- Do not concatenate translated sentences. Use named interpolation. Never apply `html_safe` to user input; HTML is allowed only in owned `_html` keys.
+- Resolve locale through the explicit allowlist in `Localization`, scope it with `I18n.with_locale` and preserve it in links. Do not assign global locale in controllers or hide missing translations with fallbacks.
+- Pass the required dictionary from Rails to JS with a checked contract. Android uses `res/values/strings.xml` and the published locale list. See `docs/architecture.md#interface-languages` for new locales, vendor limitations and RTL checks.
 
-## Hotwire и Native
+## Hotwire and Native
 
-- Единственный шрифт интерфейсов — локальный Martian Mono: `app/assets/stylesheets/typography.css` и Android `res/font`. Новые layouts подключают `shared/typography`; детали — `docs/architecture.md#типографика`. Сохраняй его в компонентах, кодовых блоках и служебных панелях.
-- HTML — общий интерфейс веба и мобильных приложений. Формы работают через Rails, cookies и CSRF.
-- Успешная мутация: 303; ошибка формы: 422; неверная структура параметров: 400.
-- Frame-ответ содержит соответствующий frame id; stream targets стабильны. Подписки Stimulus очищаются при disconnect.
-- WebSocket обслуживает AnyCable; настройка и ограничения — `docs/realtime.md`. Проверяй доступ внутри канала, сохраняй отзыв сессий и тестируй доставку/восстановление через `bin/realtime-test`.
-- User-Agent Native меняет представление, но не доступ. Проверяй аутентификацию и авторизацию независимо от него.
-- Публичные Native contracts — `public/configurations/*_v1.json`; синхронизация копий: `bin/native sync`.
-- Сохраняй совместимость с установленными клиентами. Несовместимый контракт выпускай новой версией с сохранением старой.
-- Bridge JSON меняется одновременно в JS, Kotlin и тестах. Release-клиенты используют HTTPS.
-- Изображения: Active Storage и imgproxy через `.variant(...)`; настройка, доступ и проверки — `docs/images.md`.
+- Use the local Martian Mono font throughout, including code blocks and admin tools. New layouts include `shared/typography`; see `docs/architecture.md#typography` and Android `res/font`.
+- HTML is shared by web and Android. Forms use Rails, cookies and CSRF. Successful mutations return 303, validation failures 422 and malformed parameters 400.
+- Frame responses include the matching frame ID. Keep stream targets stable and clean up Stimulus subscriptions on disconnect.
+- AnyCable serves WebSockets. Check stream access inside channels, preserve session revocation and test delivery/recovery with `bin/realtime-test`; see `docs/realtime.md`.
+- Use authorized Turbo Stream signals after commit for admin updates. Fetch fresh data only on relevant events, reconnect or visibility return; coalesce events and preserve input/selection. Do not add periodic browser polling.
+- Native User-Agent changes presentation, never permissions. Check authentication and authorization independently.
+- Public Native contracts live in `public/configurations/*_v1.json`; synchronize bundled copies with `bin/native sync`.
+- Preserve contracts used by released clients; version incompatible changes. Update bridge JSON, JS, Kotlin and tests together. Release clients use HTTPS.
+- Use Active Storage and imgproxy through `.variant(...)`; see `docs/images.md` for access and validation.
 
-## Логи и наблюдаемость
+## Logs and observability
 
-- Используй Yabeda для метрик, Rails.logger для структурированных событий, Rails.error для регистрации ошибок. Рабочие команды и контракты — в `docs/observability.md`.
-- Наследуй задания от ApplicationJob; сохраняй request_id/job_id. Не записывай параметры запроса, аргументы задания, секреты, PII и произвольный пользовательский текст в message/payload.
-- Метки метрик должны иметь ограниченное число значений: без user_id, request_id, job_id и произвольных URL.
-- Служебный UI размещай в общей админке `/admin`; наследуй `Admin::BaseController`, сохраняй `AdminPolicy`, общую навигацию и запрет кэширования. Machine endpoints `/ops/health` и `/ops/metrics` сохраняют отдельные Basic/Bearer-контракты. Порядок доступа — `docs/observability.md`.
-- Служебные данные обновляй автоматически: текущий интервал — 5 секунд. Сохраняй выбор и ввод, отменяй запросы в скрытой вкладке и при disconnect, показывай сбой связи, очищай данные при отзыве доступа. `bin/dev` запускает весь локальный мониторинг; production-доступ настраивается отдельно.
-- При изменении очереди или наблюдаемости проверяй обработку ошибок, корреляцию, гостя, обычного пользователя, администратора и отзыв роли. Обновляй дашборд и alerts вместе с метриками.
+- Use Yabeda for metrics, `Rails.logger` for structured events and `Rails.error` for error reporting. See `docs/observability.md`.
+- Ordinary logs go to JSON files/stdout and Alloy/Loki, never application tables. `AgentTrace` is separate sanitized AI execution data with explicit retention.
+- Keep local file and container log rotation bounded. Suppress only successful health/metrics request summaries; preserve authentication failures, errors and warnings.
+- Inherit jobs from `ApplicationJob`; retain request/job correlation. Never log request parameters, job arguments, secrets, PII or arbitrary user text.
+- Keep metric and Loki label cardinality bounded. IDs and arbitrary URLs do not belong in labels.
+- Put operational UI under the shared `/admin` navigation with `Admin::BaseController`, `AdminPolicy` and no-store. Machine health/metrics retain separate Basic/Bearer contracts.
+- Clear sensitive panels and unsubscribe when access is revoked. Show connection failures. `bin/dev` starts local monitoring; production access and alert delivery require explicit deployment configuration.
+- Queue/monitoring changes must cover failures, correlation, guest/user/admin access and role revocation. Update dashboards and alerts with their metrics.
 
-## Проверки и готовность
+## Checks and completion
 
-- При изменении поведения обновляй тесты публичного контракта и критические ошибки; сначала узкий тест, затем `bin/ci`.
-- Тестовый стек и диагностика — `docs/testing.md`: профилируй через TestProf до оптимизации; HTTP/WS проверяй через `bin/load-test`. Не запускай нагрузочный стенд параллельно другим тестам и не скрывай flaky-сбои автоматическими retries.
-- Проверки: `bin/rails test`, `bin/rails test:system`, `bin/rubocop`, `bin/erb-check`, `bin/rails zeitwerk:check`, `bin/skills check`, `bin/native check`.
-- Редактор, LSP и Lefthook — `docs/development.md`. Используй закреплённые инструменты через mise; Ruby-примеры в README/docs проверяет rubocop-md. Форматируй ERB явно и проверяй diff и тест экрана.
-- Native-команды и ограничения окружения перечислены в `docs/native.md`; CI/CD — в `docs/deployment.md`.
-- Не заявляй, что код работает, без релевантных проверок. Разделяй наблюдённый факт, вывод и предположение.
-- В завершении назови изменения, проверки, ограничения; при долгой работе оставь краткую запись в `docs/intent-log.md`.
-- Не сохраняй secrets, ключи, пользовательские документы, PII и приватные рассуждения в коде, логах или skills.
-- Держи diff локальным, обратимым, без мусора, TODO, заглушек и случайных форматирований.
+- Test observable behavior and critical failures. Start with the narrow relevant test, then run `bin/ci`.
+- See `docs/testing.md` for TestProf and HTTP/WS load checks. Do not run the load harness alongside other tests or hide flaky failures with automatic retries.
+- Main checks: `bin/rails test`, `bin/rails test:system`, `bin/rubocop`, `bin/erb-check`, `bin/rails zeitwerk:check`, `bin/skills check`, `bin/native check`.
+- Use pinned tools through mise. Editor/LSP/Lefthook instructions: `docs/development.md`. Ruby examples in README/docs are checked by rubocop-md. Format ERB explicitly and inspect the diff and affected screen.
+- Native builds: `docs/native.md`; CI/CD: `docs/deployment.md`.
+- Report changes, executed checks and limitations. Do not claim success without relevant evidence. For sustained work, leave a concise entry in `docs/intent-log.md`.
+- Keep secrets, keys, private documents, PII and private reasoning out of code, logs and skills.
+- Keep changes local, reversible and reviewable, without dead code, placeholders or incidental formatting.

@@ -1,13 +1,9 @@
-# Active Delivery в StarterApp
+# Active Delivery contract
 
-Источник API: [palkan/active_delivery](https://github.com/palkan/active_delivery),
-установленная версия — Gemfile.lock. Abstract Notifier входит в этот gem.
+API: [palkan/active_delivery](https://github.com/palkan/active_delivery); version: Gemfile.lock.
+Abstract Notifier is included in this gem.
 
-## Действующий контракт
-
-- База — `ApplicationDelivery`. Подключены линии `mailer` и `notifier`.
-- События объявляй через `delivers`; `deliver_actions_required = true` запрещает неявные события.
-- Текущая реализация:
+- Inherit ApplicationDelivery; mailer and notifier lines are configured. Declare events with `delivers`; `deliver_actions_required = true` rejects implicit events.
 
 ```ruby
 class PasswordsDelivery < ApplicationDelivery
@@ -18,22 +14,11 @@ end
 PasswordsDelivery.reset(user).deliver_later
 ```
 
-- Имена обработчиков задавай строками, чтобы Rails мог перезагружать классы.
-- Для дополнительного канала используй `register_line :push, ActiveDelivery::Lines::Notifier`,
-  затем `push "ИмяРеальногоNotifier"` в конкретном delivery.
-- Событие и его аргументы должны поддерживаться каждым подключённым обработчиком.
-  Не используй `deliver_by`: такого API в установленной версии нет.
-- Конкретный notifier наследует `ApplicationNotifier` и задаёт `self.driver` — объект с `call(payload)`.
-  Метод события возвращает `notification(body: ..., ...)`. Транспорт выбирается по задаче;
-  push/SMS-провайдер в StarterApp ещё не подключён.
-- Отправка идёт через `MailDeliveryJob` или `NotifierDeliveryJob`: после commit, с `request_id`.
-  Прямую синхронную отправку внутри транзакции не используй.
-
-## Проверка
-
-- Письмо: `assert_enqueued_email_with PasswordsMailer, :reset, args: [user]`.
-- Канал: проверь payload, выбор driver, отсутствие отправки при rollback и сохранение `request_id`.
-- `AbstractNotifier.delivery_mode = :test` перехватывает вызов до Active Job.
-  Для проверки реального enqueue временно используй `:normal` и тестовый driver;
-  в teardown восстанови режим. Пример — `test/jobs/notifier_delivery_job_test.rb`.
-- Не вводи `:noop` для маскировки отсутствующего транспорта. Сбой отправки должен быть виден в очереди.
+- Specify handler names as strings for Rails reloading.
+- For an additional channel, register `register_line :push, ActiveDelivery::Lines::Notifier`, then select an actual notifier with `push "PushNotifier"` in the concrete delivery.
+- Every selected handler must accept the event and its arguments. Do not use `deliver_by`; the installed version has no such API.
+- Inherit ApplicationNotifier and set `self.driver` to an object with `call(payload)`. Events return `notification(body: ..., ...)`. Push/SMS providers are not configured yet.
+- MailDeliveryJob/NotifierDeliveryJob run after commit with request correlation; do not send synchronously inside a transaction.
+- Check email enqueue with `assert_enqueued_email_with PasswordsMailer, :reset, args: [user]`.
+- Check payload, driver selection, rollback and request_id. AbstractNotifier `:test` mode intercepts before Active Job; use `:normal` plus a test driver when testing real enqueue and restore the mode in teardown. See `test/jobs/notifier_delivery_job_test.rb`.
+- Never use `:noop` to mask a missing transport. Delivery failures must remain visible in the queue.

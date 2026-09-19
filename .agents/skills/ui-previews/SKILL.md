@@ -1,29 +1,31 @@
 ---
 name: ui-previews
-description: "Писать ViewComponent previews StarterApp, документирующие реальные состояния компонента."
+description: "Document meaningful component states with deterministic ViewComponent previews."
 metadata:
   upstream: sb-stories
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-previews
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Прочитай API компонента, вызовы, tokens и существующие previews.
-- Создай preview-методы для материально различных состояний, без декартова произведения параметров.
-- Входы детерминированы: короткий/длинный текст, явные варианты, ошибки, disabled.
-- Один preview показывает один понятный сценарий. Повторяющиеся наборы входов можно выделить при явном повторении.
-- Preview не заменяет assertions: добавь компонентный тест на публичный контракт.
-- Проверь каталог в узком/mobile viewport и клавиатурой; Native navigation проверяется отдельно в приложении.
+- Read the component API, usage, tokens and existing previews.
+- Add methods for materially different states, not every parameter combination.
+- Use deterministic short/long text, explicit variants, errors and disabled states.
+- Each preview shows one clear scenario; extract repeated inputs only when repetition is real.
+- Previews do not replace assertions; add a component test for the public contract.
+- Check narrow/mobile viewports and keyboard interaction; Native navigation requires an application check.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-stories.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-stories`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-stories.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-stories`.

@@ -17,7 +17,7 @@ html, body, button, input, optgroup, select, textarea, code, kbd, pre, samp,
   font-stretch: normal;
 }
 
-/* Сохраняет стандартную ширину variable-шрифта и в стилях внешних панелей. */
+/* Preserve the variable font's standard width inside third-party panels. */
 html {
   font-variation-settings: "wdth" 100;
 }

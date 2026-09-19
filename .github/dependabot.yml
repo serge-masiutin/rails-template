@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule: { interval: weekly }
-    # AgentPrism upstream использует PanelGroup/PanelResizeHandle из v3; см. docs/agents.md.
+    # AgentPrism upstream uses v3 PanelGroup/PanelResizeHandle; see docs/agents.md.
     ignore:
       - dependency-name: react-resizable-panels
         update-types: ["version-update:semver-major"]
@@ -29,7 +29,7 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }
-    # Node обновляется в рамках LTS; новую ветку меняем вместе с mise.toml/package.json.
+    # Keep Node on LTS; update a new major together with mise.toml/package.json.
     ignore:
       - dependency-name: library/node
         update-types: ["version-update:semver-major"]

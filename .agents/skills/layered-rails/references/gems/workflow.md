@@ -1,9 +1,9 @@
-# Явные переходы состояния
+# Explicit state transitions
 
-- Сначала опиши текущие состояния, события, допустимые переходы и инварианты. Не добавляй state machine, если достаточно одной атомарной операции.
-- Переход выражается доменным методом, а не произвольным присваиванием статуса из params. Для устойчивого состояния используй тип/enum и ограничения БД.
-- Проверка и изменение выполняются в одной транзакции с блокировкой либо атомарным условным SQL, когда есть конкуренция.
-- Сетевой эффект выносится за транзакцию и выполняется после commit через явную job.
-- Проверяй запрещённый переход, повтор, гонку и rollback. Дополнительный gem выбирается только после подтверждённой потребности; текущие модели не требуют отдельного workflow DSL.
+- Describe actual states, events, transitions and invariants first. Do not add a state machine when one atomic operation suffices.
+- Expose transitions through domain methods, not arbitrary status assignment from params. Use an enum/type and database constraints for stable state.
+- Check and mutate in one transaction with locking or atomic conditional SQL when concurrent callers exist.
+- Move network effects outside the transaction into an explicit job after commit.
+- Test invalid transitions, repeats, races and rollback. Add a workflow gem only for an established need.
 
-Источники поведения: [app/models/session.rb](../../../../../app/models/session.rb), [app/models/user.rb](../../../../../app/models/user.rb), [test/lib/concurrency_test.rb](../../../../../test/lib/concurrency_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/models/session.rb](../../../../../app/models/session.rb), [app/models/user.rb](../../../../../app/models/user.rb), [test/lib/concurrency_test.rb](../../../../../test/lib/concurrency_test.rb), [docs/architecture.md](../../../../../docs/architecture.md).

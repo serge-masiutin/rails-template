@@ -1,11 +1,11 @@
 require "test_helper"
 
 class Observability::ErrorSubscriberTest < ActiveSupport::TestCase
-  test "Rails.error попадает в журнал без произвольного контекста" do
+  test "Rails.error is logged without arbitrary context" do
     io = StringIO.new
     appender = SemanticLogger.add_appender(io: io, formatter: Observability::JsonFormatter.new)
     Current.set(request_id: "error-request") do
-      Rails.error.report(ArgumentError.new("секрет"), handled: true, severity: :warning,
+      Rails.error.report(ArgumentError.new("secret marker"), handled: true, severity: :warning,
         context: { email: "private@example.com" }, source: "starterapp.test")
     end
     SemanticLogger.flush
@@ -15,7 +15,7 @@ class Observability::ErrorSubscriberTest < ActiveSupport::TestCase
     assert_equal "error.reported", record.dig("payload", "event")
     assert_equal "starterapp.test", record.dig("payload", "source")
     refute_includes io.string, "private@example.com"
-    refute_includes io.string, "секрет"
+    refute_includes io.string, "secret marker"
   ensure
     SemanticLogger.remove_appender(appender) if appender
   end

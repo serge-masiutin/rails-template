@@ -2,7 +2,7 @@
 require "securerandom"
 require "yaml"
 
-# rubocop:disable ThreadSafety/DirChdir -- CLI задаёт cwd до запуска процессов.
+# rubocop:disable ThreadSafety/DirChdir -- The CLI sets cwd before starting processes.
 Dir.chdir File.expand_path("..", __dir__) do
   case ARGV
   when [ "setup" ]
@@ -12,16 +12,16 @@ Dir.chdir File.expand_path("..", __dir__) do
         file.write({ "key" => SecureRandom.hex(32), "salt" => SecureRandom.hex(32) }.to_yaml)
       end
     end
-    puts "Локальный imgproxy настроен; ключи исключены из Git и Docker."
+    puts "Local imgproxy configured; keys are excluded from Git and Docker."
   when [ "start" ]
     local = YAML.safe_load_file("config/imgproxy.local.yml")
     %w[key salt].each do |name|
       ENV["IMGPROXY_#{name.upcase}"] ||= local.fetch(name)
-      abort "Неверный IMGPROXY_#{name.upcase}" unless /\A[0-9a-fA-F]{64}\z/.match?(ENV.fetch("IMGPROXY_#{name.upcase}"))
+      abort "Invalid IMGPROXY_#{name.upcase}" unless /\A[0-9a-fA-F]{64}\z/.match?(ENV.fetch("IMGPROXY_#{name.upcase}"))
     end
     exec "docker", "compose", "run", "--rm", "--no-deps", "--service-ports", "imgproxy"
   else
-    abort "Использование: bin/images setup | start"
+    abort "Usage: bin/images setup | start"
   end
 end
 # rubocop:enable ThreadSafety/DirChdir

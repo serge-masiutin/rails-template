@@ -1,10 +1,10 @@
-# Неизменяемые значения
+# Immutable values
 
-- Используй Data.define или небольшой явный класс, когда несколько полей образуют устойчивое доменное понятие с равенством по значению.
-- На границе задай типы, обязательность, диапазоны и единицы. Не нормализуй повторно уже проверенное значение во всех внутренних методах.
-- Value object не делает сеть, SQL и запись в setter/constructor; его вычисления должны быть предсказуемыми.
-- Data.define обеспечивает неизменяемость оболочки, но не глубокую заморозку вложенных Hash/Array; определи ownership и копирование явно.
-- Денежные суммы не представляй Float; договорись о валюте и точности. Не создавай объект-обёртку вокруг каждого scalar без инварианта.
-- Пример маленького DTO — StarterappProvider::ToolDefinition с проверяемым контрактом SDK.
+- Use Data.define or a small explicit class for a stable domain concept with value equality.
+- Specify required fields, types, ranges and units at entry; do not repeatedly normalize validated values internally.
+- Value objects do not perform network/SQL/write effects in accessors or constructors.
+- Data.define freezes the outer object, not nested Hash/Array values. Define ownership and copying explicitly.
+- Do not represent money with Float; specify currency/precision. Avoid wrapping every scalar without an invariant.
+- StarterappProvider::ToolDefinition demonstrates a small SDK DTO.
 
-Источники поведения: [lib/active_agent/providers/starterapp_provider.rb](../../../../../lib/active_agent/providers/starterapp_provider.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [lib/active_agent/providers/starterapp_provider.rb](../../../../../lib/active_agent/providers/starterapp_provider.rb), [docs/architecture.md](../../../../../docs/architecture.md).

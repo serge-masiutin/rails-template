@@ -1,4 +1,4 @@
-<%# mission_control-jobs-1.3.1: исходный layout с общим шрифтом; сверять при обновлении gem. %>
+<%# mission_control-jobs-1.3.1: upstream layout with shared typography; compare when upgrading the gem. %>
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>" dir="<%= t("layout.direction") %>">
 <head>
@@ -8,6 +8,7 @@
 
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="turbo-cache-control" content="no-cache">
+    <meta name="action-cable-url" content="<%= realtime_url %>">
   <meta name="turbo-prefetch" content="false">
 
   <%= stylesheet_link_tag "mission_control/jobs/bulma.min" %>
@@ -19,6 +20,7 @@
 </head>
 <body class="admin-shell">
 <%= render "admin/navigation" %>
+    <%= render "admin/shared/stream" %>
 
 <section class="section admin-main" lang="en" data-controller="live-region" data-live-region-url-value="<%= request.fullpath %>" data-live-region-live-value="<%= t("admin.live.live") %>" data-live-region-offline-value="<%= t("admin.live.offline") %>" data-live-region-paused-value="<%= t("admin.live.paused") %>" data-live-region-denied-value="<%= t("admin.live.denied") %>">
   <div class="admin-page-heading"><h1>Mission Control</h1><%= render "admin/shared/live_status" %></div>

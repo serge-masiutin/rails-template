@@ -1,29 +1,31 @@
 ---
 name: ui-flows
-description: "Картировать маршруты и пользовательские переходы StarterApp между вебом и Android."
+description: "Map real routes and user journeys across web and Android."
 metadata:
   upstream: sb-flows
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-flows
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Источник маршрутов — config/routes.rb и bin/rails routes; переходов — links/forms/redirects и Native path configurations.
-- Отметь гостевые/защищённые экраны, GET-переходы, мутации, modal и возврат после входа.
-- Проверь, что web navigation не дублирует нативную панель, а account/logout доступны обоим клиентам.
-- Для спорного потока сделай небольшую Mermaid-схему с HTTP-статусами и auth boundary.
-- Проверь Back/Forward, dismiss modal, невалидную форму и истёкшую сессию.
-- Не придумывай продуктовые экраны: явно отдели существующий маршрут от предложения.
+- Read `config/routes.rb`, `bin/rails routes`, links/forms/redirects and Native path configuration.
+- Identify public/protected screens, GET navigation, mutations, modals and sign-in return paths.
+- Ensure web navigation does not duplicate native chrome and both clients can reach account/logout.
+- Use a small Mermaid diagram with HTTP statuses and authorization boundaries for an unclear journey.
+- Check Back/Forward, modal dismissal, invalid forms and expired sessions.
+- Distinguish existing routes from proposed product screens.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-flows.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-flows`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-flows.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-flows`.

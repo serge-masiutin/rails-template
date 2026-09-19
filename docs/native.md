@@ -1,16 +1,15 @@
 # Android
 
-**StarterApp** использует Hotwire Native и общий Rails-интерфейс.
-Release ID — `com.example.starterapp`, Debug — `com.example.starterapp.debug`.
+**StarterApp** uses Hotwire Native and the shared Rails UI.
+Release ID: `com.example.starterapp`. Debug ID: `com.example.starterapp.debug`.
 
-Martian Mono встроен в APK для нативного интерфейса; WebView использует общий
-[шрифтовой слой Rails](architecture.md#типографика). Для новых нативных элементов
-используй `Theme.StarterApp` и `TextAppearance.StarterApp.*`.
+The APK bundles Martian Mono for native UI; WebView uses the Rails [font layer](architecture.md#typography).
+Use `Theme.StarterApp` and `TextAppearance.StarterApp.*` for new native elements.
 
-## Сборка
+## Build
 
-Нужны JDK 21, Android SDK 36 и запущенное веб-приложение для проверки на устройстве.
-Задай `ANDROID_HOME` — путь к установленному SDK. На macOS:
+Install JDK 21 and Android SDK 36. Set `ANDROID_HOME` to the SDK directory.
+A running web app is required for device verification. On macOS:
 
 ```sh
 export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
@@ -18,64 +17,60 @@ cd native/android
 ./gradlew assembleDebug lintDebug
 ```
 
-Debug обращается к `http://10.0.2.2:3000` из эмулятора.
-Для физического устройства собери APK с LAN-адресом компьютера:
+Debug uses `http://10.0.2.2:3000` from the emulator. For a physical device, build with your computer's LAN address:
 
 ```sh
 ./gradlew assembleDebug -Pstarterapp.developmentUrl=http://192.168.1.20:3000
 ```
 
-Адрес в примере замени на свой. Из корня проекта запусти сервер для этого адреса:
+Replace the example address with your own. From the project root, start the server on that interface:
 
 ```sh
 WEB_HOST=192.168.1.20 ANYCABLE_BIND=192.168.1.20 IMGPROXY_BIND_ADDRESS=192.168.1.20 mise exec -- bin/dev
 ```
 
-Rails слушает `0.0.0.0:3000`; AnyCable открывает порт 8080, imgproxy — 8082 на указанном LAN-интерфейсе.
-Изображения используют тот же HTML; сервер сохраняет hostname Android при локальном перенаправлении.
-Устройство и компьютер должны быть в одной доверенной сети.
-HTTP разрешён только в Debug. Release требует HTTPS-адрес:
+Rails listens on `0.0.0.0:3000`; AnyCable exposes 8080 and imgproxy 8082 on the specified interface.
+Image redirects preserve the Android host. Use a trusted network shared by the computer and device.
+HTTP is allowed only in Debug. Release requires HTTPS:
 
 ```sh
 ./gradlew assembleRelease -Pstarterapp.productionUrl=https://app.your-domain.com
 ```
 
-APK находятся в `app/build/outputs/apk`. Перед публикацией Release настрой подпись своим keystore.
-AGP 9 использует встроенный Kotlin: отдельный `org.jetbrains.kotlin.android` не применяется.
-Версия компилятора задаётся в корневом `buildscript`, Gradle wrapper — в `gradle/wrapper` с SHA-256.
-Обновляй AGP, compiler и wrapper совместно по [таблице совместимости](https://developer.android.com/build/releases/agp-9-4-0-release-notes)
-и [инструкции Kotlin](https://developer.android.com/build/migrate-to-built-in-kotlin).
-Версии — в build files и `app/gradle.lockfile`; при обновлении зависимостей пересоздай lockfile
-с `--write-locks` и проверь diff. Constraint для Error Prone устраняет сбой R8
-([исправление библиотеки](https://github.com/google/error-prone/pull/5386)).
+APKs are in `app/build/outputs/apk`. Configure your own keystore before publishing.
+AGP 9 uses built-in Kotlin; do not apply `org.jetbrains.kotlin.android` separately.
+The compiler is pinned in root `buildscript`; the Gradle wrapper includes its SHA-256.
+Upgrade AGP, compiler, and wrapper together using the
+[compatibility table](https://developer.android.com/build/releases/agp-9-4-0-release-notes)
+and [Kotlin migration guide](https://developer.android.com/build/migrate-to-built-in-kotlin).
+Versions are recorded in build files and `app/gradle.lockfile`. Regenerate locks with `--write-locks`
+and review changes. The Error Prone constraint prevents an R8 failure
+([upstream fix](https://github.com/google/error-prone/pull/5386)).
 
-## Навигация
+## Navigation
 
-[android_v1.json](../public/configurations/android_v1.json) доступен без входа и задаёт правила переходов.
-Профиль и формы восстановления пароля открываются модально без pull-to-refresh.
-После изменения выполни из корня проекта:
+[android_v1.json](../public/configurations/android_v1.json) is public and defines navigation rules.
+Profile and password-reset forms open modally without pull-to-refresh. After edits, run from the root:
 
 ```sh
 mise exec -- bin/native sync
 mise exec -- bin/native check
 ```
 
-SDK начинает с конфигурации из APK, затем использует кэш и серверную версию.
-Это не обеспечивает доступ к данным без сети. Несовместимые правила выпускай как v2,
-сохраняя v1 для установленных клиентов.
+The SDK starts with the bundled configuration, then uses its cache and the remote version.
+This does not make application data available offline. Publish incompatible rules as v2 and retain v1
+for installed clients.
 
-## Проверка на устройстве
+## Device verification
 
-WebView использует тот же [клиент AnyCable](realtime.md) и cookie, что и веб.
-В Release WebSocket доступен по `wss://<домен>/cable`. После возвращения из фона
-проверь восстановление соединения и актуальность экрана. Доставка сообщений в закрытое
-приложение требует FCM; WebSocket не заменяет push, FCM пока не подключён.
+WebView uses the same [AnyCable client](realtime.md) and cookies as the browser.
+Release connects to `wss://<domain>/cable`. Check reconnection and fresh content after returning
+from the background. Delivery to a closed app requires FCM; WebSocket does not replace push.
+FCM is not configured.
 
-Проверь вход, неверный пароль, профиль, закрытие модального экрана, выход,
-сброс пароля, системную кнопку back и восстановление после потери сети.
-Сборка APK и серверный тест с Native User-Agent не заменяют этот проход.
-Последние выполненные проверки — в [журнале](intent-log.md).
+Check sign-in, incorrect password, profile, modal dismissal, sign-out, password reset,
+system Back, and recovery after network loss. APK builds and Native User-Agent tests do not replace this pass.
+Recorded checks are in the [intent log](intent-log.md).
 
-Нативные строки находятся в `res/values/strings.xml`. Сейчас публикуется только английский;
-фильтр ресурсов также исключает переводы SDK на другие языки. Добавление языков и согласование
-с Rails — в [архитектуре](architecture.md#языки-интерфейса).
+Native strings live in `res/values/strings.xml`. Only English is shipped; the resource filter
+also excludes SDK translations. Coordinate additional languages with [Rails i18n](architecture.md#interface-languages).

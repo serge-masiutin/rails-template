@@ -1,10 +1,10 @@
-# Компоненты веба и Android
+# Shared web and Android components
 
-- Выделяй ViewComponent для повторяемого HTML и устойчивых вариантов, а не для каждого div. Класс принимает keyword arguments и проверяет варианты через fetch.
-- Данные и разрешённые действия подготовлены снаружи; render не запускает скрытые запросы, изменения БД или сетевые вызовы.
-- ERB экранирует пользовательские значения. Формы сохраняют label/type/CSRF, Turbo Frames — id, streams — стабильный target.
-- Используй Tailwind tokens и только Martian Mono. Stimulus освобождает listeners/observers в disconnect; Native получает тот же HTML без дублирования платформенной панели.
-- Previews живут в test/components/previews. Lookbook использует component_preview с общими стилями, typography и importmap; ему не нужна пользовательская сессия.
-- Компонентный Minitest проверяет публичный DOM, Cuprite — интерактивный сценарий и длинный текст на узком экране. Preview не заменяет assertions.
+- Extract ViewComponent for repeated HTML and stable variants, not every div. Accept keyword arguments and validate variants with fetch.
+- Prepare data and allowed actions outside; rendering must not hide queries, mutations or network calls.
+- Preserve ERB escaping, form labels/types/CSRF, frame IDs and stable stream targets.
+- Use Tailwind tokens and Martian Mono. Stimulus releases listeners/observers on disconnect; Native receives the same HTML without duplicate platform navigation.
+- Previews live in test/components/previews. Lookbook uses component_preview with shared styles, typography and importmap, without a user session.
+- Minitest checks public DOM; Cuprite checks interaction and long text on narrow screens. Previews do not replace assertions.
 
-Источники поведения: [app/components/ui/notice_component.rb](../../../../../app/components/ui/notice_component.rb), [app/views/layouts/component_preview.html.erb](../../../../../app/views/layouts/component_preview.html.erb), [test/components/ui/notice_component_test.rb](../../../../../test/components/ui/notice_component_test.rb), [test/system/typography_test.rb](../../../../../test/system/typography_test.rb).
+Behavior sources: [app/components/ui/notice_component.rb](../../../../../app/components/ui/notice_component.rb), [app/views/layouts/component_preview.html.erb](../../../../../app/views/layouts/component_preview.html.erb), [test/components/ui/notice_component_test.rb](../../../../../test/components/ui/notice_component_test.rb), [test/system/typography_test.rb](../../../../../test/system/typography_test.rb).

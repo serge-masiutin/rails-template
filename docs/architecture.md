@@ -1,225 +1,216 @@
-# Архитектура
+# Architecture
 
-Основа — [Rails Startup Stack Evil Martians](https://evilmartians.com/rails-startup-stack):
-Rails, Turbo, Stimulus, importmap, Tailwind, ViewComponent, Anyway Config и Overmind.
-Lookbook показывает компоненты; Minitest и Cuprite проверяют приложение.
-Изображения обрабатывает [imgproxy](images.md), оригиналы хранит Active Storage.
-Yabeda, JSON-логи и управление задачами описаны в [наблюдаемости](observability.md).
+The foundation follows the [Evil Martians Rails Startup Stack](https://evilmartians.com/rails-startup-stack):
+Rails, Turbo, Stimulus, importmap, Tailwind, ViewComponent, Anyway Config, and Overmind.
+Lookbook previews components; Minitest and Cuprite test behavior.
+[imgproxy](images.md) transforms images; Active Storage stores originals.
+See [observability](observability.md) for Yabeda, JSON logs, and job operations.
 
-Версии заданы в [.ruby-version](../.ruby-version), [Gemfile.lock](../Gemfile.lock),
-[compose.yml](../compose.yml) и [Android build files](../native/android/app/build.gradle.kts).
+Version sources: [.ruby-version](../.ruby-version), [Gemfile.lock](../Gemfile.lock),
+[compose.yml](../compose.yml), and [Android build files](../native/android/app/build.gradle.kts).
 
-## Где менять код
+## Code ownership
 
-| Каталог | Ответственность |
+| Directory | Responsibility |
 | --- | --- |
-| `app/models` | Данные и доменные правила; сложные операции — в пространстве имён модели |
-| `app/controllers` | HTTP, проверка параметров, доступ и ответ |
-| `app/views`, `app/components` | Общий HTML веба и Android |
-| `app/javascript/controllers` | Поведение Stimulus и освобождение ресурсов при отключении |
-| `app/configs` | Конфигурация и её проверка через Anyway Config |
-| `app/jobs` | Фоновые задачи |
-| `app/policies` | Правила доступа Action Policy |
-| `app/deliveries`, `app/mailers`, `app/notifiers` | События уведомлений, письма и остальные каналы |
-| `native/android` | WebView, мобильная навигация и возможности устройства |
+| `app/models` | Data and domain rules; complex operations in the model namespace |
+| `app/controllers` | HTTP, parameters, authorization, and responses |
+| `app/views`, `app/components` | Shared web and Android HTML |
+| `app/javascript/controllers` | Stimulus behavior and lifecycle cleanup |
+| `app/configs` | Typed and validated Anyway Config settings |
+| `app/jobs` | Background work |
+| `app/policies` | Action Policy authorization |
+| `app/deliveries`, `app/mailers`, `app/notifiers` | Notification events, email, and other channels |
+| `native/android` | WebView, mobile navigation, and device capabilities |
 
-Добавляй отдельный слой, когда у него появляется собственная ответственность.
-Очередь и кэш используют Solid Queue и Solid Cache. WebSocket обслуживает
-[AnyCable](realtime.md): HTTP RPC в Rails, отдельный Go-сервер и общий клиент веба/Android.
+Add a layer only when it owns a concrete responsibility. Solid Queue and Solid Cache use PostgreSQL.
+[AnyCable](realtime.md) serves WebSocket connections through Rails HTTP RPC, a Go server,
+and one client shared by web and Android.
 
-## Языки интерфейса
+## Interface languages
 
-Сейчас интерфейс и письма доступны только на английском. Документация и комментарии — на русском.
-Источник собственных переводов — `config/locales/en.yml`; поддерживаемые языки заданы в
-`config/application.rb`. `Localization` принимает `?locale=en`, отклоняет неизвестные значения
-с HTTP 400 и применяет `I18n.with_locale` на время запроса. Язык браузера автоматически не выбирается.
-Ссылки сохраняют выбранную локаль; ответы задают `Content-Language`, layouts — `lang` и `dir`.
+The UI, email, documentation, comments, and working skills are English.
+Application translations live in `config/locales/en.yml`; `config/application.rb` lists supported locales.
+`Localization` accepts `?locale=en`, rejects unknown values with 400, and scopes the request with
+`I18n.with_locale`. Browser language is not selected automatically. Links preserve locale;
+responses set `Content-Language`, and layouts set `lang` and `dir`.
 
-В ERB используй `t`, в Ruby — `I18n.t`, для дат — `l`, для числительных — `count`.
-Переводи целое предложение с именованными подстановками. `_html` допускает только доверенную
-разметку словаря; пользовательский текст не помечай `html_safe`. Пропущенный перевод вызывает ошибку,
-межъязыковой fallback отключён. Active Job сохраняет locale при постановке; письма используют её
-при рендере и передают в ссылки. Для будущих рассылок без HTTP язык получателя нужно передавать явно.
+Use `t` in ERB, `I18n.t` in Ruby, `l` for dates, and `count` for plurals.
+Translate complete sentences with named placeholders. `_html` keys may contain trusted dictionary markup;
+never mark user input `html_safe`. Missing translations raise; cross-language fallback is disabled.
+Active Job preserves locale at enqueue time; mailers use it for rendering and links.
+Future notifications started outside HTTP must receive the recipient locale explicitly.
 
-Оболочка AgentPrism получает свой небольшой словарь из Rails через экранированный `data-messages`;
-JS проверяет его контракт. Встроенные AgentPrism, Mission Control и Lookbook пока английские.
-Их перевод — отдельная интеграция при добавлении языка; исходники vendor не редактируем.
-Статические страницы ошибок в `public/` и внешний Grafana dashboard также английские.
-Они работают вне Rails i18n; для дополнительной локали потребуются отдельные страницы/дашборды.
+The AgentPrism shell receives a small Rails dictionary through escaped `data-messages`; JS validates it.
+Embedded AgentPrism, Mission Control, and Lookbook currently use English. Localizing their UI is a separate
+integration task; do not edit vendored sources. Static error pages in `public/` and Grafana dashboards also
+use English and operate outside Rails i18n. Additional locales need their own pages/dashboards.
 
-Чтобы добавить любой новый язык:
+To add a language:
 
-1. Добавь полный словарь в `config/locales/<locale>.yml`, включая сообщения Rails,
-   названия полей, форматы дат и чисел, plural rules и направление `layout.direction`.
-   Выбирай правила языка, а не копируй английские `one`/`other` для всех языков.
-2. После проверки включи язык в `available_locales`. Проверь формы, ошибки, письма,
-   даты, числа, длинные строки, доступность и отсутствие пропущенных ключей.
-3. В Android добавь `res/values-<locale>/strings.xml`, обнови `androidResources.localeFilters`
-   и `res/xml/locales_config.xml`. Базовый `values/strings.xml` остаётся английским.
-   При выборе языка приложения синхронизируй его с Rails URL; язык ОС сам по себе его не меняет.
-4. Для RTL проверь направление, порядок элементов и логические отступы. Проверь покрытие
-   символов Martian Mono и согласуй шрифт до публикации языка, если нужных глифов нет.
-5. Запусти `test/integration/localization_test.rb`, тесты затронутых экранов, `bin/ci`
-   и Android build/lint. Временная французская локаль в тесте проверяет расширяемость;
-   в поставляемом приложении она не включена.
+1. Add a complete `config/locales/<locale>.yml`, including Rails errors, field names, date/number formats,
+   plural rules, and `layout.direction`. Use that language's rules, not English plurals for every language.
+2. Enable it in `available_locales` only after checking forms, errors, email, dates, numbers, long text,
+   accessibility, and missing keys.
+3. Add Android `res/values-<locale>/strings.xml`; update `androidResources.localeFilters` and
+   `res/xml/locales_config.xml`. Keep base `values/strings.xml` English. Synchronize an explicit app-language
+   selection with the Rails URL; the OS language alone does not change it.
+4. For RTL, verify direction, order, and logical spacing. Check Martian Mono glyph coverage and resolve
+   missing glyphs before shipping a language.
+5. Run `test/integration/localization_test.rb`, affected screen tests, `bin/ci`, and Android build/lint.
+   The temporary French locale in tests verifies extensibility; it is not shipped.
 
-Основа: [Rails I18n](https://guides.rubyonrails.org/i18n.html) и
+Sources: [Rails I18n](https://guides.rubyonrails.org/i18n.html),
 [Android locale resources](https://developer.android.com/guide/topics/resources/multilingual-support).
 
-## Типографика
+## Typography
 
-Все интерфейсы используют [Martian Mono](https://evilmartians.com/products/martian-mono):
-веб, Android, AgentPrism, Mission Control и Lookbook. Шрифт хранится в проекте;
-CDN и установка в системе не нужны. Поддерживаются русская кириллица, знак рубля и веса 100–800.
+Every app interface uses locally bundled [Martian Mono](https://evilmartians.com/products/martian-mono):
+web, Android, AgentPrism, Mission Control, and Lookbook. No font CDN or system installation is needed.
+The font supports Cyrillic, the ruble symbol, and weights 100–800.
 
-Общий веб-слой — `app/assets/stylesheets/typography.css`; новый layout подключает
-`shared/typography` после своих стилей. Tailwind `font-sans`, `font-serif` и `font-mono`
-обозначают одно семейство. Меняй размер, вес и интервалы; второе семейство не добавляй.
-Lookbook рендерит компоненты через `component_preview` с теми же стилями и importmap,
-без навигации и зависимости от пользовательской сессии.
-Ширина — 100%: у upstream variable-файла исходное значение 112,5%.
+`app/assets/stylesheets/typography.css` is the shared web layer. New layouts render `shared/typography`
+after their own styles. Tailwind `font-sans`, `font-serif`, and `font-mono` point to the same family;
+change size, weight, or spacing rather than introducing a second family.
+Lookbook renders components in `component_preview` with shared styles/importmap, without navigation
+or a user session dependency. Width is normalized to 100%; the upstream variable font defaults to 112.5%.
 
-Android включает TTF в `res/font`; семейство и тема задают веса, toolbar и Material text appearances.
-Общий WebView получает WOFF2 из Rails. Системная клавиатура и интерфейсы ОС используют настройки устройства.
+Android bundles TTF in `res/font`; the family/theme covers weights, toolbar, and Material text appearances.
+WebView receives WOFF2 from Rails. System keyboards and OS interfaces follow device settings.
 
-Версия, исходный архив, SHA-256 и лицензия — `vendor/fonts/martian-mono`.
-При обновлении сохраняй лицензию и проверяй кириллицу, формы и длинный текст на узком экране.
-Локальные layouts Lookbook/Mission Control и `hotwire_error.xml` добавляют шрифтовой слой;
-сверяй их с оригиналами при обновлении этих зависимостей.
+Version, archive, SHA-256, and license are in `vendor/fonts/martian-mono`.
+Preserve the license and check glyphs, forms, and long text on narrow screens after updates.
+Local Lookbook/Mission Control layouts and `hotwire_error.xml` add the font layer;
+compare them with upstream when updating dependencies.
 
-## Окружения
+## Environments
 
-Development и production имеют отдельные БД primary, queue и cache.
-Test использует primary и queue: обычные задания перехватывает тестовый адаптер,
-а проверки наблюдаемости работают с настоящей БД Solid Queue. Обычные тесты перехватывают
-WebSocket-публикации; `bin/realtime-test` запускает отдельный AnyCable и настоящий браузер.
+Development and production use separate primary, queue, and cache databases.
+Test uses primary and queue: the test adapter captures ordinary jobs, while observability tests use real
+Solid Queue tables. Ordinary tests capture broadcasts; `bin/realtime-test` runs Go and a real browser.
 
-- Параметры локальной БД: `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` в [database.yml](../config/database.yml).
-  При смене `POSTGRES_PORT` в Compose задай такой же `PGPORT` для Rails.
-- Адрес приложения: [config/web.yml](../config/web.yml), локальное переопределение —
-  `config/web.local.yml` или `WEB_HOST`, `WEB_PROTOCOL`, `WEB_PORT`.
-  Сам `bin/rails` не загружает `.env`; экспортируй переменные перед запуском.
-- Production требует параметры БД и SMTP из [инструкции деплоя](deployment.md).
-  `SECRET_KEY_BASE_DUMMY` допустим только при сборке ассетов.
+- Local database parameters: `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` in [database.yml](../config/database.yml).
+  If you change Compose `POSTGRES_PORT`, set Rails `PGPORT` to match.
+- App URL: [web.yml](../config/web.yml), with overrides in `config/web.local.yml` or
+  `WEB_HOST`, `WEB_PROTOCOL`, `WEB_PORT`. `bin/rails` does not load `.env`; export variables before running it.
+- Production requires database/SMTP settings from [deployment](deployment.md).
+  `SECRET_KEY_BASE_DUMMY` is for asset builds only.
 
-## Конкурентное выполнение
+## Concurrency
 
-Потоки и пулы БД задаёт `ConcurrencyConfig`: значения по умолчанию — в классе,
-production-переопределения — в [concurrency.yml](../config/concurrency.yml).
-Puma, `bin/jobs`, `queue.yml` и `database.yml` читают этот общий конфиг.
-ENV сохраняют штатные имена; локальный YAML — `config/concurrency.local.yml`.
+`ConcurrencyConfig` owns thread and database-pool settings. Defaults live in the class;
+production overrides are in [concurrency.yml](../config/concurrency.yml).
+Puma, `bin/jobs`, `queue.yml`, and `database.yml` read it. Environment variable names remain conventional;
+local YAML overrides go in `config/concurrency.local.yml`.
 
-| ENV | Development / test | Production | Назначение |
+| ENV | Development / test | Production | Purpose |
 | --- | --- | --- | --- |
-| `RAILS_MAX_THREADS` | 3 | 5 | Потоки одного Puma-процесса; HTTP RPC AnyCable использует тот же пул |
-| `JOB_THREADS` | 3 | 3 | Одновременные задания одного worker |
-| `JOB_CONCURRENCY` | 1 | 1 | Worker-процессы в fork-режиме |
-| `DB_POOL` | 5 | 5 | Максимум соединений с primary/cache на Ruby-процесс и БД |
-| `QUEUE_DB_POOL` | 10 | 5 | Максимум соединений с queue на Ruby-процесс |
-| `SOLID_QUEUE_SUPERVISOR_MODE` | `async` | `fork` | Размещение worker, dispatcher и scheduler |
+| `RAILS_MAX_THREADS` | 3 | 5 | Threads per Puma process; AnyCable HTTP RPC shares this pool |
+| `JOB_THREADS` | 3 | 3 | Concurrent jobs per worker |
+| `JOB_CONCURRENCY` | 1 | 1 | Worker processes in fork mode |
+| `DB_POOL` | 5 | 5 | Maximum primary/cache connections per Ruby process and database |
+| `QUEUE_DB_POOL` | 10 | 5 | Maximum queue connections per Ruby process |
+| `SOLID_QUEUE_SUPERVISOR_MODE` | `async` | `fork` | Worker, dispatcher, and scheduler topology |
 
-Размеры должны быть положительными целыми. `DB_POOL` вмещает максимум потоков Puma/worker.
-`QUEUE_DB_POOL` — минимум `max(RAILS_MAX_THREADS, JOB_THREADS + 2)` для fork;
-для async заложен запас 7 на служебные потоки общего процесса вместо 2.
-При нарушении приложение останавливается до запуска. В async допустим `JOB_CONCURRENCY=1`:
-[Solid Queue игнорирует это число в async](https://github.com/rails/solid_queue#fork-vs-async-mode).
-Режим меняй через конфиг/ENV, чтобы проверка пулов учитывала его; CLI `--mode` предназначен для разовой диагностики.
+Sizes must be positive integers. `DB_POOL` must cover the larger Puma/worker thread count.
+`QUEUE_DB_POOL` must cover `max(RAILS_MAX_THREADS, JOB_THREADS + 2)` in fork mode;
+async mode reserves seven internal threads instead of two. Invalid settings stop boot.
+Async requires `JOB_CONCURRENCY=1`: [Solid Queue ignores process count in async mode](https://github.com/rails/solid_queue#fork-vs-async-mode).
+Change mode through config/ENV so pool validation follows it. CLI `--mode` is for one-off diagnostics.
 
-Локальный async сохраняется из-за воспроизведённого сбоя pg/libpq после fork на macOS.
-По той же причине Rails-тесты на macOS идут в одном процессе, на Linux — в двух;
-`PARALLEL_WORKERS` переопределяет число тестовых процессов.
+Local async mode avoids a reproduced pg/libpq crash after fork on macOS.
+For the same reason, Rails tests use one process on macOS and two on Linux;
+`PARALLEL_WORKERS` overrides test process count.
 
-Пул принадлежит процессу, а не всему сервису. При увеличении процессов/контейнеров суммируй
-их подключения к каждой БД, включая web, worker, dispatcher, scheduler и консоль;
-оставляй резерв под деплой с двумя версиями и обслуживание. Сверяй сумму с PostgreSQL `max_connections`.
-Настройки — исходная конфигурация, не результат нагрузочного теста. Перед ростом concurrency
-измеряй p95, CPU, память, ожидание БД и возраст очереди. `bin/jobs check` проверяет конфигурацию очереди.
-Clustered Puma требует сначала изменить [сбор метрик](observability.md#метрики-и-alerts).
+Pools belong to each process, not the whole service. Sum connections across web, workers, dispatcher,
+scheduler, console, and containers. Reserve capacity for overlapping deployments and maintenance,
+and compare the total with PostgreSQL `max_connections`.
+These defaults are a starting point, not measured capacity. Before raising concurrency, measure p95,
+CPU, memory, database wait, and queue age. `bin/jobs check` validates queue configuration.
+Clustered Puma first requires changes to [metric collection](observability.md#metrics-and-alerts).
 
-### Правила для кода
+### Code rules
 
-- HTTP и jobs исполняет Rails Executor с thread-scoped `Current`. Не храни пользовательские данные
-  в переменных класса, singleton-состоянии или скрытой мемоизации Current; добавляй явный `attribute`.
-- Задание получает ID пользователя аргументом. `RequestCorrelatedJob` переносит `request_id`,
-  изолирует `job_id` в логах и исключает наследование `Current.session`, включая `perform_now` из HTTP.
-- При необходимости собственного потока оборачивай прикладной код в `Rails.application.executor.wrap`,
-  передавай контекст явно, ограничивай ожидание и получай результат через `Thread#value`.
-  Потоки не заменяют долговременную очередь. Не включай fiber scheduler без пересмотра изоляции и библиотек.
-- Уникальность защищает индекс БД: валидация Rails не исключает гонку. Изменение общего состояния
-  выполняй атомарным SQL или под блокировкой строки; локальный Mutex не защищает другие процессы.
-  Для job с ограничением по ресурсу используй `limits_concurrency` Solid Queue и отдельно проектируй идемпотентность.
-- Не меняй ENV, callbacks, методы классов и глобальную конфигурацию SDK при обработке запроса/задания.
-  `rubocop-thread_safety` проверяет это в `bin/rubocop` и CI; изменение ENV контролируется в `app/` и `lib/`.
-  Статический анализ не доказывает отсутствие гонок.
-- Isolator обнаруживает сеть внутри транзакций в development/test. Для конкурентных сценариев используй
-  отдельные соединения и барьеры с таймаутами, без `sleep`; пример — `test/lib/concurrency_test.rb`.
+- Rails Executor runs HTTP/jobs with thread-scoped `Current`. Keep user data out of class variables,
+  singleton state, and hidden Current memoization; declare explicit attributes.
+- Pass user IDs to jobs. `RequestCorrelatedJob` carries `request_id`, scopes `job_id` log tags, and prevents
+  `Current.session` leakage, including `perform_now` inside an HTTP request.
+- If a custom thread is necessary, wrap app code in `Rails.application.executor.wrap`, pass context explicitly,
+  bound waits, and collect errors through `Thread#value`. Threads do not replace durable jobs.
+  Do not enable a fiber scheduler without reviewing isolation and library compatibility.
+- Database indexes enforce uniqueness; Rails validation does not prevent races. Use atomic SQL or row locks
+  for shared state. A process-local Mutex cannot protect other processes.
+  Use Solid Queue `limits_concurrency` for resource limits and design idempotency separately.
+- Do not mutate ENV, callbacks, class methods, or shared SDK configuration during a request/job.
+  `rubocop-thread_safety` checks this in CI; ENV mutation checks cover `app/` and `lib/`.
+  Static analysis does not prove race freedom.
+- Isolator detects network calls inside development/test transactions. Test races using separate connections,
+  barriers, and timeouts, without synchronization sleeps. See `test/lib/concurrency_test.rb`.
 
-Rails 8.1 включает YJIT в production и отключает в development/test. ZJIT, M:N и Ractor
-не включены дополнительно; их введение требует отдельного сценария, совместимости gems и замеров.
-В [релизе Ruby 4.0](https://www.ruby-lang.org/en/news/2025/12/25/ruby-4-0-0-released/)
-ZJIT и Ractor ещё отмечены как развивающиеся возможности. Числа ускорения из обзора не являются замерами StarterApp.
-Основа правил — [Concurrency Evil Martians](https://evilmartians.com/rails-startup-stack),
-[Rails Executor](https://guides.rubyonrails.org/threading_and_code_execution.html)
-и [защита от дублей](https://evilmartians.com/chronicles/one-row-many-threads-how-to-avoid-database-duplicates-in-rails-applications).
+Rails 8.1 enables YJIT in production and disables it in development/test.
+ZJIT, M:N, and Ractor are not additionally enabled; adoption needs a concrete workload,
+gem compatibility, and measurements. The [Ruby 4.0 release](https://www.ruby-lang.org/en/news/2025/12/25/ruby-4-0-0-released/)
+describes ZJIT and Ractor as evolving features. Survey speedups are not measurements of this app.
+Sources: [Evil Martians concurrency](https://evilmartians.com/rails-startup-stack),
+[Rails Executor](https://guides.rubyonrails.org/threading_and_code_execution.html),
+[avoiding duplicates](https://evilmartians.com/chronicles/one-row-many-threads-how-to-avoid-database-duplicates-in-rails-applications).
 
-## Аутентификация
+## Authentication
 
-Используется Rails authentication generator: User, Session, подписанная HttpOnly cookie,
-CSRF и ограничение частоты входа. Пароль — от 12 символов; верхнюю границу задаёт bcrypt.
-Сброс пароля отзывает все сессии. Контроллеры требуют вход по умолчанию.
+Rails authentication generator provides User, Session, a signed HttpOnly cookie, CSRF, and sign-in rate limits.
+Passwords require at least 12 characters; bcrypt sets the upper bound. Password reset revokes every session.
+Controllers require authentication by default.
 
-Action Policy проверяет доступ через `authorize!`; `ApplicationController` обнаруживает
-пропущенную проверку. `UserPolicy` разрешает просмотр только своего профиля. Отказ даёт 403,
-неизвестное правило — исключение. Вход и восстановление пароля используют собственные проверки
-пароля/токена. Админка, Mission Control и AgentPrism требуют сессию и `AdminPolicy#access?`;
-Basic `/ops/health` и Bearer `/ops/metrics` остаются отдельными техническими контрактами.
-Права `User#admin` выдаются явно; [порядок доступа](observability.md#админка). Native получает те же права, что и веб.
+Action Policy enforces `authorize!`; `ApplicationController` detects missing checks.
+`UserPolicy` permits only the user's own profile. Denial returns 403; an unknown rule raises.
+Sign-in and password reset use their own password/token checks.
+Admin, Mission Control, and AgentPrism require a session and `AdminPolicy#access?`.
+Basic `/ops/health` and Bearer `/ops/metrics` remain separate machine contracts.
+`User#admin` is granted explicitly; see [admin access](observability.md#admin).
+Native receives the same permissions as web.
 
-Rails 8.1.3.1 несовместим с JSON 3 при чтении cookies и токенов
-([ошибка Rails](https://github.com/rails/rails/issues/58685)). Ограничение `json < 3`
-в Gemfile снимай после обновления Rails и проверки сценариев аутентификации.
+Rails 8.1.3.1 is incompatible with JSON 3 for cookies/tokens
+([Rails issue](https://github.com/rails/rails/issues/58685)). Remove `json < 3` from Gemfile only after
+upgrading Rails and verifying authentication flows.
 
 ## Essential gems
 
-Все возможности из списка Evil Martians подключены. Версии — в Gemfile.lock.
+The Evil Martians essential capabilities are configured. Versions are in `Gemfile.lock`.
 
-| Инструмент | Применение в проекте |
+| Tool | Project usage |
 | --- | --- |
-| Anyway Config | Проверка web, operations и LLM-конфигурации в `app/configs` |
-| Action Policy | Policies и обязательный `authorize!` в прикладных контроллерах |
-| Active Delivery | `PasswordsDelivery.reset(user).deliver_later`; новые события объявляются через `delivers` |
-| Abstract Notifier | Входит в Active Delivery; `ApplicationNotifier` и очередь `notifiers` |
-| ViewComponent | UI-компоненты, Lookbook previews и DOM-тесты |
-| N+1 Control | `assert_perform_constant_number_of_queries` в Minitest; проверяет рост SQL на разных объёмах данных |
-| Isolator | Ошибка при HTTP, отправке письма или небезопасной постановке задания внутри транзакции в development/test |
-| After Commit Everywhere | Явные callbacks после коммита вне модели; проверены вложенные транзакции и rollback |
-| Freezolite / Bootsnap | Заморозка строк кода проекта через `Bootsnap.enable_frozen_string_literal(app_only: true)` |
-| Active Agent / RubyLLM | ERB-промпты, явные provider/model, генерация через Solid Queue, usage и ошибки без автоматических повторов |
-| Herb | HTML/ERB lint, formatter и LSP; команды и конфигурация — [инструменты разработки](development.md) |
+| Anyway Config | Validated web, operations, LLM, and concurrency settings in `app/configs` |
+| Action Policy | Policies and mandatory `authorize!` in application controllers |
+| Active Delivery | `PasswordsDelivery.reset(user).deliver_later`; declare new events with `delivers` |
+| Abstract Notifier | Included in Active Delivery; `ApplicationNotifier` and the `notifiers` queue |
+| ViewComponent | UI components, Lookbook previews, and DOM tests |
+| N+1 Control | Minitest `assert_perform_constant_number_of_queries` across growing data sets |
+| Isolator | Rejects HTTP, email, or unsafe job enqueue inside development/test transactions |
+| After Commit Everywhere | Explicit callbacks outside models, tested for nested transactions and rollback |
+| Freezolite / Bootsnap | Frozen project string literals through `Bootsnap.enable_frozen_string_literal(app_only: true)` |
+| Active Agent / RubyLLM | ERB prompts, explicit provider/model, Solid Queue generation, usage, and errors without implicit retries |
+| Herb | HTML/ERB lint, formatter, and LSP; see [developer tools](development.md) |
 
-[Abstract Notifier объединён с Active Delivery](https://github.com/palkan/abstract_notifier),
-поэтому устаревший отдельный gem не установлен.
-[Авторы Freezolite рекомендуют Bootsnap](https://github.com/ruby-next/freezolite)
-для Ruby 4.0.4+ и Bootsnap 1.24.4+: отдельный hook не нужен.
-Заморозка включается в `config/boot.rb`; изменяемую строку создавай через `+"строка"`.
-`benchmark` подключён явно для Sniffer: в Ruby 4 он больше не входит в стандартный набор gems.
+[Abstract Notifier merged into Active Delivery](https://github.com/palkan/abstract_notifier), so its obsolete
+gem is not installed. [Freezolite recommends Bootsnap](https://github.com/ruby-next/freezolite) for
+Ruby 4.0.4+ and Bootsnap 1.24.4+; no separate hook is needed. `config/boot.rb` enables freezing;
+create mutable strings with `+"text"`. `benchmark` is explicit for Sniffer because Ruby 4 no longer bundles it.
 
-### Уведомления и транзакции
+### Notifications and transactions
 
-Вызывай delivery из операции или контроллера. Mailer формирует письмо, notifier — payload канала.
-`ApplicationNotifier` ставит `NotifierDeliveryJob` в Solid Queue после коммита и сохраняет `request_id`.
-У конкретного notifier задай `self.driver` — объект с методом `call(payload)`;
-без транспорта отправка завершается ошибкой. Push/SMS-провайдер пока не подключён.
+Call a delivery from an operation or controller. Mailers render email; notifiers build channel payloads.
+`ApplicationNotifier` enqueues `NotifierDeliveryJob` after commit and preserves `request_id`.
+Set each notifier's `self.driver` to an object implementing `call(payload)`; missing transport raises.
+Push/SMS providers are not configured.
 
-Jobs и письма уже используют `enqueue_after_transaction_commit = true`.
-Для другого действия после транзакции вызывай
-`AfterCommitEverywhere.after_commit(without_tx: :raise) { ... }` внутри операции.
-Не отключай Isolator для обхода ошибки: вынеси сетевое действие за транзакцию.
-Callback не является надёжной очередью: для обязательной доставки используй job;
-при требовании атомарности между primary и queue проектируй outbox отдельно.
+Jobs and email already use `enqueue_after_transaction_commit = true`.
+For another post-transaction action, call `AfterCommitEverywhere.after_commit(without_tx: :raise) { ... }`
+inside the operation. Move network effects outside transactions; do not disable Isolator.
+Callbacks are not durable queues. Use jobs for required delivery; design an outbox separately when
+atomicity across primary and queue databases is required.
 
 ### LLM
 
-AI-функции используют `ApplicationAgent` и текстовые ERB-промпты; транспорт — RubyLLM.
-Генерации выполняются в Solid Queue после commit и сохраняют request/job ID.
-Настройки, версии, ограничения и порядок добавления функции — в [Active Agent](agents.md).
+AI features use `ApplicationAgent` and text ERB prompts over RubyLLM.
+Generation runs in Solid Queue after commit and preserves request/job IDs.
+See [Active Agent](agents.md) for configuration, contracts, and feature integration.

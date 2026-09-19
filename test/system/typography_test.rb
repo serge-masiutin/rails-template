@@ -6,7 +6,7 @@ class TypographyTest < ApplicationSystemTestCase
     page.current_window.resize_to(1280, 900)
   end
 
-  test "веб-форма загружает Martian Mono и помещается на узком экране" do
+  test "web form loads Martian Mono and fits a narrow screen" do
     page.current_window.resize_to(390, 844)
     visit new_session_path
     assert_text "Sign in to StarterApp"
@@ -15,7 +15,7 @@ class TypographyTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/screenshots/martian-mono-mobile.png"))
   end
 
-  test "служебные панели используют тот же локальный шрифт" do
+  test "operations panels use the same local font" do
     sign_in_through_form(users(:admin))
 
     visit operations_agents_path
@@ -35,7 +35,7 @@ class TypographyTest < ApplicationSystemTestCase
         [...document.fonts].some(font => font.family === "Martian Mono" && font.status === "loaded")
       ));
     JS
-    assert loaded, "Браузер должен загрузить локальный Martian Mono"
+    assert loaded, "Browser must load local Martian Mono"
 
     other_fonts = page.evaluate_script(<<~JS)
       [...document.body.querySelectorAll("*")]
@@ -44,7 +44,7 @@ class TypographyTest < ApplicationSystemTestCase
         .map(element => getComputedStyle(element).fontFamily)
         .filter(family => !family.startsWith('"Martian Mono"'));
     JS
-    assert_empty other_fonts.uniq, "Видимый текст должен использовать единое семейство"
+    assert_empty other_fonts.uniq, "Visible text must use the shared font family"
     assert_equal '"Martian Mono", monospace', page.evaluate_script('getComputedStyle(document.querySelector("button, input, a")).fontFamily')
   end
 end

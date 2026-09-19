@@ -4,7 +4,7 @@ require "net/http"
 require "timeout"
 
 Dir.chdir File.expand_path("..", __dir__) do
-  service = YAML.safe_load_file("compose.yml").fetch("services").fetch("anycable")
+  service = YAML.safe_load_file("compose.yml", aliases: true).fetch("services").fetch("anycable")
   name = "starterapp-cable-test-#{Process.pid}"
   secret = "test-only-anycable-secret-not-for-deployment-0000000000000000000000"
   server_env = service.fetch("environment").transform_values(&:to_s).merge(
@@ -29,7 +29,7 @@ Dir.chdir File.expand_path("..", __dir__) do
         begin
           break if Net::HTTP.get_response(URI("http://127.0.0.1:8180/health")).code == "200"
         rescue Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
-          # Go ещё не открыл listener; общий deadline ограничивает ожидание.
+          # Go has not opened its listener yet; the overall deadline bounds the wait.
         end
         sleep 0.1
       end

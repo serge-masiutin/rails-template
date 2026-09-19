@@ -1,8 +1,8 @@
-# Объект рядом с моделью
+# Model-adjacent collaborators
 
-- Выделяй связную часть поведения в namespace владельца, когда у неё есть собственный контракт и независимая причина изменения.
-- Передавай запись или проверенное значение явно. Не добавляй скрытые обращения к Current, request и глобальным SDK.
-- Пример: AgentTrace::Document преобразует внешний trace, AgentTrace::Capture сохраняет результат; модель AgentTrace отвечает за хранение и retention.
-- Не делай отдельный объект для простого доступа к одному атрибуту. Проверь контракт collaborator и один реальный путь через владельца.
+- Extract cohesive behavior into its owner's namespace when it has a contract and an independent reason to change.
+- Pass records or validated values explicitly; do not hide Current, request or global SDK dependencies.
+- AgentTrace::Document converts external traces; AgentTrace::Capture persists them; AgentTrace owns storage and retention.
+- Do not wrap simple attribute access. Test the collaborator contract and one real path through its owner.
 
-Источники поведения: [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb), [app/models/agent_trace/capture.rb](../../../../../app/models/agent_trace/capture.rb).
+Behavior sources: [app/models/agent_trace/document.rb](../../../../../app/models/agent_trace/document.rb), [app/models/agent_trace/capture.rb](../../../../../app/models/agent_trace/capture.rb).

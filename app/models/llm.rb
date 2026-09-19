@@ -1,4 +1,4 @@
-# Создаёт отдельный диалог; сетевой запрос выполняется только при вызове ask.
+# Create an isolated conversation; network IO starts only when ask is called.
 class Llm
   def self.build_chat(settings: Rails.configuration.x.llm)
     settings.ensure_configured!

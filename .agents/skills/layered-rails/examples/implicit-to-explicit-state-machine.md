@@ -1,7 +1,8 @@
-# Сделать переход состояния явным
+# Make state transitions explicit
 
-Найди рассыпанные проверки статуса и опиши допустимое событие с предусловием. Объедини проверку/запись транзакцией, задай поведение повторного вызова и внешнего эффекта. Для Session отзыв уже выражен revoke!; новый enum или workflow gem для него не нужен. Проверь конкурентную запись и rollback.
+Find scattered status checks and define an allowed event/precondition. Check/write atomically and define repeated-call and external-effect behavior. Session already expresses revocation through revoke!; it needs no additional enum/workflow gem. Test races and rollback.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/models/session.rb](../../../../app/models/session.rb), [test/models/session_test.rb](../../../../test/models/session_test.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).
+Behavior sources: [app/models/session.rb](../../../../app/models/session.rb), [test/models/session_test.rb](../../../../test/models/session_test.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).

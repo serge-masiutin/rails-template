@@ -6,7 +6,7 @@ class SessionTest < ActiveJob::TestCase
   setup { @session = users(:one).sessions.create! }
   teardown { @session.destroy! if @session.persisted? }
 
-  test "отключение WebSocket ставится в очередь только после commit отзыва" do
+  test "WebSocket disconnect enqueues only after revocation commits" do
     Session.transaction do
       assert_no_enqueued_jobs { @session.revoke! }
       assert_not Session.exists?(@session.id)
@@ -14,7 +14,7 @@ class SessionTest < ActiveJob::TestCase
     assert_enqueued_with(job: DisconnectSessionsJob, args: [ [ @session.id ] ])
   end
 
-  test "rollback сохраняет сессию и отменяет отключение" do
+  test "rollback preserves the session and cancels disconnect" do
     assert_no_enqueued_jobs do
       Session.transaction do
         @session.revoke!

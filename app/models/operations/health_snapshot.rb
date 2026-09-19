@@ -7,7 +7,7 @@ module Operations
       healthy = required.all? { |kind| snapshot.fetch(:processes).fetch(kind.to_s).positive? }
       { healthy: healthy, queue: snapshot }
     rescue ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => error
-      Rails.logger.error(message: "Не удалось проверить базу данных", exception: error)
+      Rails.logger.error(message: "Database health check failed", exception: error)
       { healthy: false, error: "database_unavailable" }
     end
   end

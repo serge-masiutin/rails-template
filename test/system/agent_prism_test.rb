@@ -13,7 +13,7 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.current_window.resize_to(1280, 900)
   end
 
-  test "AgentPrism показывает trace, tool call, атрибуты и очищенный JSON" do
+  test "AgentPrism shows trace tool call attributes and sanitized JSON" do
     capture_trace
     visit operations_agents_path
     assert_selector "h1", text: "AgentPrism"
@@ -27,6 +27,7 @@ class AgentPrismTest < ApplicationSystemTestCase
     click_button "RAW"
     assert_text "agent_invocation"
     capture_trace
+    announce_update("agents")
     assert_text "Traces 2", normalize_ws: true, wait: 12
     assert_selector '[role="tab"][data-state="active"]', text: "RAW"
     assert_no_text "PRIVATE_"
@@ -34,15 +35,16 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-desktop.png"))
   end
 
-  test "панель показывает отказ загрузки вместо пустого списка" do
+  test "panel shows load failure rather than an empty list" do
     visit operations_agents_path
     assert_text "No traces yet"
     users(:admin).update!(admin: false)
+    announce_update("access")
     assert_selector '[role="alert"]', text: "Access expired", wait: 12
     assert_no_selector ".ops-viewer"
   end
 
-  test "на узком экране можно открыть ошибку tool call" do
+  test "tool call errors can be opened on a narrow screen" do
     capture_trace
     page.current_window.resize_to(390, 844)
     visit operations_agents_path
@@ -52,12 +54,19 @@ class AgentPrismTest < ApplicationSystemTestCase
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-mobile.png"))
   end
 
-  test "новые traces появляются автоматически" do
+  test "new traces appear automatically" do
     visit operations_agents_path
     assert_text "No traces yet"
     capture_trace
+    announce_update("agents")
     assert_no_button "Refresh"
     assert_text "TestAgent.summarize", wait: 12
     assert_no_text "No traces yet"
+  end
+  private
+
+  # This suite checks rendering; bin/realtime-test verifies actual transport.
+  def announce_update(topic)
+    page.execute_script("Turbo.renderStreamMessage(arguments[0])", %(<turbo-stream action="operations_refresh" topic="#{topic}"></turbo-stream>))
   end
 end

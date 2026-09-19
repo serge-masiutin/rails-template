@@ -1,7 +1,8 @@
-# Сделать побочные эффекты явными
+# Make side effects explicit
 
-Сначала выпиши операции callback и нужную атомарность. Связанные изменения записи перенеси в доменный метод, как User#reset_password; постановку внешнего эффекта сохраняй после commit, как Session.revoke_all!. Контроллер делегирует, а ошибка БД откатывает весь use case.
+List callback actions and required atomicity first. Move related writes into a domain method such as User#reset_password; keep enqueue after commit as in Session.revoke_all!. Controllers delegate and database failures roll back the entire use case.
 
-До изменения найди все вызовы. После переноса обнови их атомарно и проверь публичный сценарий. Указанные файлы — действующие примеры; не создавай вымышленные доменные модели ради демонстрации паттерна.
+Find all callers before changing the code. Update them together and test the public journey.
+The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
 
-Источники поведения: [app/models/user.rb](../../../../app/models/user.rb), [app/models/session.rb](../../../../app/models/session.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb).
+Behavior sources: [app/models/user.rb](../../../../app/models/user.rb), [app/models/session.rb](../../../../app/models/session.rb), [test/integration/password_reset_atomicity_test.rb](../../../../test/integration/password_reset_atomicity_test.rb).

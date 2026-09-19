@@ -49,7 +49,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "{service_name=\"starterapp\"} |= ${search:doublequote} | json | line_format \"{{.level}} {{.name}} \u2014 {{.message}}\"",
+          "expr": "{service_name=\"starterapp\"} |= ${search:doublequote} | json | line_format \"{{.name}} \u2014 {{.message}}\"",
           "queryType": "range"
         }
       ],

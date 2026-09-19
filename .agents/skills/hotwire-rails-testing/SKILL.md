@@ -1,49 +1,46 @@
 ---
 name: hotwire-rails-testing
-description: "Тестировать StarterApp: Rails Minitest, ViewComponent, браузер с Cuprite и контракты Native."
+description: "Test Rails contracts, ViewComponent, Cuprite, real services and Native behavior."
 metadata:
   upstream: inertia-rails-testing
   adapted-for: StarterApp
-  version: "15"
+  version: "16"
 ---
 
 # hotwire-rails-testing
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Для автообновления проверяй поступление новых данных без клика, сохранение выбранного trace/ввода, 401/403 с очисткой панели, паузу скрытой вкладки и disconnect. Polling проверяется в `test/frontend/live_poll_test.mjs`, интеграция — в браузере.
-- Для админки проверяй гостя, обычного пользователя, администратора, отзыв роли, JSON 401/403, CSRF Mission Control и no-store. Сессия не заменяет Basic/Bearer технических endpoints; обратное тоже запрещено. Общую навигацию и Native HTML проверяет `test/system/admin_test.rb`.
+- Read `docs/testing.md` and existing `test/` conventions. Use Minitest and fixtures; WebMock blocks external HTTP and permits localhost for system tests.
+- Start with the affected file, then the relevant suite and `bin/ci`. Report Ruby, browser and Android results separately; an APK build does not validate device navigation.
+- Admin tests cover guest/user/admin access, role revocation, JSON 401/403, Mission Control CSRF and no-store. Browser sessions never replace machine Basic/Bearer credentials or vice versa.
+- Live updates must arrive without clicks or idle polling, preserve input/selected trace, clear panels on access loss, pause fetches while hidden and clean up on disconnect. `test/frontend/live_updates_test.mjs` covers coalescing and single-flight requests; `bin/realtime-test` proves real queue/trace signals through AnyCable. Exercise queue commits, rollbacks and bulk operations.
+- Test Active Agent through SDK local_store into sanitized JSON, usage without double counting, write failures, retention and administrator access. New SDK fields must not flow automatically into storage/RAW. Build AgentPrism before its browser tests.
+- Run `bin/image-test` for real imgproxy transforms, dimensions/format, signatures, expiry and blocked external sources; URL unit tests cannot prove Go processing.
+- AI tests cover HTTP request/response, usage, errors without retries, commit/rollback, request/job correlation and absent body logs. Each feature also needs versioned quality evals with typical, malformed and adversarial cases.
+- Check English UI/email, lang, validation messages, locale rejection, missing translations and request isolation; see `test/integration/localization_test.rb`.
+- Measure slow tests with `bin/test-profile sql` or `cpu` before optimizing; compare the same suite afterward. Profiles use one process; regular Linux CI remains parallel.
+- Reproduce flaky failures with their seed. Fix state leaks, clocks and event synchronization; do not hide failures with retries or sleeps. Keep Cuprite JavaScript errors enabled.
+- Keep Isolator enabled; test commit and rollback for side-effect changes. For actual commits use `self.use_transactional_tests = false` and clean up records.
+- Check collections with `assert_perform_constant_number_of_queries` over growing datasets; see `test/models/queue_snapshot_test.rb`.
+- Verify job delivery and unauthorized access to another user's records.
+- Test races with real threads, barriers, timeouts, separate database connections and `Thread#value`; see `test/lib/concurrency_test.rb`. Check Current/log-tag cleanup and connection return after failures.
+- Integration tests cover status, redirects, cookies, authorization, HTML and stable Turbo targets. ViewComponent tests check semantic DOM and variants.
+- Register database pools before system fixtures, including `SolidQueue::Record`; creating a pool in Puma's thread breaks Isolator transaction accounting at teardown.
+- Set Cuprite through `driven_by ... options:`; Rails overwrites manual driver registration. `BrowserDriverTest` verifies real options; `process_timeout` controls Chrome startup, not DOM waits.
+- Test form success, 422 validation, history and Stimulus reconnect through real Chrome/Capybara assertions.
+- After WebSocket changes, `bin/realtime-test` checks Go delivery, recovery, history loss, foreign subscriptions and session revocation. Mocked broadcasts cannot prove delivery.
+- `bin/load-test smoke|load` uses the local test database, a temporary user, CSRF and real private delivery. Never run it alongside other tests. Errors or missing delivery must fail thresholds; check cleanup and required JSON/metrics artifacts. Local results do not establish production capacity.
+- Native checks validate schema/path rules and bundled/remote JSON agreement. Kotlin changes require an Android build; missing SDK is an unverified result, not success.
 
-- Для AgentPrism проверяй настоящий цикл Active Agent → SDK local_store → очищенный JSON, usage без двойного счёта, ошибку записи, retention и доступ по роли администратора. UI проверяет `test/system/agent_prism_test.rb`; сначала `npm run build:agents`. Новые SDK-поля не должны автоматически попадать в БД/RAW.
+## Completion
 
-- Для Active Storage/imgproxy запускай `bin/image-test`: реальное преобразование, размеры/формат, подпись, срок ссылки и запрет внешних источников. Обычные тесты генерации URL не доказывают обработку в Go.
-
-- Для AI проверяй HTTP-запрос/ответ, usage, ошибки без повторов, commit/rollback, request/job ID и отсутствие текстов в логах; пример — `test/agents/application_agent_test.rb`. Тесты транспорта не заменяют quality evals: каждой функции нужен версионируемый набор обычных, ошибочных и adversarial случаев.
-- Для UI проверяй английские тексты, `lang`, ошибки форм и письма; i18n должен отклонять неизвестные locale, обнаруживать отсутствующий перевод и восстанавливать язык после запроса. Пример — `test/integration/localization_test.rb`.
-- Используй Minitest и fixtures по существующему test/. Внешний HTTP закрыт WebMock, localhost разрешён для system tests.
-- Сначала запускай конкретный файл, затем релевантный набор и `bin/ci`. Команды, диагностика и артефакты — `docs/testing.md`.
-- Для медленных тестов сначала измерь SQL через `bin/test-profile sql` или CPU через `bin/test-profile cpu`, затем сравни тот же набор после изменения. Профили выполняются в одном процессе; обычный Linux CI сохраняет параллелизм.
-- Нестабильный тест воспроизводи с seed из падения. Исправляй утечку состояния, часы или ожидание события; не добавляй автоматические retries и sleep в system tests. Cuprite должен поднимать ошибки JavaScript.
-- Isolator включён в development/test и должен поднимать ошибки. Не отключай его ради зелёного теста; проверь commit и rollback, если меняешь побочный эффект.
-- Для коллекций используй `assert_perform_constant_number_of_queries` с разным размером данных; пример — `test/models/queue_snapshot_test.rb`. Сам gem без такого теста N+1 не ищет.
-- Проверяй доставку через Active Job и запрет доступа к чужой записи. При проверке настоящего commit используй `self.use_transactional_tests = false` и убирай созданные данные.
-- Гонки проверяй реальными потоками с барьером и таймаутом, разными DB-соединениями и получением ошибок через `Thread#value`; пример — `test/lib/concurrency_test.rb`. Sleep не обеспечивает нужного порядка. Для проверки cleanup проверь Current, лог-теги и возврат соединения после ошибки.
-- Integration tests проверяют статусы, redirect, cookies, доступ, HTML и Turbo Stream targets.
-- В system tests зарегистрируй используемые пулы БД до открытия fixtures; подключение пула в потоке Puma нарушает учёт транзакций Isolator при teardown. Сохраняй раннюю регистрацию SolidQueue::Record в application_system_test_case.rb; не подавляй предупреждение отключением Isolator.
-- ViewComponent tests проверяют смысловой DOM и варианты. System tests запускают реальный Chrome через Cuprite.
-- Параметры Cuprite передавай через `driven_by ... options:`: Rails перезаписывает ручную регистрацию `:cuprite`. Проверяй фактические параметры через `BrowserDriverTest`; `process_timeout` относится к запуску Chrome, а не к ожиданию DOM.
-- Для Turbo проверь успешную отправку, validation 422, history, reconnect Stimulus. Не синхронизируй тесты sleep-вызовами.
-- Для изменений WebSocket запускай `bin/realtime-test`: реальный Go-сервер и Chrome проверяют доставку, recovery, потерю истории, чужую подписку и отзыв сессии. Обычные Rails tests перехватывают broadcasts и не доказывают доставку.
-- HTTP/WebSocket-нагрузку проверяй через `bin/load-test smoke|load`. Стенд использует локальную test-БД, временного пользователя, CSRF, приватную подписку и настоящую доставку; не запускай его параллельно другим тестам. Ошибки и отсутствие доставки должны нарушать thresholds. Проверяй cleanup и отчёты k6/Yabeda; локальный результат не доказывает production capacity.
-- Native tests проверяют schema/path rules и синхронность bundled/remote JSON. Изменения Kotlin требуют платформенной сборки.
-- Отдельно сообщай результаты Ruby, браузерных и Android проверок. Сборка APK не заменяет проверку навигации на устройстве.
-
-## Результат
-
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/inertia-rails-testing.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/inertia-rails-testing`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/inertia-rails-testing.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/inertia-rails-testing`.

@@ -1,7 +1,7 @@
 require "application_system_test_case"
 
 class AuthenticationTest < ApplicationSystemTestCase
-  test "вход, Turbo-переход в профиль и выход" do
+  test "sign-in Turbo navigation to account and sign-out" do
     visit root_path
     assert_text "Sign in to StarterApp"
     fill_in "Email", with: users(:one).email_address
@@ -16,7 +16,7 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_text "Sign in to StarterApp"
   end
 
-  test "Stimulus раскрывает помощь" do
+  test "Stimulus expands help" do
     visit new_session_path
     assert_no_link "Reset password"
     click_button "Need help signing in?"

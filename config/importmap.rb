@@ -11,4 +11,5 @@ pin "@anycable/web", to: "@anycable--web.js" # @1.1.1
 pin "@hotwired/turbo", to: "@hotwired--turbo.js" # @8.0.23
 pin "@anycable/core", to: "@anycable--core.js" # @1.1.7
 pin "nanoevents" # @9.1.0
-pin "live_poll"
+pin "live_updates"
+pin "operations_stream"

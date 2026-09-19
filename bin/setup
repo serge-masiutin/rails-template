@@ -2,10 +2,10 @@
 require "fileutils"
 require "json"
 
-# rubocop:disable ThreadSafety/DirChdir -- Отдельный CLI-процесс; рабочий каталог задаётся до запуска приложения.
+# rubocop:disable ThreadSafety/DirChdir -- Separate CLI process; set the working directory before application startup.
 Dir.chdir File.expand_path("..", __dir__) do
-  abort "Сначала выполните bin/configure; порядок — docs/template.md" unless JSON.parse(File.read("config/template.json")).fetch("configured")
-  abort "Параметры: --skip-server, --skip-docker" unless (ARGV - %w[--skip-server --skip-docker]).empty?
+  abort "Run bin/configure first; see docs/template.md" unless JSON.parse(File.read("config/template.json")).fetch("configured")
+  abort "Options: --skip-server, --skip-docker" unless (ARGV - %w[--skip-server --skip-docker]).empty?
   system("bundle check") || system("bundle install", exception: true)
   system("npm", "ci", exception: true)
   system("npm", "run", "build:agents", exception: true)

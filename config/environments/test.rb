@@ -4,6 +4,8 @@
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  # A separate harness verifies Go delivery; other system tests exercise DOM behavior.
+  config.turbo.test_connect_after_actions = ENV["ANYCABLE_SYSTEM_TEST"] == "1" ? [ :visit ] : []
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.
@@ -21,7 +23,7 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  # Настоящие счётчики позволяют проверять защиту входа и восстановления пароля.
+  # Real counters let tests verify sign-in and password-reset rate limits.
   config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.

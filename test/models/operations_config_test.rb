@@ -1,7 +1,7 @@
 require "test_helper"
 
 class OperationsConfigTest < ActiveSupport::TestCase
-  test "адреса мониторинга отклоняют опасные схемы, credentials и неверные URL" do
+  test "monitoring addresses reject unsafe schemes credentials and invalid URLs" do
     %w[javascript:alert(1) //metrics.example.com https://user:password@metrics.example.com https://].each do |url|
       assert_raises(Anyway::Config::ValidationError) { OperationsConfig.new(logs_url: url) }
     end
@@ -9,7 +9,7 @@ class OperationsConfigTest < ActiveSupport::TestCase
     assert_equal "https://logs.example.com", OperationsConfig.new(logs_url: "https://logs.example.com").logs_url
   end
 
-  test "production требует HTTPS для ссылок мониторинга" do
+  test "production monitoring links require HTTPS" do
     previous = Rails.env
     Rails.env = "production"
     assert_raises(Anyway::Config::ValidationError) { OperationsConfig.new(prometheus_url: "http://metrics.example.com") }
@@ -17,7 +17,7 @@ class OperationsConfigTest < ActiveSupport::TestCase
     Rails.env = previous
   end
 
-  test "неполные и слабые credentials отклоняются" do
+  test "partial and weak credentials are rejected" do
     assert_raises(Anyway::Config::ValidationError) { OperationsConfig.new(username: "operator", password: nil) }
     assert_raises(Anyway::Config::ValidationError) { OperationsConfig.new(username: "operator", password: "short") }
   end

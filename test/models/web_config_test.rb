@@ -1,11 +1,11 @@
 require "test_helper"
 
 class WebConfigTest < ActiveSupport::TestCase
-  test "отклоняет URL вместо hostname" do
+  test "rejects a URL in place of a hostname" do
     assert_raises(Anyway::Config::ValidationError) { WebConfig.new(host: "https://example.com/path") }
   end
 
-  test "отклоняет неизвестный протокол" do
+  test "rejects unknown protocols" do
     assert_raises(Anyway::Config::ValidationError) { WebConfig.new(protocol: "ftp") }
   end
 end

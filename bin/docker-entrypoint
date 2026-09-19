@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-# Схемы готовит web-контейнер; отдельный worker не запускает миграции повторно.
+# The web container prepares schemas; separate workers do not rerun migrations.
 if [ "${*: -2:1}" == "./bin/rails" ] && [ "${*: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 fi

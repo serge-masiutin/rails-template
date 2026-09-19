@@ -1,4 +1,4 @@
-import { startLivePoll } from "../../javascript/live_poll.js";
+import { startLiveUpdates } from "../../javascript/live_updates.js";
 import { Component, useEffect, useState, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { decodeMessages, type Messages } from "./messages";
@@ -11,12 +11,13 @@ type State = { status: "loading" } | { status: "error"; message: string } |
 function App({ url, messages }: { url: string; messages: Messages }) {
   const [cursor, setCursor] = useState<string | null>(null);
   const [state, setState] = useState<State>({ status: "loading" });
+  const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     setState({ status: "loading" });
     setError(null);
     let previous = "";
-    const stop = startLivePoll(async (signal: AbortSignal) => {
+    const stop = startLiveUpdates("agents", async (signal: AbortSignal) => {
       const endpoint = new URL(url, window.location.origin);
       if (cursor) endpoint.searchParams.set("before", cursor);
       const response = await fetch(endpoint, { signal, credentials: "same-origin", cache: "no-store" });
@@ -24,6 +25,7 @@ function App({ url, messages }: { url: string; messages: Messages }) {
         setState({ status: "error", message: messages.denied });
         setError(null);
         stop();
+        document.getElementById("operations-stream")!.remove();
         return;
       }
       if (!response.ok) throw new HttpError(response.status);
@@ -37,14 +39,14 @@ function App({ url, messages }: { url: string; messages: Messages }) {
     }, (failure: unknown) => {
       setError(failure instanceof InvalidTracePage ? messages.invalid_data :
         failure instanceof HttpError ? messages.http_error.replace("%{status}", String(failure.status)) : messages.load_error);
-    });
+    }, setConnected);
     return stop;
   }, [url, cursor, messages]);
 
   return <>
     <div className="ops-toolbar">
       <h1>{messages.title}</h1>
-      {state.status !== "error" && <span className="admin-live" role="status" data-state={error ? "offline" : "live"}>{error ? messages.offline : messages.live}</span>}
+      {state.status !== "error" && <span className="admin-live" role="status" data-state={error || !connected ? "offline" : "live"}>{error || !connected ? messages.offline : messages.live}</span>}
       <div className="ops-pagination">
         {cursor && <button onClick={() => setCursor(null)}>{messages.latest}</button>}
         {state.status === "ready" && state.nextCursor &&

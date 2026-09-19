@@ -1,99 +1,92 @@
-# AI-функции: Active Agent и RubyLLM
+# AI features: Active Agent and RubyLLM
 
-`ApplicationAgent` задаёт общие настройки генераций. Конкретный агент хранит промпт,
-принимает проверенный контекст и возвращает ответ; доменная операция проверяет результат
-и явно сохраняет его. Генерация сама по себе не создаёт продуктовую функцию или чат.
+`ApplicationAgent` defines shared generation settings. A named agent holds a prompt, accepts validated
+context, and returns a response. A domain operation validates and explicitly saves the result.
+Generation alone does not create a product feature or chat.
 
-## Подключить провайдера
+## Configure a provider
 
-Задай вместе `LLM_PROVIDER`, `LLM_MODEL`, `LLM_API_KEY` через ENV или игнорируемый
-`config/llm.local.yml` с полями `provider`, `model`, `api_key`. Поддержаны `openai`, `anthropic`,
-`gemini`. Перезапусти web и jobs: ключ SDK устанавливается только при загрузке процесса.
-В Kamal используются те же параметры; ключ передаётся как secret.
+Set `LLM_PROVIDER`, `LLM_MODEL`, and `LLM_API_KEY` together through ENV or ignored
+`config/llm.local.yml` fields `provider`, `model`, and `api_key`.
+Supported providers: `openai`, `anthropic`, `gemini`. Restart web and jobs; SDK keys are set only at boot.
+Kamal uses the same settings, with the key supplied as a secret.
 
-Без настроек приложение запускается, но генерация завершается ошибкой до HTTP-запроса.
-Модель проверяется по локальному реестру RubyLLM. `LLM_REQUEST_TIMEOUT` — таймаут HTTP,
-по умолчанию 30 секунд, допустимо 1–300. Повторы SDK и заданий автоматически не включаются.
+The app boots without AI configuration; generation then fails before an HTTP request.
+Models are checked against RubyLLM's local registry.
+`LLM_REQUEST_TIMEOUT` defaults to 30 seconds and accepts 1–300. SDK/job retries are not enabled implicitly.
 
-Версии закреплены в Gemfile.lock. `StarterappProvider` расширяет стандартный адаптер Active Agent:
-читает `tokens` и `finish_reason` RubyLLM 2 вместо удалённых методов 1.x,
-передаёт tools через `parameters_schema` и `provider_options`. Сетевые вызовы и цикл вызова tools
-остаются в gem. При обновлении проверь этот контракт и убери локальную адаптацию,
-когда upstream будет совместим. RubyLLM 1.16 не подходит из-за CVE-2026-67991.
+Versions are pinned in `Gemfile.lock`. `StarterappProvider` adapts Active Agent to RubyLLM 2:
+it reads `tokens` and `finish_reason` instead of removed 1.x methods and passes tools via
+`parameters_schema` and `provider_options`. The gem owns network requests and the tool loop.
+Recheck this contract on upgrade and remove the local adapter once upstream is compatible.
+RubyLLM 1.16 is unsuitable because of CVE-2026-67991.
 
-## Добавить агента
+## Add an agent
 
-- Создай именованный класс в `app/agents`, наследник `ApplicationAgent`, и константу
-  `PROMPT_VERSION` со строковой версией. Меняй её вместе с существенным изменением промпта.
-- Действие собирает контекст и вызывает `prompt`. Текстовые ERB-шаблоны храни в
-  `app/views/<имя_агента>/`: `instructions.text.erb` и `<действие>.text.erb`.
-  `instructions: true` требует шаблон и поднимает ошибку при его отсутствии.
-- Считай пользовательский текст данными. Отделяй его от инструкций и проверяй результат
-  до записи в БД, вызова tools или рендера. Не передавай ответ модели в `html_safe`.
-- Доменная операция явно вызывает `<Агент>.<действие>(...).generate_now` вне транзакции.
-  В controller долгий вызов не выполняй: поставь прикладное задание с ID записи,
-  заново проверь доступ в worker, вызови агента и сохрани проверенный результат.
-- `generate_later` использует `AgentGenerationJob`, очередь `agents`, постановку после commit
-  и перенос `request_id`. Результат возвращается внутри worker; callback сохранения
-  или доставка в UI автоматически не появляются. Для сохранения предпочтительнее явная прикладная job.
-- Аргументы Active Job хранятся в БД очереди. Передавай ID, а не секреты и полные документы.
-  Не рассчитывай на Current.user в worker: пользователь передаётся явно и проверяется заново.
+- Subclass `ApplicationAgent` in `app/agents` and declare a string `PROMPT_VERSION`.
+  Bump it for meaningful prompt changes.
+- Actions collect context and call `prompt`. Store text ERB in `app/views/<agent_name>/`:
+  `instructions.text.erb` and `<action>.text.erb`. `instructions: true` requires the template and raises if missing.
+- Treat user text as data, separate it from instructions, and validate output before writes, tools, or rendering.
+  Never pass model text to `html_safe`.
+- Explicitly call `<Agent>.<action>(...).generate_now` outside transactions.
+  For long work, enqueue an application job with record IDs, reauthorize in the worker, generate, validate, and save.
+- `generate_later` uses `AgentGenerationJob`, the `agents` queue, after-commit enqueue, and request ID propagation.
+  Its return value exists in the worker; it does not automatically save results or update the UI.
+  Prefer an explicit feature job when persistence is needed.
+- Job arguments are stored in the queue database. Pass IDs, not secrets or whole documents.
+  Pass the user explicitly; do not rely on `Current.user` in a worker.
 
-Для короткого вызова без шаблонов доступен `Llm.build_chat`; сетевой запрос выполняет `chat.ask(...)`.
-Не меняй общую конфигурацию RubyLLM внутри запроса. Ключи и модель не принимаются из params.
+For a short call without templates, use `Llm.build_chat`; `chat.ask(...)` performs the network request.
+Do not mutate shared RubyLLM settings during a request or accept keys/models from params.
 
-Structured output, tools и потоковая выдача требуют отдельных контрактов и тестов конкретной функции.
-Формат schema RubyLLM отличается от `response_format` Active Agent: текущая база проверяет
-текстовую генерацию и простой tool loop; передачу JSON Schema через адаптер нельзя считать готовой без проверки.
-Для schema-вызова используй `Llm.build_chat.with_schema(...)` и валидируй ответ.
-Для tools задай явный `max_tool_turns`, права, допустимые аргументы, лимиты и идемпотентность.
+Structured output, tools, and streaming require feature-specific contracts and tests.
+RubyLLM schemas differ from Active Agent `response_format`: this starter verifies text generation and a simple
+tool loop, not JSON Schema passthrough. For schema calls, use `Llm.build_chat.with_schema(...)` and validate output.
+Tools need explicit `max_tool_turns`, permissions, argument schemas, limits, and idempotency.
 
-## Веб и Android
+## Web and Android
 
-Оба клиента получают сохранённый результат через общий ERB/ViewComponent и Turbo Stream.
-Используй существующую приватную подписку AnyCable и стабильный DOM target.
-Ключ провайдера остаётся на сервере. Промежуточный текст модели также рендери с экранированием;
-состояния ожидания, отказа и ошибки должны работать и после перезагрузки страницы.
+Both clients render saved results with shared ERB/ViewComponent and Turbo Streams.
+Use the existing private AnyCable subscription and stable targets. Provider keys stay on the server.
+Escape partial model output too. Pending, denied, and failed states must survive page reload.
 
 ## AgentPrism
 
-Trace — запись выполнения агента; span — отдельная операция внутри неё, например вызов LLM
-или tool call. Названия `trace`, `span`, `RAW` и `Attributes` сохраняются как в AgentPrism.
+A trace records an agent run; a span records an operation such as an LLM call or tool call.
+Keep the tool's terminology, including `trace`, `span`, `RAW`, and `Attributes`.
 
-Открой «AgentPrism» в `/admin` или перейди на `/ops/agents`.
-Доступ — через обычную сессию пользователя с `admin: true`; выдача и отзыв прав описаны
-в [наблюдаемости](observability.md#админка). HTML гостя переходит на вход, JSON возвращает 401;
-пользователь без роли получает 403. HTTP Basic и токен метрик просмотрщик не открывают.
+Open AgentPrism from `/admin` or `/ops/agents`. It requires an app session with `admin: true`;
+see [admin access](observability.md#admin). Guests receive an HTML sign-in redirect or JSON 401;
+non-admins receive 403. Health Basic credentials and metrics tokens do not grant viewer access.
 
-После вызова `ApplicationAgent` trace появится автоматически в течение 5 секунд. Панель показывает дерево генерации,
-LLM и tools, длительность, статусы, версию промпта, request/job ID и сообщённый usage.
-Записи trace выводятся страницами по 20. Прямой `Llm.build_chat` SDK Active Agent не инструментирует.
-До первого вызова список пустой; демонстрационные агенты и платные запросы автоматически не запускаются.
+After `ApplicationAgent` runs, AnyCable triggers a fresh fetch automatically.
+The viewer shows the call tree, LLM/tools, duration, status, prompt version, request/job IDs, and reported usage.
+Pages contain 20 traces. Direct `Llm.build_chat` calls are not instrumented by Active Agent.
+The initial list is empty; no demo agents or paid calls run automatically.
 
-- `AgentTrace::Document` переводит SDK spans в контракт AgentPrism и сохраняет только разрешённые поля.
-  Промпты, ответы, аргументы/результаты tools, произвольные events и сообщения исключений удаляются.
-  В RAW находится этот же очищенный контракт; для ошибки доступен класс, для traceback — коррелированный лог.
-- Локальный `local_store` работает синхронно по завершении генерации; API-ключ и внешний endpoint
-  телеметрии отключены. Сбой записи не повторяет вызов модели: он виден в Rails.error,
-  `starterapp_agent_trace_failures`, Grafana и alert `StarterAppAgentTraceFailures`.
-- Таблица `agent_traces` находится в основной PostgreSQL. Срок — 7 дней; scheduler удаляет
-  старые записи раз в час в development/production. Панель сразу скрывает просроченное.
-  Ручная очистка: `mise exec -- bin/rails runner 'AgentTrace.prune'`.
-- Один trace содержит не более 256 spans и 32 уровней; нарушение контракта отклоняется с метрикой ошибки.
-  Неизвестный usage не отображается как ноль. Cached input учитывается отдельно,
-  reasoning повторно не суммируется с output. Стоимость не вычисляется.
-  Usage отражает ответ SDK; его нельзя считать полным счётом всех HTTP-вызовов tool loop.
-  Завершённый span без статуса SDK помечен warning, а не успешным.
+- `AgentTrace::Document` converts SDK spans to an allowlisted AgentPrism contract.
+  Prompts, responses, tool arguments/results, arbitrary events, and exception messages are removed.
+  RAW shows the same sanitized contract. Errors expose their class; find the stack in correlated logs.
+- Synchronous `local_store` runs after generation. External telemetry endpoints and API keys are disabled.
+  Storage failure does not repeat a paid model call; it is reported through `Rails.error`,
+  `starterapp_agent_trace_failures`, Grafana, and `StarterAppAgentTraceFailures`.
+- `agent_traces` lives in primary PostgreSQL, with seven-day retention and hourly development/production cleanup.
+  Queries immediately hide expired records. Manual cleanup: `mise exec -- bin/rails runner 'AgentTrace.prune'`.
+- Each trace allows at most 256 spans and 32 levels. Invalid contracts are rejected and counted.
+  Unknown usage stays unknown, cached input is separate, reasoning is not added to output twice,
+  and cost is not calculated. SDK usage is not a complete bill for every tool-loop HTTP call.
+  A completed span without SDK status is marked warning, not success.
 
-Просмотрщик — отдельная React-сборка `app/frontend/agents` и layout Operations без importmap.
-Общие экраны приложения продолжают использовать Hotwire; переход в просмотрщик требует полной загрузки.
-AgentPrism UI/data/types скопированы из одного commit в `vendor/agent-prism` с MIT-лицензией
-и SHA-256 в `source.json`: npm-релиз data отстаёт от текущих компонентов.
-При обновлении меняй эти три части вместе, сохраняй manifest и проверяй сборку/браузерные тесты.
-Стили адаптированы к Tailwind 4 отдельным конфигом без изменения исходников компонентов.
-`react-resizable-panels` остаётся на v3: текущий upstream импортирует `PanelGroup` и `PanelResizeHandle`,
-которых нет в v4. Dependabot продолжает обновлять v3; запрет major снимается вместе с совместимым
-обновлением AgentPrism и проверкой desktop/mobile UI. Lucide обновляется независимо.
+The viewer is an isolated React bundle in `app/frontend/agents`. Its Operations layout loads
+AnyCable/Turbo through importmap for update signals; React owns the viewer DOM.
+Product screens remain Hotwire. Entry into the viewer uses a full page load.
+AgentPrism UI/data/types are vendored from one commit with MIT license and SHA-256 in `source.json`,
+because the published data package trails the current components.
+Update all three together and run build/browser checks. Tailwind 4 styling is separate from upstream components.
+`react-resizable-panels` stays on v3: upstream uses `PanelGroup`/`PanelResizeHandle`, removed in v4.
+Lift the major-version constraint with a compatible AgentPrism update and desktop/mobile verification.
+Lucide updates independently.
 
 ```sh
 mise exec -- npm run check:agents
@@ -102,24 +95,23 @@ mise exec -- bin/rails test test/agents/application_agent_test.rb test/models/ag
 mise exec -- bin/rails test test/system/agent_prism_test.rb
 ```
 
-`bin/setup` собирает просмотрщик, `bin/dev` запускает watcher, `bin/ci` проверяет типы,
-происхождение и сборку. Docker собирает JS/CSS отдельным Node-stage; в runtime Node и node_modules нет.
-Источник UI: [AgentPrism Evil Martians](https://evilmartians.com/opensource/agent-prism).
+`bin/setup` builds the viewer, `bin/dev` starts its watcher, and `bin/ci` checks types, provenance, and build.
+Docker builds JS/CSS in a separate Node stage; Node/node_modules are absent from the runtime image.
+Source: [Evil Martians AgentPrism](https://evilmartians.com/opensource/agent-prism).
 
-## Диагностика и проверки
+## Diagnostics and validation
 
-Событие `agent.generated` содержит agent/action, версию промпта, provider/model, статус,
-время и usage, если его вернул провайдер. Request/job ID находятся в обычных лог-тегах.
-В логи не записываются тексты, API-ключи и сообщения исключений; traceback сохраняется.
-SDK traces сохраняются локально для AgentPrism; захват тел запросов и `/rails/agents` отключены.
-Метрики и endpoint worker описаны в [наблюдаемости](observability.md).
+`agent.generated` includes agent/action, prompt version, provider/model, outcome, duration, and reported usage.
+Request/job IDs use normal log tags. Logs exclude prompt/response text, API keys, and arbitrary exception
+messages while retaining stacks. SDK traces stay local; body capture and `/rails/agents` are disabled.
+See [observability](observability.md) for metrics and worker endpoints.
 
-`mise exec -- bin/rails test test/agents/application_agent_test.rb` проверяет ERB, изоляцию диалогов,
-HTTP-контракт, простой tool loop, usage, ошибки без повторов, приватность логов, commit/rollback и контекст задания.
-WebMock закрывает внешний HTTP. Реальные провайдер и модель пока не выбраны, платные вызовы не выполнялись.
-Тесты транспорта не оценивают качество ответов: новая AI-функция требует версионируемого набора
-типичных, ошибочных и adversarial примеров с явными критериями и регрессией при смене промпта/модели.
+`test/agents/application_agent_test.rb` verifies ERB, conversation isolation, HTTP contracts, a simple tool loop,
+usage, failures without retries, log privacy, commit/rollback, and job context. WebMock blocks external HTTP.
+No production provider/model is selected and no paid requests are used by the starter's checks.
+Transport tests do not measure output quality. Each product AI feature needs versioned typical, malformed,
+and adversarial cases, explicit grading criteria, and regression checks after prompt/model changes.
 
-Источники: [разбор Active Agent у Evil Martians](https://evilmartians.com/chronicles/exploring-active-agent-or-can-we-build-ai-features-the-rails-way),
-[адаптер RubyLLM](https://docs.activeagents.ai/providers/ruby_llm),
-[инструментирование](https://docs.activeagents.ai/framework/instrumentation).
+Sources: [Evil Martians Active Agent article](https://evilmartians.com/chronicles/exploring-active-agent-or-can-we-build-ai-features-the-rails-way),
+[RubyLLM adapter](https://docs.activeagents.ai/providers/ruby_llm),
+[instrumentation](https://docs.activeagents.ai/framework/instrumentation).

@@ -1,5 +1,5 @@
 class SessionsController < ApplicationController
-  # Вход проверяет пароль; выход отзывает только текущую сессию из подписанной cookie.
+  # Sign-in checks the password; sign-out revokes only the session in the signed cookie.
   skip_verify_authorized
   allow_unauthenticated_access only: %i[ new create ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, status: :see_other, alert: t("auth.rate_limited") }

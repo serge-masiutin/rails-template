@@ -1,9 +1,9 @@
-# Сложные запросы
+# Complex queries
 
-- Начинай со scope или class method модели. Query object нужен повторяемой композиции, сложным joins или отдельному публичному контракту чтения.
-- Принимай scope и проверенные параметры, возвращай relation либо явно объявленный snapshot. Query не сохраняет записи и не публикует события.
-- SQL-параметры передавай безопасно; динамические колонки сортировки выбирай из allowlist. Индексы обсуждай по EXPLAIN/нагрузке, а не наугад.
-- Избегай to_a до фильтрации и пагинации. Проверяй число запросов на растущем наборе данных.
-- Operations::QueueSnapshot — действующий пример агрегированного снимка; его ошибки не должны превращаться в нулевые успешные метрики.
+- Start with a model scope/class method. Extract recurring composition, complex joins or a distinct read contract.
+- Accept a scope and validated parameters; return a relation or declared snapshot. Queries do not persist or publish.
+- Parameterize SQL and allowlist dynamic sort columns. Choose indexes from EXPLAIN/workload evidence.
+- Filter/paginate before to_a. Check query counts with growing data.
+- Operations::QueueSnapshot is an aggregate example; failures must not become successful zero metrics.
 
-Источники поведения: [app/models/operations/queue_snapshot.rb](../../../../../app/models/operations/queue_snapshot.rb), [test/models/queue_snapshot_test.rb](../../../../../test/models/queue_snapshot_test.rb).
+Behavior sources: [app/models/operations/queue_snapshot.rb](../../../../../app/models/operations/queue_snapshot.rb), [test/models/queue_snapshot_test.rb](../../../../../test/models/queue_snapshot_test.rb).

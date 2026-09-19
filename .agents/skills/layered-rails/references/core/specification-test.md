@@ -1,10 +1,10 @@
-# Тест как спецификация контракта
+# Tests as contract specifications
 
-- Выпиши вход, результат, эффекты, ошибки, права доступа и владельца данных. Для job добавь commit/rollback, повторное выполнение и контекст.
-- Модельный тест проверяет инвариант; HTTP-тест — доступ, параметры, статусы и HTML/JSON; компонентный — семантику; Cuprite — поведение браузера.
-- В StarterApp используется Minitest 6, fixtures, WebMock и Cuprite. Копируй API из действующих тестов, включая отсутствие встроенного Object#stub в текущем Minitest.
-- Проверяй наблюдаемое поведение. Не подменяй цепочку внутренних вызовов тестируемого объекта и не используй private methods как публичный API.
-- Для AI отдельно нужны транспортные проверки и набор оценки качества. Зелёный HTTP stub не доказывает качество ответа модели.
-- Начни с узкого файла, затем расширь проверку до затронутого сценария и CI; сообщи непроверенные платформы.
+- Specify input, output, effects, errors, permissions and data ownership. For jobs, include commit/rollback, repeat execution and context.
+- Model tests cover invariants; HTTP tests cover access, parameters, status and HTML/JSON; component tests cover semantics; Cuprite covers browser behavior.
+- Use current Minitest 6, fixtures, WebMock and Cuprite APIs. Do not assume Object#stub is built into this Minitest version.
+- Test observable behavior, not private method sequences or a fully mocked implementation.
+- AI needs both transport tests and quality evals; a successful HTTP stub says nothing about generated answer quality.
+- Start narrow, expand to the affected scenario and CI, and report untested platforms.
 
-Источники поведения: [docs/testing.md](../../../../../docs/testing.md), [test/integration/password_reset_atomicity_test.rb](../../../../../test/integration/password_reset_atomicity_test.rb), [test/agents/application_agent_test.rb](../../../../../test/agents/application_agent_test.rb).
+Behavior sources: [docs/testing.md](../../../../../docs/testing.md), [test/integration/password_reset_atomicity_test.rb](../../../../../test/integration/password_reset_atomicity_test.rb), [test/agents/application_agent_test.rb](../../../../../test/agents/application_agent_test.rb).

@@ -1,9 +1,10 @@
-# Зависимость между неправильными слоями
+# Incorrect dependency direction
 
-Признак: Модель читает params/cookies/Current.user, serializer запускает command, компонент загружает данные из сети.
+Symptom: A model reads params/cookies/Current.user, a serializer runs a command, or a component fetches network data.
 
-Исправление: Проверь реальный caller. Передай actor и проверенные значения явно, отдели команду от query, перенеси IO на объявленную границу и проверь HTTP/job сценарии.
+Correction: Inspect the actual caller. Pass actor and validated values explicitly, separate commands from queries, move IO to its declared boundary and test HTTP/job journeys.
 
-Покажи конкретный вызов и последствия. Стиль или размер сами по себе не доказывают дефект. Добавь проверку, которая падает до исправления и проходит после; не создавай параллельный слой.
+Identify the concrete call and consequence. Style or size alone does not prove a defect.
+Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
 
-Источники поведения: [app/controllers/accounts_controller.rb](../../../../../app/controllers/accounts_controller.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+Behavior sources: [app/controllers/accounts_controller.rb](../../../../../app/controllers/accounts_controller.rb), [docs/architecture.md](../../../../../docs/architecture.md).

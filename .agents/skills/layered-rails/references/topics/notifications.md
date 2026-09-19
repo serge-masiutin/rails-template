@@ -1,10 +1,10 @@
-# Прикладные уведомления
+# Application notifications
 
-- Вход — конкретная delivery, наследник ApplicationDelivery; она объявляет delivers и выбирает mailer/notifier. Доменная операция вызывает уведомление явно.
-- Mailer отвечает за письмо, notifier — за payload своего канала. Abstract Notifier входит в active_delivery; отдельная одноимённая dependency не нужна.
-- Для не-email канала укажи driver с call(payload). Отсутствие транспорта должно приводить к ошибке, а не noop. Push/SMS пока не подключены.
-- deliver_later проходит через настроенную очередь после commit. Передавай минимальные аргументы; они хранятся в БД Solid Queue, даже если исключены из логов.
-- Проверяй enqueue, адресата, контракт payload, rollback, request_id и отказ отправки. Повтор допускается только с явной идемпотентностью.
-- Реальная отправка SMTP требует настроенного сервера; тестовый delivery adapter не доказывает доставку в почтовый ящик.
+- Enter through an ApplicationDelivery subclass that declares delivers and chooses mailer/notifier handlers. Invoke delivery explicitly from the operation.
+- Mailers own email; notifiers own channel payloads. Abstract Notifier is included in active_delivery; no separate dependency is needed.
+- Non-email channels need a driver with call(payload). Missing transport must raise, not become noop. Push/SMS are not configured yet.
+- deliver_later uses the configured queue after commit. Pass minimal arguments: Solid Queue persists them even when logging excludes them.
+- Test enqueue, recipient, payload, rollback, request_id and delivery failures. Retrying requires explicit idempotency.
+- Actual SMTP delivery needs a configured server; a test adapter does not prove mailbox delivery.
 
-Источники поведения: [app/deliveries/passwords_delivery.rb](../../../../../app/deliveries/passwords_delivery.rb), [app/notifiers/application_notifier.rb](../../../../../app/notifiers/application_notifier.rb), [test/jobs/notifier_delivery_job_test.rb](../../../../../test/jobs/notifier_delivery_job_test.rb), [docs/deployment.md](../../../../../docs/deployment.md).
+Behavior sources: [app/deliveries/passwords_delivery.rb](../../../../../app/deliveries/passwords_delivery.rb), [app/notifiers/application_notifier.rb](../../../../../app/notifiers/application_notifier.rb), [test/jobs/notifier_delivery_job_test.rb](../../../../../test/jobs/notifier_delivery_job_test.rb), [docs/deployment.md](../../../../../docs/deployment.md).

@@ -9,7 +9,7 @@ require_relative "test_helpers/session_test_helper"
 
 module ActiveSupport
   class TestCase
-    # На macOS Ruby 4/libpq падает после fork; Linux CI использует процессы.
+    # Ruby 4/libpq crashes after fork on macOS; Linux CI uses processes.
     parallelize(workers: Integer(ENV.fetch("PARALLEL_WORKERS", RUBY_PLATFORM.include?("darwin") ? 1 : 2)))
 
     fixtures :all

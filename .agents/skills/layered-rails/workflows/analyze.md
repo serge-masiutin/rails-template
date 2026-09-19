@@ -1,11 +1,11 @@
-# Аудит архитектуры
+# Audit architecture
 
-1. Прочитай manifests, маршруты, схемы, AGENTS.md и профильную документацию. Выбери конкретный пользовательский сценарий веба/Android.
-2. Проследи HTTP/job → policy → модель/операция → БД/внешний API → HTML/JSON. Запиши вход, выход и эффекты каждой границы.
-3. Найди нарушения доступа, целостности данных, транзакций, потокобезопасности и приватности. Проверь гипотезу тестом, запросом, логом или фактическим вызовом.
-4. Отдели доказанный дефект от возможного улучшения. Размер файла и отсутствие дополнительного слоя не являются дефектом.
-5. Исправляй локально; обновляй потребителей, тесты, docs и skills вместе.
+1. Read manifests, routes, schemas, AGENTS and relevant docs. Select a concrete web/Android journey.
+2. Trace HTTP/job → policy → model/operation → database/external API → HTML/JSON, recording each boundary's input, output and effects.
+3. Investigate access, integrity, transaction, thread-safety and privacy failures. Verify hypotheses through tests, queries, logs or actual calls.
+4. Separate confirmed defects from possible improvements. File size and absence of extra layers are not defects.
+5. Fix locally and update consumers, tests, docs and skills together.
 
-Результат: найденный сценарий, путь/строка, риск, минимальное исправление, выполненная проверка и ограничения. Не создавай отдельный длинный отчёт, если достаточно результата задачи и intent-log.
+Report the scenario, file/line, risk, smallest correction, executed checks and limitations. Avoid a separate long report when the task result and intent log suffice.
 
-Источники поведения: [docs/architecture.md](../../../../docs/architecture.md), [config/ci.rb](../../../../config/ci.rb).
+Behavior sources: [docs/architecture.md](../../../../docs/architecture.md), [config/ci.rb](../../../../config/ci.rb).

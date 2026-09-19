@@ -1,10 +1,10 @@
-# Проверяемые архитектурные правила
+# Test architectural rules
 
-1. Найди повторяющееся нарушение и сформулируй наблюдаемый инвариант.
-2. Используй действующий тест, RuboCop или Zeitwerk, если они уже выражают правило. Не дублируй дерево каталогов новой конфигурацией.
-3. Новая автоматическая проверка должна выявлять реальную регрессию и не навязывать пустые слои простому Rails-коду.
-4. Добавь её в bin/ci/существующий workflow и документируй проверенную команду.
+1. Identify a recurring violation and express an observable invariant.
+2. Reuse an existing test, RuboCop or Zeitwerk check when suitable. Do not restate directory structure in another configuration.
+3. New automation must catch a real regression without imposing empty layers on simple Rails code.
+4. Integrate it into bin/ci or the existing workflow and document the verified command.
 
-Результат: воспроизводимое нарушение до изменения и успешная проверка после; отдельный архитектурный gem в StarterApp сейчас не требуется.
+Show reproducible failure before and success after the fix. This project currently needs no separate architectural gem.
 
-Источники поведения: [.rubocop.yml](../../../../.rubocop.yml), [config/ci.rb](../../../../config/ci.rb), [docs/testing.md](../../../../docs/testing.md).
+Behavior sources: [.rubocop.yml](../../../../.rubocop.yml), [config/ci.rb](../../../../config/ci.rb), [docs/testing.md](../../../../docs/testing.md).

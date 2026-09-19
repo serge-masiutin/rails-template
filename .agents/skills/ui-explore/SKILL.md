@@ -1,29 +1,31 @@
 ---
 name: ui-explore
-description: "Прототипировать новое оформление StarterApp в изолированных ViewComponent previews."
+description: "Prototype UI changes in isolated development-only ViewComponent previews."
 metadata:
   upstream: sb-explore
   adapted-for: StarterApp
-  version: "3"
+  version: "4"
 ---
 
 # ui-explore
 
-Контекст: StarterApp, Ruby 4.0 / Rails 8.1, PostgreSQL, Turbo/Stimulus/importmap,
-Tailwind 4, ViewComponent/Lookbook, Hotwire Native Android, Overmind, Kamal.
-Сначала прочитай корневой AGENTS.md. Отвечай и пиши новые комментарии по-русски.
+Read root `AGENTS.md` first. Use the actual manifests, code and tests as sources of truth.
+Write repository content in English and respond in the user's preferred language.
+Context: Rails, PostgreSQL, Turbo/Stimulus/importmap, Tailwind, ViewComponent/Lookbook,
+Hotwire Native Android, Overmind and Kamal.
 
-## Рабочий контракт
+## Working contract
 
-- Зафиксируй пользовательскую задачу и существующие токены/компоненты.
-- Прототип размещай в development-only preview; не добавляй неподтверждённый маршрут продукта.
-- Сравни варианты на одинаковом содержимом, ширинах и состояниях.
-- Отметь touch, keyboard, loading/error и Native layout consequences.
-- Критерий переноса: выбранный API компонента, токены, доступность и проверяемый сценарий.
-- Для переноса используй `ui-ship`; сохраняй только полезный preview, а не коллекцию заброшенных прототипов.
+- Establish the user task and existing tokens/components.
+- Put prototypes in development-only previews, not unapproved product routes.
+- Compare options with identical content, widths and states.
+- Consider touch, keyboard, loading/errors and Native layout effects.
+- Before shipping, settle the component API, tokens, accessibility and a testable journey.
+- Use `ui-ship` for integration; keep useful previews rather than abandoned prototype collections.
 
-## Результат
+## Completion
 
-Сообщи конкретные изменения или выводы, выполненные проверки и непроверенные части.
-Источник адаптации: `https://evilmartians.com/agent-skills/sb-explore.tar.gz`; происхождение и полный upstream сохранены в
-`config/agent_skills.json` и `vendor/agent-skills/evilmartians/sb-explore`.
+Report concrete changes or findings, executed checks and unverified behavior.
+Adapted from [Evil Martians](https://evilmartians.com/agent-skills/sb-explore.tar.gz).
+Provenance and original SHA-256: `config/agent_skills.json`; full upstream:
+`vendor/agent-skills/evilmartians/sb-explore`.

@@ -2,7 +2,7 @@ rule_files:
   - /etc/prometheus/alerts.yml
 evaluation_interval: 1m
 tests:
-  - name: AnyCable недоступен дольше двух минут
+  - name: AnyCable unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="anycable",instance="test"}'
@@ -20,7 +20,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: AnyCable is not exposing metrics
-  - name: Короткий сбой не вызывает тревогу, устойчивый вызывает
+  - name: Brief failures do not alert; sustained failures do
     interval: 1m
     input_series:
       - series: 'up{job="starterapp",instance="test"}'
@@ -38,7 +38,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: StarterApp is not exposing metrics
-  - name: Worker пропал, dispatcher продолжает работать
+  - name: Worker missing while dispatcher remains active
     interval: 1m
     input_series:
       - series: 'starterapp_queue_processes{kind="worker"}'
@@ -54,7 +54,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: No active queue process worker
-  - name: imgproxy недоступен дольше двух минут
+  - name: imgproxy unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="imgproxy",instance="test"}'
@@ -72,7 +72,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: imgproxy is not exposing metrics
-  - name: Метрики jobs недоступны дольше двух минут
+  - name: Job metrics unavailable for more than two minutes
     interval: 1m
     input_series:
       - series: 'up{job="starterapp_jobs",instance="test"}'
@@ -90,7 +90,7 @@ tests:
               severity: warning
             exp_annotations:
               summary: The jobs process is not exposing metrics
-  - name: Потеря traces видна в alert
+  - name: Trace loss triggers an alert
     interval: 1m
     input_series:
       - series: 'starterapp_agent_trace_failures{stage="storage"}'

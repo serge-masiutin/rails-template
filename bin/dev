@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 for tool in overmind tmux docker; do
-  command -v "$tool" >/dev/null || { echo "Не найден $tool. Установите зависимости из Brewfile." >&2; exit 1; }
+  command -v "$tool" >/dev/null || { echo "Missing $tool. Install dependencies from Brewfile." >&2; exit 1; }
 done
 docker compose up --detach --wait postgres
 bin/cable setup
