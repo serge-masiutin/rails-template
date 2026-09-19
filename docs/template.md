@@ -1,6 +1,6 @@
 # Новый проект из шаблона
 
-[Создай репозиторий через GitHub Template](https://github.com/serge-masiutin/rails-hotwire-android-template/generate), затем клонируй его.
+[Создай репозиторий через GitHub Template](https://github.com/serge-masiutin/rails-template/generate), затем клонируй его.
 GitHub создаёт отдельную историю; обновления шаблона не применяются к проекту автоматически.
 
 ## Имя и Android ID
