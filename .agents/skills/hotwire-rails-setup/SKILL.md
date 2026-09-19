@@ -4,7 +4,7 @@ description: "Maintain Rails/Hotwire setup, local processes, assets and environm
 metadata:
   upstream: inertia-rails-setup
   adapted-for: StarterApp
-  version: "10"
+  version: "11"
 ---
 
 # hotwire-rails-setup
@@ -19,8 +19,8 @@ Hotwire Native Android, Overmind and Kamal.
 - Read versions from `.ruby-version`, `mise.toml`, lockfiles, Dockerfile and native build files.
 - For a new application, run `bin/configure --name my_app --android-id com.example.myapp` in a clean checkout before setup. See `docs/template.md`; do not rename an existing application with this command.
 - Start with `mise install`, `mise exec -- bin/setup`, then `mise exec -- bin/dev`.
-- `bin/dev` starts Prometheus, Grafana, Loki and Alloy. Monitoring containers outlive Overmind; see `docs/observability.md` for configuration and shutdown. Never expose local anonymous Grafana or Loki as a production deployment.
-- Overmind reads `Procfile.dev` for web, CSS, jobs, AnyCable, imgproxy and AgentPrism watchers; Compose supplies PostgreSQL.
+- `bin/dev` starts Prometheus, Grafana, Loki and Alloy. Alloy runs on the host under Overmind; monitoring containers outlive Overmind; see `docs/observability.md` for configuration and shutdown. Never expose local anonymous Grafana or Loki as a production deployment.
+- Overmind reads `Procfile.dev` for web, CSS, jobs, AnyCable, imgproxy, AgentPrism watchers and Alloy; Compose supplies PostgreSQL.
 - Keep JSON file/container log rotation bounded. Suppress successful health/metrics summaries only; retain errors and denied requests. Ordinary logs belong in Alloy/Loki, not application tables.
 - AnyCable uses HTTP RPC and a shared Rails/Go secret. Preserve private ports and Kamal accessory configuration; run `bin/realtime-test` after transport changes.
 - Use importmap and vendored JS for the shared app; Tailwind builds through its Ruby gem. Node supports Herb and the isolated AgentPrism viewer.

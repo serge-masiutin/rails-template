@@ -118,6 +118,8 @@ services:
     logging: *bounded-logging
     image: grafana/loki:3.7.8
     profiles: [monitoring]
+    ports:
+      - "127.0.0.1:3100:3100"
     command: ["-config.file=/etc/loki/config.yml"]
     volumes:
       - ./config/observability/loki.yml:/etc/loki/config.yml:ro
@@ -125,13 +127,13 @@ services:
   alloy:
     logging: *bounded-logging
     image: grafana/alloy:v1.19.2
-    profiles: [monitoring]
-    command: ["run", "--disable-reporting", "--storage.path=/var/lib/alloy", "/etc/alloy/config.alloy"]
-    depends_on: [loki]
+    profiles: [tools]
+    # Validation uses the same version as the local mise binary.
+    environment:
+      ALLOY_LOG_PATH: /var/log/app/development.jsonl
+      ALLOY_LOKI_URL: http://loki:3100/loki/api/v1/push
     volumes:
       - ./config/observability/config.alloy:/etc/alloy/config.alloy:ro
-      - ./log:/var/log/app:ro
-      - alloy_data:/var/lib/alloy
   grafana:
     logging: *bounded-logging
     image: grafana/grafana:13.2.2
@@ -158,7 +160,6 @@ services:
       retries: 30
 volumes:
   loki_data:
-  alloy_data:
   prometheus_data:
   grafana_data:
   postgres_data:

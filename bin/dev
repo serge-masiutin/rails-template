@@ -4,6 +4,7 @@ cd "$(dirname "$0")/.."
 for tool in overmind tmux docker; do
   command -v "$tool" >/dev/null || { echo "Missing $tool. Install dependencies from Brewfile." >&2; exit 1; }
 done
+command -v alloy >/dev/null || { echo "Alloy is missing. Run mise install and launch with mise exec -- bin/dev." >&2; exit 1; }
 docker compose up --detach --wait postgres
 bin/cable setup
 bin/images setup

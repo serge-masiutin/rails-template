@@ -4,3 +4,4 @@ jobs: bin/jobs
 cable: bin/cable start
 images: bin/images start
 agents: npm run watch:agents
+logs: bin/ops logs

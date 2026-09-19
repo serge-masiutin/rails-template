@@ -83,12 +83,15 @@ GitHub Environment variables are passed through the deployment workflow and Kama
 `bin/setup` creates ignored `config/operations.local.yml` with health Basic credentials and a separate metrics token.
 For an existing app, run `mise exec -- bin/ops setup`. Restart Rails after changing credentials.
 
-`mise exec -- bin/dev` starts PostgreSQL, Prometheus, Grafana, Loki, and Alloy, waits for monitoring readiness,
-then runs Overmind. Start monitoring separately with `mise exec -- bin/ops monitoring`.
-Docker volumes preserve its data.
+`mise exec -- bin/dev` starts PostgreSQL, Prometheus, Grafana, and Loki in Docker, waits for readiness,
+then runs Overmind. Its `logs` process runs Alloy from mise on the host, reading
+`log/development.jsonl` directly without Docker Desktop file-sharing caches.
+Keep the Alloy version in `mise.toml` aligned with the validation image in `compose.yml`.
+Start containers separately with `mise exec -- bin/ops monitoring`; run the collector with `mise exec -- bin/ops logs`.
 
-Loki retains logs for seven days. Alloy reads only `log/development.jsonl`, persists its read position,
-and follows rotation without importing archives again. Test logs and the Docker socket are not mounted.
+Loki retains logs for seven days in a Docker volume. Alloy persists read positions in `tmp/observability/alloy`
+and follows rotation without importing archives again. Run only one collector per file.
+Test logs and the Docker socket are not collected.
 Rails uses Ruby Logger for coordinated local rotation: up to five JSONL files of about 20 MiB each,
 in a `0700` log directory. Compose container logs use five files of 20 MB each.
 
@@ -108,9 +111,11 @@ Development links are set in `config/operations.yml`. Grafana and Prometheus bin
 localhost links refer to the host computer, not a separate Android device.
 Prometheus scrapes every 15 seconds and retains up to seven days/1 GB.
 Grafana dashboards refresh every five seconds; rate graphs need multiple samples.
-Loki and Alloy have no public host ports. This profile is for development, not production.
+Loki binds to `127.0.0.1:3100`; Alloy diagnostics bind to `127.0.0.1:12345`.
+These ports are not exposed externally. This profile is for development, not production.
 
-Stop monitoring: `docker compose --profile monitoring stop prometheus grafana loki alloy`.
+Alloy stops with Overmind. Stop monitoring containers with
+`docker compose --profile monitoring stop prometheus grafana loki`.
 Stop all project containers: `docker compose --profile monitoring --profile realtime --profile images stop`.
 When running another app concurrently, change ports and corresponding Prometheus targets.
 

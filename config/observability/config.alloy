@@ -5,7 +5,7 @@ logging {
 
 loki.source.file "rails" {
   targets = [{
-    __path__ = "/var/log/app/development.jsonl",
+    __path__ = sys.env("ALLOY_LOG_PATH"),
     service_name = "starterapp",
     environment = "development",
   }]
@@ -25,6 +25,6 @@ loki.process "rails" {
 
 loki.write "local" {
   endpoint {
-    url = "http://loki:3100/loki/api/v1/push"
+    url = sys.env("ALLOY_LOKI_URL")
   }
 }

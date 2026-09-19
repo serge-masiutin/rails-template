@@ -13,3 +13,5 @@ Keep operational instructions in their respective guides; Git history and PRs ho
 - Admin updates use authorized AnyCable signals after commit, coalesced snapshot fetches and Turbo morph. There is no periodic browser polling; selection and access revocation are covered by browser and real transport tests.
 - `bin/dev` starts local Prometheus, Grafana, Loki and Alloy. Ordinary logs stay outside PostgreSQL; JSON file/container rotation is bounded. AI execution records have a separate sanitized schema and retention.
 - Production authentication, alert delivery, SMTP/LLM credentials and device validation remain deployment tasks; local checks do not establish production readiness. See [deployment](deployment.md).
+
+- Local Alloy runs on the host under Overmind, avoiding stale open-file reads across Docker Desktop mounts. Mise pins its version; Loki is bound to loopback.
