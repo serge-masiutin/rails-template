@@ -1,8 +1,77 @@
-# Make state transitions explicit
+# Replace Implicit State Machine
 
-Find scattered status checks and define an allowed event/precondition. Check/write atomically and define repeated-call and external-effect behavior. Session already expresses revocation through revoke!; it needs no additional enum/workflow gem. Test races and rollback.
+Replace ad-hoc timestamp checks with an explicit state machine using the `workflow` gem.
 
-Find all callers before changing the code. Update them together and test the public journey.
-The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
+## Before
 
-Behavior sources: [app/models/session.rb](../../../../app/models/session.rb), [test/models/session_test.rb](../../../../test/models/session_test.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).
+```ruby
+class Order < ApplicationRecord
+  def status
+    return :cancelled if cancelled_at?
+    return :delivered if delivered_at?
+    return :shipped if shipped_at?
+    return :paid if paid_at?
+    :pending
+  end
+
+  def can_ship?
+    paid_at? && !shipped_at? && !cancelled_at?
+  end
+
+  def ship!
+    return false unless can_ship?
+    update!(shipped_at: Time.current)
+    OrderMailer.shipped(self).deliver_later
+  end
+end
+```
+
+## After
+
+```ruby
+# app/models/order.rb
+class Order < ApplicationRecord
+  include WorkflowActiverecord
+
+  workflow_column :status
+
+  workflow do
+    state :pending do
+      event :pay, transitions_to: :paid
+      event :cancel, transitions_to: :cancelled
+    end
+
+    state :paid do
+      event :ship, transitions_to: :shipped
+      event :cancel, transitions_to: :cancelled
+    end
+
+    state :shipped do
+      event :deliver, transitions_to: :delivered
+    end
+
+    state :delivered
+    state :cancelled
+  end
+
+  def ship
+    self.shipped_at = Time.current
+  end
+
+  def deliver
+    self.delivered_at = Time.current
+  end
+
+  def cancel
+    self.cancelled_at = Time.current
+  end
+end
+
+# Notifications in service
+class Orders::Ship < ApplicationService
+  def call(order)
+    order.ship!
+    OrderMailer.shipped(order).deliver_later
+  end
+end
+```

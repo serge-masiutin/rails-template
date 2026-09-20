@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Flows
+  short_description: Map routes, navigation, roles, and Native journeys
+  default_prompt: Use $lookbook-flows to map routes, navigation, roles, and Native journeys for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

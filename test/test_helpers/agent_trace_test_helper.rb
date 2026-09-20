@@ -23,7 +23,7 @@ module AgentTraceTestHelper
   end
 
   def capture_trace
-    AgentTrace::Capture.call(trace_payload, {})
+    Observability::AgentTraceRecorder.call(trace_payload, {})
     AgentTrace.order(:id).last
   end
 end

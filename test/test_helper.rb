@@ -14,5 +14,6 @@ module ActiveSupport
 
     fixtures :all
     setup { Rails.cache.clear }
+    teardown { Realtime::OperationsUpdates.flush }
   end
 end

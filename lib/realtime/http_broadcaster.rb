@@ -1,8 +1,7 @@
 require "net/http"
 
 module Realtime
-  # The standard HTTP adapter logs payloads and hides failures in another thread.
-  # Publish synchronously so callers receive errors; verify TLS.
+  # The default adapter logs payloads and hides failures in a detached thread.
   class HttpBroadcaster < AnyCable::BroadcastAdapters::Base
     class Error < StandardError; end
 

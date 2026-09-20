@@ -1,6 +1,28 @@
 require "test_helper"
 
 class AuthenticationContractTest < ActionDispatch::IntegrationTest
+  test "authentication forms reject JSON before changing state" do
+    user = users(:one)
+    assert_no_difference [ "Session.count", "ActiveJob::Base.queue_adapter.enqueued_jobs.size" ] do
+      post session_path, params: { email_address: user.email_address, password: "password" }, as: :json
+      assert_response :not_acceptable
+      post session_path, params: { email_address: user.email_address, password: "wrong" }, as: :json
+      assert_response :not_acceptable
+      post passwords_path, params: { email_address: user.email_address }, as: :json
+      assert_response :not_acceptable
+      put password_path(user.password_reset_token), params: { password: "changed-password", password_confirmation: "changed-password" }, as: :json
+      assert_response :not_acceptable
+    end
+    assert user.reload.authenticate("password")
+  end
+
+  test "Turbo form submissions negotiate HTML responses" do
+    post session_path, params: { email_address: users(:one).email_address, password: "wrong" },
+      headers: { "Accept" => "text/vnd.turbo-stream.html, text/html, application/xhtml+xml" }
+    assert_response :unprocessable_entity
+    assert_equal "text/html", response.media_type
+  end
+
   test "required fields are checked at the HTTP boundary" do
     post session_path, params: { email_address: users(:one).email_address }
     assert_response :bad_request
@@ -8,6 +30,7 @@ class AuthenticationContractTest < ActionDispatch::IntegrationTest
 
   test "successful sign-in uses 303 and returns to the original path" do
     get account_path
+    assert_redirected_to new_session_path
     post session_path, params: { email_address: users(:one).email_address, password: "password" }
     assert_response :see_other
     assert_redirected_to account_path

@@ -3,7 +3,7 @@
 ## CI
 
 [ci.yml](../.github/workflows/ci.yml) checks pull requests and pushes to `main`:
-Rails/PostgreSQL, real AnyCable delivery/recovery, HTTP/WS k6 smoke, imgproxy processing/security,
+Rails/PostgreSQL, real AnyCable delivery/recovery, imgproxy processing/security,
 production assets, Docker, Prometheus/Loki/Alloy configuration, alerts, Android Debug/Lint, and Release/R8.
 Debug APKs are artifacts. Unsigned Release uses `https://build.invalid` only for build validation.
 These jobs receive no production secrets.
@@ -12,7 +12,7 @@ Require `rails`, `android`, and `container` in a GitHub ruleset; the workflow it
 Actions are pinned by SHA. [Dependabot](../.github/dependabot.yml) updates Actions, gems, npm, Gradle, and Docker.
 Node runs Herb and builds AgentPrism in a separate Docker stage; runtime excludes Node/node_modules.
 CI checks types, vendored provenance, and the viewer. See [developer tools](development.md) for local checks/hooks.
-The manual **Test diagnostics** workflow runs TestProf or a longer k6 scenario; see [testing](testing.md).
+The manual **Test diagnostics** workflow runs TestProf or a k6 scenario; see [testing](testing.md).
 
 ## GitHub setup
 
@@ -52,8 +52,8 @@ The manual **Test diagnostics** workflow runs TestProf or a longer k6 scenario; 
 GHCR uses `GITHUB_TOKEN` with `packages:write`. `.kamal/secrets` references ENV.
 `kamal config` can contain secrets; do not publish its output.
 
-AI is optional. Set variables `LLM_PROVIDER`, `LLM_MODEL`, and secret `LLM_API_KEY` together,
-or leave all three empty. Local deployment uses the same ENV names.
+To enable Gemini, set the `LLM_API_KEY` secret (or the same ENV for local deployment).
+Provider and model defaults live in `LlmConfig`. The app boots without the key; generation requires it.
 Web and jobs share this Active Agent/RubyLLM configuration. See [AI setup](agents.md)
 and [worker metrics](observability.md#ai-generation).
 

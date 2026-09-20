@@ -5,12 +5,11 @@ require "tmpdir"
 require "prometheus/client"
 require "prometheus/client/data_stores/direct_file_store"
 
-# Forked workers inherit the supervisor directory; each run starts fresh counters.
+# Forked workers share the supervisor's directory; a new run starts fresh counters.
 Dir.mktmpdir("starterapp-job-metrics-") do |directory|
   Prometheus::Client.config.data_store = Prometheus::Client::DataStores::DirectFileStore.new(dir: directory)
   require_relative "../config/application"
-  # The supervisor retains model instances across jobs; Active Job reloads make them stale.
-  # Restart the process after code changes: overmind restart jobs.
+  # The supervisor retains model instances across jobs; Active Job reloading would make them stale.
   Rails.application.config.before_initialize { |app| app.config.enable_reloading = false }
   Rails.application.initialize!
   require "solid_queue/cli"
@@ -19,6 +18,6 @@ Dir.mktmpdir("starterapp-job-metrics-") do |directory|
   SolidQueue.on_start { metrics_server = Observability::WorkerMetrics.start }
   SolidQueue.on_exit { metrics_server&.stop(true) }
 
-  # The configured default preserves CLI commands and explicit flag precedence.
+  # Pass a CLI default so explicit flags still take precedence.
   SolidQueue::Cli.start(ARGV, class_options: { "mode" => Rails.configuration.x.concurrency.solid_queue_supervisor_mode })
 end

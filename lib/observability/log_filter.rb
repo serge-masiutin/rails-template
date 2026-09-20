@@ -1,5 +1,5 @@
 module Observability
-  # Successful machine probes remain visible in metrics; failures stay in logs.
+  # Metrics cover successful probes; keep failures in the log.
   module LogFilter
     PROBE_CONTROLLERS = %w[Operations::MetricsController Operations::HealthController Rails::HealthController].freeze
 

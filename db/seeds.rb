@@ -1,1 +1,1 @@
-# Users and secrets are not created automatically. Create the first account through Rails console.
+# Create the first account explicitly through Rails console; never seed users or secrets.

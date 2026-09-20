@@ -1,6 +1,6 @@
 module Observability
   class JsonFormatter < SemanticLogger::Formatters::Json
-    # These fields may contain arbitrary user content and secrets.
+    # These fields may contain user text and secrets.
     OMITTED_FIELDS = %w[params headers request response path location ip args arguments mail to from cc bcc subject sql binds exception exception_object exception_message].freeze
 
     def payload

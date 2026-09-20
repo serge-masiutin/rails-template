@@ -1,25 +1,20 @@
 require_relative "boot"
 
 require "rails"
-# Pick the frameworks you want:
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
 require "active_storage/engine"
 require "action_controller/railtie"
 require "action_mailer/railtie"
-# require "action_mailbox/engine"
-# require "action_text/engine"
 require "action_view/railtie"
 require "action_cable/engine"
 require "rails/test_unit/railtie"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
-# Isolator selects its HTTP adapter at load time; test must load WebMock first.
+# Isolator selects its HTTP adapter at load time, after WebMock in tests.
 require "isolator" if Rails.env.development? || Rails.env.test?
-# Load the subscriber before Rails Semantic Logger configuration, including lazy loading.
+# Rails Semantic Logger needs this subscriber before lazy loading runs.
 require "active_job/log_subscriber"
 require_relative "../app/configs/web_config"
 require_relative "../app/configs/operations_config"
@@ -28,16 +23,21 @@ require_relative "../app/configs/concurrency_config"
 require_relative "../lib/observability/json_formatter"
 require_relative "../lib/observability/log_filter"
 require_relative "../lib/observability/local_log"
+require_relative "../lib/realtime/operations_updates"
 
 module StarterApp
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
+    # Add tests for behavior and risk rather than every generated file.
+    config.generators do |generators|
+      generators.test_framework nil
+      generators.system_tests nil
+    end
     config.x.web = WebConfig.new
     config.x.operations = OperationsConfig.new
     config.x.llm = LlmConfig.new
     config.x.concurrency = ConcurrencyConfig.new
-    # Puma and Solid Queue execute application code in threads; Current is thread-scoped.
+    # Puma and Solid Queue execute application code in threads; Current uses the same boundary.
     config.active_support.isolation_level = :thread
     config.active_job.log_arguments = false
     config.active_agent.show_previews = false
@@ -66,17 +66,7 @@ module StarterApp
     config.i18n.fallbacks = false
     config.i18n.raise_on_missing_translations = true
 
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
-
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # The publisher owns a process-wide thread pool and must survive Rails reloads.
+    config.autoload_lib(ignore: %w[assets tasks realtime/operations_updates.rb])
   end
 end

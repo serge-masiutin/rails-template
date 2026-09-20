@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   end
 
   if Rails.env.development?
-    # Preserve the browser/Android hostname; Go transforms and serves image bytes.
+    # Keep the client's hostname; Go handles transformation and byte delivery.
     get "images/*path", to: redirect(status: 302) { |params, request|
       "http://#{request.host}:8082/images/#{params.fetch(:path)}"
     }, format: false

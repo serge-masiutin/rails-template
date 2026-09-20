@@ -8,7 +8,7 @@ class PasswordResetAtomicityTest < ActionDispatch::IntegrationTest
     session = user.sessions.create!
     token = user.password_reset_token
     connection = ApplicationRecord.connection
-    # A real DELETE failure verifies rollback without replacing Session methods.
+    # A real DELETE failure exercises transaction rollback without replacing Session methods.
     connection.create_table :password_reset_session_guards do |table|
       table.references :session, foreign_key: true
     end

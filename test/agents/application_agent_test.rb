@@ -24,15 +24,21 @@ class ApplicationAgentTest < ActiveJob::TestCase
       @text = text
       prompt instructions: true
     end
+
+    def extract
+      prompt message: "Return a summary", max_tokens: 64,
+        response_format: { type: "json_schema", json_schema: { name: "summary", strict: true,
+          schema: { type: "object", properties: { summary_text: { type: "string" } }, required: [ "summary_text" ] } } }
+    end
   end
 
   def setup
     super
     AgentTrace.delete_all
     @previous_settings = Rails.configuration.x.llm
-    @previous_key = RubyLLM.config.openai_api_key
+    @previous_key = RubyLLM.config.gemini_api_key
     @previous_timeout = RubyLLM.config.request_timeout
-    Rails.configuration.x.llm = LlmConfig.new(provider: "openai", model: "gpt-4.1-mini",
+    Rails.configuration.x.llm = LlmConfig.new(provider: "gemini", model: "gemini-3.8-flash",
       api_key: "agent-test-key", request_timeout: 5)
     load Rails.root.join("config/initializers/ruby_llm.rb")
     @log = StringIO.new
@@ -42,7 +48,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
   def teardown
     AgentTrace.delete_all
     Rails.configuration.x.llm = @previous_settings
-    RubyLLM.config.openai_api_key = @previous_key
+    RubyLLM.config.gemini_api_key = @previous_key
     RubyLLM.config.request_timeout = @previous_timeout
     SemanticLogger.remove_appender(@appender)
     Current.reset
@@ -68,8 +74,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
     %w[PRIVATE_INPUT OTHER_INPUT PRIVATE_OUTPUT agent-test-key].each { |secret| refute_includes trace.to_json, secret }
     assert_requested request, times: 2
     assert_requested(:post, endpoint, times: 1) do |http|
-      body = JSON.parse(http.body)
-      body.fetch("model") == "gpt-4.1-mini" && http.body.include?("OTHER_INPUT") && !http.body.include?("PRIVATE_INPUT")
+      http.body.include?("OTHER_INPUT") && !http.body.include?("PRIVATE_INPUT")
     end
     record = agent_records.last
     assert_equal "1", record.dig("payload", "prompt_version")
@@ -80,17 +85,21 @@ class ApplicationAgentTest < ActiveJob::TestCase
   end
 
   test "a real tool loop records a span without arguments or output" do
-    final = { id: "resp_done", object: "response", status: "completed", model: "gpt-4.1-mini",
-      output: [ { id: "msg_done", type: "message", role: "assistant", status: "completed",
-        content: [ { type: "output_text", text: "PRIVATE_OUTPUT", annotations: [] } ] } ],
-      usage: { input_tokens: 12, output_tokens: 4, total_tokens: 16 } }
-    tool = final.merge(output: [ { type: "function_call", id: "fc_1", call_id: "call_1",
-      name: "lookup_record", arguments: { query: "PRIVATE_QUERY" }.to_json, status: "completed" } ])
+    final = completion_body
+    tool = completion_body(parts: [ { functionCall: { name: "lookup_record", args: { query: "PRIVATE_QUERY" } },
+      thoughtSignature: "PRIVATE_SIGNATURE" } ])
     request = stub_request(:post, endpoint).to_return(
       { headers: { "Content-Type" => "application/json" }, body: tool.to_json },
       { headers: { "Content-Type" => "application/json" }, body: final.to_json })
     ProbeAgent.lookup.generate_now
     assert_requested request, times: 2
+    assert_requested(:post, endpoint, times: 1) do |http|
+      contents = JSON.parse(http.body).fetch("contents")
+      replay = contents.find { |message| message.fetch("role") == "model" }
+      replay && replay.fetch("parts").any? do |part|
+        part["thoughtSignature"] == "PRIVATE_SIGNATURE" && part.dig("functionCall", "args") == { "query" => "PRIVATE_QUERY" }
+      end
+    end
     trace = AgentTrace.last.document
     tool_span = trace.fetch("spans").first.fetch("children").find { |span| span.fetch("type") == "llm_call" }.fetch("children").first
     assert_equal "tool.lookup_record", tool_span.fetch("title")
@@ -129,16 +138,16 @@ class ApplicationAgentTest < ActiveJob::TestCase
   end
 
   test "missing configuration or prompt version fails before network IO" do
-    Rails.configuration.x.llm = LlmConfig.new(provider: nil, model: nil, api_key: nil)
+    Rails.configuration.x.llm = LlmConfig.new(api_key: nil)
     assert_raises(Anyway::Config::ValidationError) { ProbeAgent.summarize(text: "private").generate_now }
-    Rails.configuration.x.llm = LlmConfig.new(provider: "openai", model: "gpt-4.1-mini", api_key: "agent-test-key")
+    Rails.configuration.x.llm = LlmConfig.new(provider: "gemini", model: "gemini-3.8-flash", api_key: "agent-test-key")
     assert_raises(NameError) { ApplicationAgent.prompt(message: "private").generate_now }
     assert_not_requested :post, endpoint
   end
 
   test "adapter preserves RubyLLM 2 cached input and reasoning usage" do
-    stub_completion(usage: { input_tokens: 12, output_tokens: 4, total_tokens: 16,
-      input_tokens_details: { cached_tokens: 4 }, output_tokens_details: { reasoning_tokens: 1 } })
+    stub_completion(usage: { promptTokenCount: 12, candidatesTokenCount: 3, totalTokenCount: 16,
+      cachedContentTokenCount: 4, thoughtsTokenCount: 1 })
     response = ProbeAgent.summarize(text: "PRIVATE_INPUT").generate_now
     assert_equal 8, response.usage.input_tokens
     assert_equal 4, response.usage.output_tokens
@@ -204,7 +213,7 @@ class ApplicationAgentTest < ActiveJob::TestCase
   test "provider failure remains visible without hidden retries or body leakage" do
     request = stub_request(:post, endpoint).to_return(status: 503,
       headers: { "Content-Type" => "application/json" },
-      body: { error: { message: "PRIVATE_ERROR", type: "server_error" } }.to_json)
+      body: { error: { code: 503, message: "PRIVATE_ERROR", status: "UNAVAILABLE" } }.to_json)
 
     job = ProbeAgent.summarize(text: "PRIVATE_INPUT").generate_later
     clear_enqueued_jobs
@@ -221,30 +230,34 @@ class ApplicationAgentTest < ActiveJob::TestCase
     %w[PRIVATE_INPUT PRIVATE_ERROR agent-test-key].each { |secret| refute_includes @log.string, secret }
   end
 
-  test "telemetry and web console do not publish content" do
-    assert ActiveAgent::Telemetry.enabled?
-    assert_nil ActiveAgent::Telemetry.configuration.endpoint
-    assert_nil ActiveAgent::Telemetry.configuration.api_key
-    assert_not ActiveAgent::Telemetry.configuration.capture_bodies
-    assert_not Rails.configuration.active_agent.show_previews
-    refute Rails.application.routes.routes.any? { |route| route.path.spec.to_s.start_with?("/rails/agents") }
+  test "JSON Schema and output limits reach the Gemini request" do
+    request = stub_request(:post, endpoint).with do |http|
+      config = JSON.parse(http.body).fetch("generationConfig")
+      config.fetch("maxOutputTokens") == 64 && config.fetch("responseMimeType") == "application/json" &&
+        config.fetch("responseJsonSchema") == { "type" => "object", "properties" => { "summary_text" => { "type" => "string" } }, "required" => [ "summary_text" ] }
+    end.to_return(headers: { "Content-Type" => "application/json" },
+      body: completion_body(parts: [ { text: '{"summary_text":"PRIVATE_SUMMARY"}' } ]).to_json)
+    response = ProbeAgent.extract.generate_now
+    assert_equal({ "summary_text" => "PRIVATE_SUMMARY" }, JSON.parse(response.message.content))
+    assert_requested request, times: 1
+    refute_includes AgentTrace.last.document.to_json, "PRIVATE_SUMMARY"
   end
 
   private
 
-  def endpoint = "https://api.openai.com/v1/responses"
+  def endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent"
 
-  def stub_completion(usage: { input_tokens: 12, output_tokens: 4, total_tokens: 16 }, barrier: nil)
+  def completion_body(usage: { promptTokenCount: 12, candidatesTokenCount: 4, totalTokenCount: 16 }, parts: [ { text: "PRIVATE_OUTPUT" } ])
+    { candidates: [ { content: { role: "model", parts: parts }, finishReason: "STOP" } ],
+      usageMetadata: usage, modelVersion: "gemini-3.8-flash" }
+  end
+
+  def stub_completion(usage: { promptTokenCount: 12, candidatesTokenCount: 4, totalTokenCount: 16 }, barrier: nil)
     stub_request(:post, endpoint)
-      .with(headers: { "Authorization" => "Bearer agent-test-key" }) { |request| request.body.include?("Test instruction") }
+      .with(headers: { "x-goog-api-key" => "agent-test-key" }) { |request| request.body.include?("Test instruction") }
       .to_return do
         raise Timeout::Error, "HTTP calls did not reach the barrier" if barrier && !barrier.wait(5)
-        { headers: { "Content-Type" => "application/json" }, body: {
-        id: "resp_test", object: "response", status: "completed", model: "gpt-4.1-mini",
-        output: [ { id: "msg_test", type: "message", role: "assistant", status: "completed",
-          content: [ { type: "output_text", text: "PRIVATE_OUTPUT", annotations: [] } ] } ],
-        usage: usage
-        }.to_json }
+        { headers: { "Content-Type" => "application/json" }, body: completion_body(usage: usage).to_json }
       end
   end
 

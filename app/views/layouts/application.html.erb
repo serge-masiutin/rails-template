@@ -8,7 +8,7 @@
     <meta name="action-cable-url" content="<%= realtime_url %>">
     <meta name="realtime-session" content="<%= authenticated? ? Current.session.id : "guest" %>" data-turbo-track="reload">
     <%= yield :head %>
-    <%= stylesheet_link_tag "application", "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= render "shared/typography" %>
     <%= javascript_importmap_tags %>
   </head>

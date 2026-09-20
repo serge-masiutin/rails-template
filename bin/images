@@ -2,7 +2,7 @@
 require "securerandom"
 require "yaml"
 
-# rubocop:disable ThreadSafety/DirChdir -- The CLI sets cwd before starting processes.
+# rubocop:disable ThreadSafety/DirChdir -- CLI sets cwd before starting processes.
 Dir.chdir File.expand_path("..", __dir__) do
   case ARGV
   when [ "setup" ]

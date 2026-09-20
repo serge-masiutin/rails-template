@@ -14,7 +14,6 @@
   "languageServerHerb.trace.server": "off",
   "files.watcherExclude": {
     "**/vendor/bundle/**": true,
-    "**/vendor/agent-skills/**": true,
     "**/log/**": true,
     "**/tmp/**": true,
     "**/native/android/**/build/**": true

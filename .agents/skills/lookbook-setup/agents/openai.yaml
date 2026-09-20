@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Setup
+  short_description: Align Lookbook discovery, layouts, and assets
+  default_prompt: Use $lookbook-setup to align Lookbook discovery, layouts, and assets for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

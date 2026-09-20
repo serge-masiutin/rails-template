@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Explore
+  short_description: Prototype components in an isolated Lookbook preview
+  default_prompt: Use $lookbook-explore to prototype components in an isolated Lookbook preview for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

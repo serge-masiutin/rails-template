@@ -2,7 +2,7 @@ class ConcurrencyConfig < Anyway::Config
   # Integer(Float) truncates fractions; configuration must reject them.
   INTEGER = ->(value) { Integer(value.to_s, 10) }.freeze
 
-  # Preserve standard Puma and Solid Queue environment names.
+  # Keep the environment names recognized by Puma and Solid Queue.
   env_prefix ""
   attr_config rails_max_threads: 3, job_threads: 3, job_concurrency: 1,
     db_pool: 5, queue_db_pool: 10, solid_queue_supervisor_mode: "async"
@@ -18,15 +18,15 @@ class ConcurrencyConfig < Anyway::Config
       raise_validation_error("solid_queue_supervisor_mode: expected async or fork")
     end
     if solid_queue_supervisor_mode == "async" && job_concurrency != 1
-      raise_validation_error("job_concurrency: async supervisor supports one worker; multiple processes require fork")
+      raise_validation_error("job_concurrency: async supervisor supports one worker; use fork for multiple processes")
     end
     if db_pool < [ rails_max_threads, job_threads ].max
       raise_validation_error("db_pool: must accommodate Puma threads and one worker")
     end
-    # Async worker, dispatcher and supervisor share a pool; reserve capacity for internal threads.
+    # Async workers, dispatcher, and supervisor share a pool and need service thread headroom.
     queue_headroom = solid_queue_supervisor_mode == "async" ? 7 : 2
     if queue_db_pool < [ rails_max_threads, job_threads + queue_headroom ].max
-      raise_validation_error("queue_db_pool: minimum required: max(rails_max_threads, job_threads + #{queue_headroom})")
+      raise_validation_error("queue_db_pool: expected at least max(rails_max_threads, job_threads + #{queue_headroom})")
     end
   end
 end

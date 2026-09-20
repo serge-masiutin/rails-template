@@ -1,5 +1,5 @@
 RubyLLM.configure do |config|
-  # Active Agent uses SDK configuration; change it only during process startup.
+  # Configure the shared SDK only during process boot.
   settings = Rails.configuration.x.llm
   config.public_send("#{settings.provider_key}=", settings.api_key) if settings.configured?
   config.default_model = nil
@@ -7,6 +7,6 @@ RubyLLM.configure do |config|
   config.max_retries = 0
   config.auto_upload_large_files = false
   config.log_stream_debug = false
-  # Keep the level independent of RAILS_LOG_LEVEL: SDK debug exposes prompts and responses.
+  # SDK debug logging exposes prompts and responses; do not inherit RAILS_LOG_LEVEL.
   config.logger = SemanticLogger["RubyLLM"].tap { |logger| logger.level = :warn }
 end

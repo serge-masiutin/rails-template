@@ -7,7 +7,7 @@ module Operations
     end
 
     def workers
-      # Web collects the queue snapshot; this endpoint exposes worker-owned counters only.
+      # Web collects queue gauges; workers only export their own counters.
       registry = Prometheus::Client::Registry.new
       %i[starterapp_agent_generations starterapp_agent_generation_duration_seconds starterapp_agent_tokens starterapp_agent_trace_failures].each do |name|
         registry.register(Yabeda::Prometheus.registry.get(name))

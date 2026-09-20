@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Hub
+  short_description: Diagnose the catalog and select the next task
+  default_prompt: Use $lookbook-hub to diagnose the catalog and select the next task for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

@@ -44,7 +44,7 @@ export default class extends Controller {
 
   renderPending() {
     if (this.pendingContent === null) return
-    // Preserve input and bulk selection until focus leaves the field or selection clears.
+    // Preserve focused input and bulk-action selection while updates arrive.
     if (this.contentTarget.querySelector("input:checked") || this.contentTarget.contains(document.activeElement) && document.activeElement.matches("input, textarea, select")) {
       this.status("paused")
       return

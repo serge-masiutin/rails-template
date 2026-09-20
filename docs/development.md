@@ -59,8 +59,7 @@ Herb Formatter is experimental: review its diff and run the affected screen test
 Formatting does not block CI; linter errors and warnings do.
 
 Mark Ruby examples as `ruby` and shell examples as `sh`. RuboCop checks syntax and style,
-not execution. Archives, dependencies, and skills containing teaching counterexamples are excluded;
-`bin/skills check` validates skill structure.
+not execution. Exclusions and their reasons are configured in `.rubocop.yml`.
 
 RuboCop includes Rails Omakase, `rubocop-thread_safety`, and `rubocop-md`.
 [RuboCop Gradual](https://github.com/skryukov/rubocop-gradual) is useful for an existing backlog.
@@ -68,7 +67,7 @@ This starter checks all code without a baseline, so Gradual is not installed.
 
 ## Git hook and CI
 
-Lefthook selects RuboCop, Herb, skills, and Native checks by changed files.
+Lefthook selects RuboCop, Herb, AgentPrism, and Native checks by changed files.
 Linters inspect entire working files, do not fix them, and do not stage changes.
 For partial commits, remember that unstaged content is also checked. These hooks do not need a database.
 

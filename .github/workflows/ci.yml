@@ -60,9 +60,6 @@ jobs:
           path: |
             tmp/screenshots
             tmp/images/imgproxy.prom
-            tmp/load-test/smoke/k6.json
-            tmp/load-test/smoke/rails.prom
-            tmp/load-test/smoke/anycable.prom
           retention-days: 7
           if-no-files-found: ignore
   android:

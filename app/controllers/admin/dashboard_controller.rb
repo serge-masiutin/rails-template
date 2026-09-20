@@ -1,7 +1,7 @@
 module Admin
   class DashboardController < BaseController
     def show
-      @health = Operations::HealthSnapshot.capture
+      @health = Observability::Health.capture
     end
   end
 end

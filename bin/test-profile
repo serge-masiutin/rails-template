@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# rubocop:disable ThreadSafety/DirChdir -- The CLI sets cwd before Rails loads or threads start.
+# rubocop:disable ThreadSafety/DirChdir -- CLI changes cwd before Rails boots or threads start.
 Dir.chdir File.expand_path("..", __dir__) do
   mode = ARGV.shift || "sql"
   profiles = {
@@ -7,7 +7,7 @@ Dir.chdir File.expand_path("..", __dir__) do
     "cpu" => { "TEST_STACK_PROF" => "1", "TEST_STACK_PROF_MODE" => "cpu" }
   }
   abort "Usage: bin/test-profile sql|cpu [test/path_test.rb] [--seed N]" unless profiles.key?(mode)
-  # A single-process report avoids mixing measurements from parallel test workers.
+  # One process keeps concurrent test workers out of the profile.
   environment = { "RAILS_ENV" => "test", "PARALLEL_WORKERS" => "1",
     "EVENT_PROF" => nil, "EVENT_PROF_EXAMPLES" => nil, "TEST_STACK_PROF" => nil,
     "TEST_STACK_PROF_MODE" => nil }.merge(profiles.fetch(mode))

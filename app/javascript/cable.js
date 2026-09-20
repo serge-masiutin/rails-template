@@ -7,7 +7,7 @@ class RecoverableTurboChannel extends TurboChannel {
   constructor(...args) {
     super(...args)
     this.on("info", ({ type }) => {
-      // Fetch current server HTML when recovery history expires.
+      // Fetch fresh HTML after the recovery history expires.
       if (type === "history_not_found") window.location.reload()
     })
   }

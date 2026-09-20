@@ -1,6 +1,5 @@
 /**
- * AnyCable delivers invalidation signals; HTTP rechecks access and fetches a snapshot.
- * Coalesce event batches without an idle polling timer. Bound each request with a timeout.
+ * AnyCable invalidates snapshots; HTTP rechecks access before fetching fresh state.
  * @param {string} topic
  * @param {(signal: AbortSignal) => Promise<void>} refresh
  * @param {(error: unknown) => void} failed
@@ -54,7 +53,7 @@ export function startLiveUpdates(topic, refresh, failed, connectionChanged) {
   }
   const observer = new MutationObserver(() => {
     connectionChanged(source.hasAttribute("connected"))
-    // Reconnect fetches missed changes; disconnect checks whether the session was revoked.
+    // Reconnect fetches missed updates; disconnect checks for session revocation.
     invalidate()
   })
   observer.observe(source, { attributes: true, attributeFilter: ["connected"] })

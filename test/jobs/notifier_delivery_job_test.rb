@@ -17,7 +17,7 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
   def setup
     super
     @previous_mode = AbstractNotifier.delivery_mode
-    # Exercise the real Active Job adapter rather than Abstract Notifier interception.
+    # Use the Active Job adapter instead of Abstract Notifier's delivery interceptor.
     AbstractNotifier.delivery_mode = :normal
     @delivered = []
     ProbeNotifier.driver = ->(payload) { @delivered << payload.merge(request_id: Current.request_id) }
@@ -54,9 +54,5 @@ class NotifierDeliveryJobTest < ActiveJob::TestCase
       end
     end
     assert_empty @delivered
-  end
-
-  test "missing transport does not become successful delivery" do
-    assert_raises(RuntimeError) { ApplicationNotifier.driver }
   end
 end

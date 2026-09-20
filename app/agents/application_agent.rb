@@ -1,19 +1,23 @@
-# Shared generation boundary: configuration, prompt version, queue and observability.
 class ApplicationAgent < ActiveAgent::Base
   abstract!
 
   self.generation_job = AgentGenerationJob
   self.generate_later_queue_name = :agents
 
-  generate_with :starterapp,
+  def self.provider_load(service_name)
+    provider_class = super
+    provider_class == ActiveAgent::Providers::RubyLLMProvider ? ActiveAgent::RubyLlmAdapter : provider_class
+  end
+
+  generate_with :ruby_llm,
     model: -> { Rails.configuration.x.llm.model },
     platform: -> { Rails.configuration.x.llm.provider }
 
   before_generation :validate_configuration
   around_prompt :observe_generation
 
-  # The gem handler logs exception.message, which may contain source content.
-  # Failures remain visible in job logs and Solid Queue.
+  # The default handler logs exception.message, which can contain private input.
+  # Job logs and Solid Queue still record the failure.
   def self.handle_exception(error)
     raise error
   end
@@ -27,11 +31,19 @@ class ApplicationAgent < ActiveAgent::Base
 
   def prompt_version = self.class.const_get(:PROMPT_VERSION, false)
 
+  def process_prompt_templates_response_format(response_format)
+    format = response_format.is_a?(Hash) ? response_format : { type: response_format.to_s }
+    return super unless format.fetch(:type).to_s == "json_schema"
+
+    # Active Agent camelizes property names without updating required or $ref.
+    format.merge(json_schema: prompt_view_schema(format[:json_schema]))
+  end
+
   def observe_generation
     metadata = { agent: self.class.name, action: action_name, prompt_version: prompt_version,
       provider: Rails.configuration.x.llm.provider, model: Rails.configuration.x.llm.model }
     span = ActiveAgent::Telemetry.tracer.current_span
-    # The SDK creates no span when instrumentation is false.
+    # The SDK omits spans when instrumentation is disabled.
     if span
       metadata.except(:agent, :action).each { |key, value| span.set_attribute("starterapp.#{key}", value) }
       span.set_attribute("starterapp.request_id", Current.request_id) if Current.request_id

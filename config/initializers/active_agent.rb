@@ -1,8 +1,8 @@
 require Rails.root.join("lib/observability/agent_subscriber")
-require Rails.root.join("lib/active_agent/providers/starterapp_provider")
+require Rails.root.join("lib/active_agent/ruby_llm_adapter")
 
 ActiveSupport.on_load(:active_agent) do
-  # The built-in debug subscriber may log provider error content.
+  # The built-in debug subscriber can log private provider error text.
   ActiveAgent::Providers::LogSubscriber.detach_from :active_agent
   ActiveAgent::Providers::LogSubscriber.detach_from :"provider.active_agent"
 end
@@ -19,5 +19,5 @@ ActiveAgent::Telemetry.configure do |config|
   config.batch_size = 1
   config.async = false
   config.logger = Observability::AgentTelemetryLogger.new
-  config.local_store = ->(trace, sdk) { AgentTrace::Capture.call(trace, sdk) }
+  config.local_store = ->(trace, sdk) { Observability::AgentTraceRecorder.call(trace, sdk) }
 end

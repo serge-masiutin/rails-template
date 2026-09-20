@@ -1,10 +1,131 @@
-# Empty or overly general operations
+# Service Object Anti-Patterns
 
-Symptom: A wrapper only renames Model.find, or a generic manager hides unrelated actions and results.
+Common mistakes when introducing service objects.
 
-Correction: Keep the simple Rails call or extract one domain use case next to its model. Do not remove model invariants to impose an anemic architecture.
+## Contents
 
-Identify the concrete call and consequence. Style or size alone does not prove a defect.
-Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
+- Anemic Models
+- Bag of Random Objects
+- Premature Abstraction
 
-Behavior sources: [app/models/user.rb](../../../../../app/models/user.rb), [docs/architecture.md](../../../../../docs/architecture.md).
+## Anemic Models
+
+**Problem:** All logic moved to services, models become data containers.
+
+```ruby
+# BAD - Anemic model
+class Order < ApplicationRecord
+  # Just associations and validations, no behavior
+end
+
+class CalculateOrderTotalService
+  def call(order)
+    total = order.items.sum { |i| i.price * i.quantity }
+    total *= 0.9 if order.customer.vip?
+    order.update!(total:)
+  end
+end
+
+class ApplyDiscountService
+  def call(order, code)
+    discount = Discount.find_by(code:)
+    order.update!(discount_amount: discount.amount)
+  end
+end
+```
+
+**Fix:** Keep domain logic in models. Services orchestrate, models know their business rules.
+
+```ruby
+# GOOD
+class Order < ApplicationRecord
+  def calculate_total
+    self.total = items.sum(&:subtotal)
+    apply_vip_discount if customer.vip?
+  end
+
+  def apply_discount(code)
+    discount = Discount.find_by(code:)
+    self.discount_amount = discount.amount
+  end
+end
+```
+
+## Bag of Random Objects
+
+**Problem:** No conventions, each service is unique.
+
+```ruby
+# BAD - No consistency
+class UserRegistration
+  def perform(attrs)
+    # returns user or nil
+  end
+end
+
+class OrderProcessor
+  def self.process!(order_id)
+    # raises on failure
+  end
+end
+
+class SendNewsletterJob
+  def run(newsletter, subscribers)
+    # returns count
+  end
+end
+```
+
+**Fix:** Establish conventions.
+
+```ruby
+# GOOD - Consistent interface
+class ApplicationService
+  extend Dry::Initializer
+  def self.call(...) = new(...).call
+end
+
+class RegisterUserService < ApplicationService
+  param :attrs
+  def call
+    # Returns result object
+  end
+end
+
+class ProcessOrderService < ApplicationService
+  param :order_id
+  def call
+    # Returns result object
+  end
+end
+```
+
+## Premature Abstraction
+
+**Problem:** Creating abstractions before patterns emerge.
+
+```ruby
+# BAD - Over-engineered from day one
+class BaseCommand
+  include CommandPattern
+  include ResultMonad
+  include TransactionWrapper
+end
+
+class CreateUserCommand < BaseCommand
+  # Complex infrastructure for simple operation
+end
+```
+
+**Fix:** Wait for patterns to emerge. Start simple.
+
+```ruby
+# GOOD - Simple first
+class CreateUserService
+  def self.call(params)
+    User.create!(params)
+  end
+end
+
+# Extract patterns AFTER you see repetition
+```

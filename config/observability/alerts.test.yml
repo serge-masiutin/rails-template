@@ -2,7 +2,7 @@ rule_files:
   - /etc/prometheus/alerts.yml
 evaluation_interval: 1m
 tests:
-  - name: AnyCable unavailable for more than two minutes
+  - name: AnyCable is unavailable for over two minutes
     interval: 1m
     input_series:
       - series: 'up{job="anycable",instance="test"}'
@@ -20,7 +20,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: AnyCable is not exposing metrics
-  - name: Brief failures do not alert; sustained failures do
+  - name: Transient failures do not alert; persistent failures do
     interval: 1m
     input_series:
       - series: 'up{job="starterapp",instance="test"}'
@@ -38,7 +38,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: StarterApp is not exposing metrics
-  - name: Worker missing while dispatcher remains active
+  - name: Worker is missing while dispatcher remains active
     interval: 1m
     input_series:
       - series: 'starterapp_queue_processes{kind="worker"}'
@@ -54,7 +54,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: No active queue process worker
-  - name: imgproxy unavailable for more than two minutes
+  - name: imgproxy is unavailable for over two minutes
     interval: 1m
     input_series:
       - series: 'up{job="imgproxy",instance="test"}'
@@ -72,7 +72,7 @@ tests:
               severity: critical
             exp_annotations:
               summary: imgproxy is not exposing metrics
-  - name: Job metrics unavailable for more than two minutes
+  - name: Job metrics are unavailable for over two minutes
     interval: 1m
     input_series:
       - series: 'up{job="starterapp_jobs",instance="test"}'

@@ -1,0 +1,48 @@
+require "test_helper"
+require_relative "../../test_helpers/agent_trace_test_helper"
+
+class Observability::AgentTraceRecorderTest < ActiveSupport::TestCase
+  include AgentTraceTestHelper
+  self.use_transactional_tests = false
+  setup { AgentTrace.delete_all }
+  teardown { AgentTrace.delete_all }
+
+  test "preserves the SDK tree and strips arbitrary content from every node" do
+    document = Observability::AgentTraceRecorder.call(trace_payload, {}).document
+    assert_equal 3, document.dig("traceRecord", "spansCount")
+    root = document.fetch("spans").first
+    assert_equal "TestAgent.summarize", root.fetch("title")
+    tool = root.fetch("children").first.fetch("children").first
+    assert_equal "tool.lookup_record", tool.fetch("title")
+    assert_equal "error", tool.fetch("status")
+    assert_includes tool.fetch("attributes"), { "key" => "error.type", "value" => { "stringValue" => "ArgumentError" } }
+    refute_includes document.to_json, "PRIVATE_"
+    refute document.fetch("traceRecord").key?("totalTokens")
+    refute document.fetch("traceRecord").key?("totalCost")
+  end
+
+  test "invalid or oversized graphs do not become empty traces" do
+    invalid = []
+    invalid << trace_payload.tap { |trace| trace.fetch("spans").last["parent_span_id"] = "missing" }
+    invalid << trace_payload.tap { |trace| trace.fetch("spans") << trace.fetch("spans").first.dup }
+    invalid << trace_payload.tap { |trace| trace["spans"] *= 100 }
+    invalid << trace_payload.tap { |trace| trace.fetch("spans").last["end_time"] = "invalid" }
+    invalid << trace_payload.tap { |trace| trace.fetch("spans").last["type"] = "new_sdk_type" }
+    invalid << trace_payload.tap { |trace| trace.fetch("spans").last.fetch("attributes")["tool.name"] = "<script>" }
+    previous = Yabeda.starterapp.agent_trace_failures.get(stage: "storage") || 0
+    assert_no_difference "AgentTrace.count" do
+      invalid.each { |trace| Observability::AgentTraceRecorder.call(trace, {}) }
+    end
+    assert_equal previous + invalid.size, Yabeda.starterapp.agent_trace_failures.get(stage: "storage")
+  end
+
+  test "persistence failure is observable and does not repeat generation" do
+    previous = Yabeda.starterapp.agent_trace_failures.get(stage: "storage") || 0
+    payload = trace_payload
+    Observability::AgentTraceRecorder.call(payload, {})
+    assert_no_difference "AgentTrace.count" do
+      Observability::AgentTraceRecorder.call(payload, {})
+    end
+    assert_equal previous + 1, Yabeda.starterapp.agent_trace_failures.get(stage: "storage")
+  end
+end

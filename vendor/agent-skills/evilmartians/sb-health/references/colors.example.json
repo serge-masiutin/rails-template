@@ -1,9 +1,0 @@
-{
-  "$schema": "./colors.schema.json",
-  "propertyTokens": {
-    "color": ["--color-content"],
-    "background*": ["--color-container", "--color-canvas", "--color-backdrop"],
-    "box-shadow": ["--color-border", "--color-shadow"],
-    "border*": ["--color-border"]
-  }
-}

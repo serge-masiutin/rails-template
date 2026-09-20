@@ -48,7 +48,7 @@ Network failures are reported through `Rails.error` without undoing a committed 
 See the [admin contract](observability.md#admin).
 
 The connection identifies a Rails session; every reconnect validates the cookie again.
-Sign-out and password reset use `Session#revoke!` / `Session.revoke_all!`:
+Sign-out and password reset use `Session#revoke` / `user.sessions.revoke_all`:
 sessions are deleted immediately and `DisconnectSessionsJob` closes sockets after commit.
 On a network failure, that job retries after five seconds, up to three attempts.
 Final failure remains visible in the queue. New revocation operations must not delete sessions directly.

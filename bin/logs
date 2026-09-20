@@ -5,7 +5,7 @@ request_id="" job_id="" level="" follow=true input="log/${RAILS_ENV:-development
 while (($#)); do
   case "$1" in
     --request-id|--job-id|--level|--input)
-      (($# >= 2)) || { echo "A value is required for $1" >&2; exit 1; }
+      (($# >= 2)) || { echo "Missing value for $1" >&2; exit 1; }
       case "$1" in
         --request-id) request_id="$2" ;;
         --job-id) job_id="$2" ;;
@@ -22,7 +22,7 @@ while (($#)); do
 done
 case "$level" in
   ""|trace|debug|info|warn|error|fatal) ;;
-  *) echo "Level: trace, debug, info, warn, error or fatal" >&2; exit 1 ;;
+  *) echo "Level must be trace, debug, info, warn, error, or fatal" >&2; exit 1 ;;
 esac
 command -v jq >/dev/null || { echo "Install jq: brew bundle" >&2; exit 1; }
 read_logs() {

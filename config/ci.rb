@@ -1,6 +1,5 @@
 CI.run do
   step "Dependencies", "bundle check"
-  step "Skills", "bin/skills check"
   step "Native contracts", "bin/native check"
   step "Style: Ruby and Markdown", "bin/rubocop"
   step "Style: Test tools", "bin/rubocop bin/configure bin/setup bin/load-test bin/test-profile bin/image-test bin/images"
@@ -19,5 +18,5 @@ CI.run do
   step "Tests: Browser", "bin/rails test:system"
   step "Tests: AnyCable", "bin/realtime-test"
   step "Tests: Images", "bin/image-test"
-  step "Tests: HTTP and WebSocket load smoke", "bin/load-test smoke"
+  # Run load measurements separately via bin/load-test or Test diagnostics.
 end

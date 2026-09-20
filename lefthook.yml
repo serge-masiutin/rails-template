@@ -14,9 +14,6 @@ pre-commit:
     - name: AgentPrism
       glob: ["app/frontend/agents/**", "test/frontend/**", "vendor/agent-prism/**", "script/*agents*", "script/check-agent-prism.mjs", "tsconfig.agents.json", "package*.json"]
       run: npm run check:agents
-    - name: Skills
-      glob: [".agents/**", "config/agent_skills.json", "vendor/agent-skills/**", "bin/skills"]
-      run: bin/skills check
     - name: Native contracts
       glob: ["public/configurations/**", "native/**", "bin/native"]
       run: bin/native check

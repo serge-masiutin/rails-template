@@ -18,15 +18,14 @@ Rails.application.configure do
   config.action_mailer.default_url_options = config.x.web.url_options
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.raise_delivery_errors = true
-  config.i18n.fallbacks = true
   config.active_record.dump_schema_after_migration = false
   config.active_record.attributes_for_inspect = [ :id ]
   config.hosts = [ config.x.web.host ]
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
-  # Asset builds need no database or SMTP; runtime requires all secrets.
+  # Asset builds need no database or SMTP access; runtime requires all secrets.
   unless ENV["SECRET_KEY_BASE_DUMMY"]
-    raise "Set OPERATIONS_USERNAME, OPERATIONS_PASSWORD and OPERATIONS_METRICS_TOKEN" unless config.x.operations.configured? && config.x.operations.metrics_configured?
+    raise "Set OPERATIONS_USERNAME, OPERATIONS_PASSWORD, and OPERATIONS_METRICS_TOKEN" unless config.x.operations.configured? && config.x.operations.metrics_configured?
     %w[DB_HOST DB_PASSWORD SECRET_KEY_BASE SMTP_ADDRESS SMTP_USERNAME SMTP_PASSWORD MAIL_FROM].each do |key|
       raise KeyError, "Missing #{key}" if ENV.fetch(key).empty?
     end

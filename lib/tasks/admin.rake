@@ -1,5 +1,5 @@
 namespace :admin do
-  desc "Grant an existing user administrator access: EMAIL=you@example.com"
+  desc "Grant administrator access to an existing user: EMAIL=you@example.com"
   task grant: :environment do
     User.find_by!(email_address: ENV.fetch("EMAIL").strip.downcase).update!(admin: true)
     puts "Administrator access granted"

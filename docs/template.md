@@ -47,7 +47,7 @@ Development email is saved in `tmp/mail`. See the [access contract](observabilit
 - `bin/setup` generates fresh operations, AnyCable, and imgproxy secrets. Do not copy them between apps.
 - Configure Git name/email and, if needed, `core.sshCommand` with `git config --local`.
 - Set domains, SMTP, secrets, and registry during [deployment](deployment.md). The template contains no production credentials.
-- AI stays disabled until you choose a provider, model, and key. Product AI features require their own evals.
+- AI defaults to Gemini. Add your key to `config/llm.local.yml` as `api_key: ...`; see [AI setup](agents.md). Product AI features require their own evals.
 - Before production, configure backups, verify restoration and SMTP, and connect an alert receiver.
 - Verify Android navigation on a device and sign Release builds with your own keystore.
 

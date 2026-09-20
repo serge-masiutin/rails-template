@@ -6,20 +6,27 @@ Generation alone does not create a product feature or chat.
 
 ## Configure a provider
 
-Set `LLM_PROVIDER`, `LLM_MODEL`, and `LLM_API_KEY` together through ENV or ignored
-`config/llm.local.yml` fields `provider`, `model`, and `api_key`.
-Supported providers: `openai`, `anthropic`, `gemini`. Restart web and jobs; SDK keys are set only at boot.
-Kamal uses the same settings, with the key supplied as a secret.
+The default provider is Gemini with model `gemini-3.8-flash`. Put your key in the ignored
+`config/llm.local.yml` file:
 
-The app boots without AI configuration; generation then fails before an HTTP request.
+```yaml
+api_key: "YOUR_GEMINI_API_KEY"
+```
+
+Restrict the file to your account with `chmod 600 config/llm.local.yml`, then restart web and jobs.
+For deployment, set the `LLM_API_KEY` secret. Provider/model defaults live in `LlmConfig`;
+local overrides use `provider` and `model` or `LLM_PROVIDER` and `LLM_MODEL`.
+Supported providers: `openai`, `anthropic`, `gemini`.
+
+The app boots without a key; generation then fails before an HTTP request.
 Models are checked against RubyLLM's local registry.
 `LLM_REQUEST_TIMEOUT` defaults to 30 seconds and accepts 1–300. SDK/job retries are not enabled implicitly.
 
-Versions are pinned in `Gemfile.lock`. `StarterappProvider` adapts Active Agent to RubyLLM 2:
-it reads `tokens` and `finish_reason` instead of removed 1.x methods and passes tools via
-`parameters_schema` and `provider_options`. The gem owns network requests and the tool loop.
-Recheck this contract on upgrade and remove the local adapter once upstream is compatible.
-RubyLLM 1.16 is unsuitable because of CVE-2026-67991.
+Versions are pinned in `Gemfile.lock`. `ApplicationAgent` uses the standard `:ruby_llm` provider.
+Its factory selects `ActiveAgent::RubyLlmAdapter` from `lib/active_agent/ruby_llm_adapter.rb`
+to translate Active Agent schemas, tool definitions, token usage, and token limits to RubyLLM 2.
+The adapter preserves Gemini tool signatures and argument objects; RubyLLM owns HTTP and the tool loop.
+Recheck compatibility when upgrading and remove the adapter once upstream handles these contracts.
 
 ## Add an agent
 
@@ -41,8 +48,9 @@ For a short call without templates, use `Llm.build_chat`; `chat.ask(...)` perfor
 Do not mutate shared RubyLLM settings during a request or accept keys/models from params.
 
 Structured output, tools, and streaming require feature-specific contracts and tests.
-RubyLLM schemas differ from Active Agent `response_format`: this starter verifies text generation and a simple
-tool loop, not JSON Schema passthrough. For schema calls, use `Llm.build_chat.with_schema(...)` and validate output.
+Use `response_format: { type: "json_schema", json_schema: { name: "result", schema: ... } }`
+with `ApplicationAgent`, or `Llm.build_chat.with_schema(...)` for direct calls. Schema property names
+remain unchanged, including snake_case. Validate the response before applying domain changes.
 Tools need explicit `max_tool_turns`, permissions, argument schemas, limits, and idempotency.
 
 ## Web and Android
@@ -65,7 +73,7 @@ The viewer shows the call tree, LLM/tools, duration, status, prompt version, req
 Pages contain 20 traces. Direct `Llm.build_chat` calls are not instrumented by Active Agent.
 The initial list is empty; no demo agents or paid calls run automatically.
 
-- `AgentTrace::Document` converts SDK spans to an allowlisted AgentPrism contract.
+- `Observability::AgentTraceRecorder` converts SDK spans to an allowlisted AgentPrism contract and persists it.
   Prompts, responses, tool arguments/results, arbitrary events, and exception messages are removed.
   RAW shows the same sanitized contract. Errors expose their class; find the stack in correlated logs.
 - Synchronous `local_store` runs after generation. External telemetry endpoints and API keys are disabled.
@@ -91,7 +99,7 @@ Lucide updates independently.
 ```sh
 mise exec -- npm run check:agents
 mise exec -- npm run build:agents
-mise exec -- bin/rails test test/agents/application_agent_test.rb test/models/agent_trace test/controllers/operations
+mise exec -- bin/rails test test/agents/application_agent_test.rb test/models/agent_trace_test.rb test/lib/observability/agent_trace_recorder_test.rb test/controllers/operations
 mise exec -- bin/rails test test/system/agent_prism_test.rb
 ```
 
@@ -108,7 +116,7 @@ See [observability](observability.md) for metrics and worker endpoints.
 
 `test/agents/application_agent_test.rb` verifies ERB, conversation isolation, HTTP contracts, a simple tool loop,
 usage, failures without retries, log privacy, commit/rollback, and job context. WebMock blocks external HTTP.
-No production provider/model is selected and no paid requests are used by the starter's checks.
+Tests stub the provider HTTP boundary; checks make no paid requests.
 Transport tests do not measure output quality. Each product AI feature needs versioned typical, malformed,
 and adversarial cases, explicit grading criteria, and regression checks after prompt/model changes.
 

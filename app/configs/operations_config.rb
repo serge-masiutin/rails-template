@@ -6,10 +6,10 @@ class OperationsConfig < Anyway::Config
       raise_validation_error("username and password must be set together")
     end
     if metrics_token.present? && metrics_token.length < 32
-      raise_validation_error("metrics_token: at least 32 characters required")
+      raise_validation_error("metrics_token: expected at least 32 characters")
     end
     if password.present? && password.length < 32
-      raise_validation_error("password: at least 32 characters required")
+      raise_validation_error("password: expected at least 32 characters")
     end
     %i[grafana_url prometheus_url logs_url].each do |attribute|
       value = public_send(attribute)
@@ -21,7 +21,7 @@ class OperationsConfig < Anyway::Config
         raise_validation_error("#{attribute}: invalid URL")
       end
       unless uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.nil? && (!Rails.env.production? || uri.scheme == "https")
-        raise_validation_error("#{attribute}: an HTTP(S) URL without credentials is required; production requires HTTPS")
+        raise_validation_error("#{attribute}: expected an HTTP(S) URL without credentials; HTTPS is required in production")
       end
     end
   end

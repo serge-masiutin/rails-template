@@ -26,7 +26,13 @@ and Solid Queue process pruning. Prometheus checks availability independently of
 This does not verify SMTP or external APIs.
 
 Queue integration uses Notifications and commit callbacks. After a Solid Queue upgrade, run
-`OperationsUpdatesTest` and `bin/realtime-test`, including bulk operations and finalization.
+`Observability::QueueUpdatesTest` and `bin/realtime-test`, including bulk operations and finalization.
+
+`Realtime::OperationsUpdates` publishes after-commit signals on a separate thread and coalesces pending
+updates by stream/topic. Its in-memory queue holds at most 64 publications; network errors and overflow
+are reported through `Rails.error`. HTTP publication does not block job enqueue or execution.
+These diagnostic signals are transient: reconnecting clients fetch a fresh snapshot.
+Process shutdown waits up to five seconds for publication.
 Queue broadcasts do not create more queue jobs. Network delivery failures are reported without
 undoing committed work; reconnect or the next event retrieves current state.
 

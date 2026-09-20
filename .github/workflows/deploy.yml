@@ -44,8 +44,6 @@ jobs:
       OPERATIONS_USERNAME: ${{ secrets.OPERATIONS_USERNAME }}
       OPERATIONS_PASSWORD: ${{ secrets.OPERATIONS_PASSWORD }}
       OPERATIONS_METRICS_TOKEN: ${{ secrets.OPERATIONS_METRICS_TOKEN }}
-      LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
-      LLM_MODEL: ${{ vars.LLM_MODEL }}
       LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
       ANYCABLE_SECRET: ${{ secrets.ANYCABLE_SECRET }}
       IMGPROXY_KEY: ${{ secrets.IMGPROXY_KEY }}
@@ -63,12 +61,6 @@ jobs:
           for key in DEPLOY_HOST DEPLOY_USER DEPLOY_ARCH WEB_HOST SMTP_ADDRESS MAIL_FROM KAMAL_IMAGE SECRET_KEY_BASE DB_PASSWORD SMTP_USERNAME SMTP_PASSWORD OPERATIONS_USERNAME OPERATIONS_PASSWORD OPERATIONS_METRICS_TOKEN ANYCABLE_SECRET IMGPROXY_KEY IMGPROXY_SALT; do
             test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }
           done
-          # The integration is optional, but partial configuration is invalid.
-          if [[ -n "$LLM_PROVIDER$LLM_MODEL$LLM_API_KEY" ]]; then
-            for key in LLM_PROVIDER LLM_MODEL LLM_API_KEY; do
-              test -n "${!key}" || { echo "Missing configuration: $key"; exit 1; }
-            done
-          fi
       - name: SSH credentials
         shell: bash
         env:

@@ -1,7 +1,7 @@
 const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 
-// The upstream palette remains the source of color names.
+// Reuse the upstream palette to keep color names aligned.
 const theme = readFileSync(join(__dirname, "../vendor/agent-prism/components/theme/index.ts"), "utf8");
 const tokens = theme.split("AGENT_PRISM_TOKENS = [")[1].split("] as const")[0].matchAll(/"([a-z-]+)"/g);
 module.exports = {

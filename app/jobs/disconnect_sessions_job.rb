@@ -1,5 +1,5 @@
 class DisconnectSessionsJob < ApplicationJob
-  # Cookie revocation is independent of AnyCable availability; transient network retries are bounded.
+  # Cookie revocation must succeed while AnyCable is unavailable; retry disconnects separately.
   retry_on Net::OpenTimeout, Net::ReadTimeout, Net::WriteTimeout, Errno::ECONNREFUSED,
     wait: 5.seconds, attempts: 3
 

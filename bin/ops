@@ -4,23 +4,23 @@ require "yaml"
 require "net/http"
 require "fileutils"
 
-# rubocop:disable ThreadSafety/DirChdir -- Isolated CLI process before Rails loads.
+# rubocop:disable ThreadSafety/DirChdir -- Isolated CLI process before Rails boots.
 Dir.chdir File.expand_path("..", __dir__) do
   case ARGV
   when [ "setup" ]
     path = "config/operations.local.yml"
     if File.exist?(path)
-      puts "Local access already configured: #{path}"
+      puts "Local access is already configured: #{path}"
     else
       File.open(path, File::WRONLY | File::CREAT | File::EXCL, 0o600) do |file|
         file.write({ "username" => "starterapp", "password" => SecureRandom.hex(32), "metrics_token" => SecureRandom.hex(32) }.to_yaml)
       end
-      puts "Health credentials and metrics token: #{path}. Sign in to /admin with an administrator account."
+      puts "Health credentials and metrics token saved to #{path}. Use an administrator account for /admin."
     end
   when [ "monitoring" ]
     system("bin/rails", "runner", "script/prepare_monitoring.rb", exception: true)
     system("docker", "compose", "--profile", "monitoring", "up", "--detach", "--wait", "--wait-timeout", "60", "prometheus", "grafana", "loki", exception: true)
-    # Loki accepts requests after its ring recovers.
+    # Loki accepts queries after rebuilding its ring.
     uri = URI("http://127.0.0.1:3001/api/datasources/proxy/uid/loki/ready")
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 60
     loop do
@@ -38,7 +38,7 @@ Dir.chdir File.expand_path("..", __dir__) do
       "alloy", "run", "--disable-reporting", "--storage.path=tmp/observability/alloy",
       "--server.http.listen-addr=127.0.0.1:12345", "config/observability/config.alloy")
   when [ "queue" ]
-    exec "bin/rails", "runner", "puts JSON.pretty_generate(Operations::QueueSnapshot.capture)"
+    exec "bin/rails", "runner", "puts JSON.pretty_generate(Observability::Health.queue_snapshot)"
   else
     abort "Usage: bin/ops setup | queue | monitoring | logs"
   end

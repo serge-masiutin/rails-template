@@ -1,1 +1,1 @@
-<%= turbo_stream_from Operations::Updates::STREAM, channel: "OperationsUpdatesChannel", id: "operations-stream" %>
+<%= turbo_stream_from Realtime::OperationsUpdates::STREAM, channel: "OperationsUpdatesChannel", id: "operations-stream" %>

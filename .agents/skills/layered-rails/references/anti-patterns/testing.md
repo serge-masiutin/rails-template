@@ -1,10 +1,37 @@
-# Tests of internal mechanics
+# Testing Anti-Patterns
 
-Symptom: A test duplicates implementation, checks private methods or mocks every domain interaction.
+Tests that verify the wrong layer's responsibilities.
 
-Correction: Specify observable behavior and failures. Use Minitest/fixtures, WebMock at HTTP boundaries, real database transactions and Cuprite for user journeys.
+## Testing Wrong Layer
 
-Identify the concrete call and consequence. Style or size alone does not prove a defect.
-Add a regression test that fails before the correction and passes afterward; do not introduce a parallel layer.
+**Problem:** Controller tests verify business logic.
 
-Behavior sources: [docs/testing.md](../../../../../docs/testing.md), [docs/architecture.md](../../../../../docs/architecture.md).
+```ruby
+# BAD
+describe OrdersController do
+  it "applies VIP discount" do
+    post :create, params: { items: [...] }
+    expect(Order.last.total).to eq(90)  # Testing domain logic!
+  end
+end
+```
+
+**Fix:** Test business logic in model specs.
+
+```ruby
+# GOOD
+describe Order do
+  it "applies VIP discount" do
+    order = build(:order, customer: vip_customer)
+    order.calculate_total
+    expect(order.total).to eq(90)
+  end
+end
+
+describe OrdersController do
+  it "creates order and redirects" do
+    post :create, params: { items: [...] }
+    expect(response).to redirect_to(Order.last)
+  end
+end
+```

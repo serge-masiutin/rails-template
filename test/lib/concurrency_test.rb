@@ -14,7 +14,7 @@ class ConcurrencyTest < ActiveSupport::TestCase
   test "concurrent jobs isolate context and restore caller context" do
     sessions = [ users(:one).sessions.build, users(:two).sessions.build ]
     barrier = Concurrent::CyclicBarrier.new(2)
-    # Preload the class so the threads test our contract rather than autoloading.
+    # Load the class before testing concurrent execution.
     jobs = 2.times.map do |index|
       ContextProbeJob.new(barrier).tap { |job| job.request_id = "job-request-#{index}" }
     end
@@ -58,7 +58,7 @@ class ConcurrencyTest < ActiveSupport::TestCase
   private
 
   def concurrently
-    # Explicit threads serve only to reproduce races deterministically.
+    # Explicit threads make the race reproducible.
     threads = 2.times.map do |index|
       Thread.new { yield index } # rubocop:disable ThreadSafety/NewThread
     end

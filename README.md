@@ -34,7 +34,7 @@ Run checks with `mise exec -- bin/ci`. `Ctrl+C` stops Overmind;
 - [Architecture and i18n](docs/architecture.md) · [Hotwire](docs/hotwire.md) · [Android](docs/native.md)
 - [Monitoring and logs](docs/observability.md) · [Deployment](docs/deployment.md)
 - [AnyCable](docs/realtime.md) · [Images](docs/images.md) · [Active Agent and AgentPrism](docs/agents.md)
-- [Agent rules](AGENTS.md) · [Skills](docs/agent-skills.md)
+- [Agent rules and skill routing](AGENTS.md)
 
 Based on the Evil Martians [Rails Startup Stack](https://evilmartians.com/rails-startup-stack) and agent skills.
 [MIT](LICENSE) · [Third-party licenses](THIRD_PARTY.md).

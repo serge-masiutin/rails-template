@@ -28,8 +28,6 @@ env:
     OPERATIONS_GRAFANA_URL: <%= ENV.fetch("OPERATIONS_GRAFANA_URL", "").inspect %>
     OPERATIONS_PROMETHEUS_URL: <%= ENV.fetch("OPERATIONS_PROMETHEUS_URL", "").inspect %>
     OPERATIONS_LOGS_URL: <%= ENV.fetch("OPERATIONS_LOGS_URL", "").inspect %>
-    LLM_PROVIDER: <%= ENV.fetch("LLM_PROVIDER", "").inspect %>
-    LLM_MODEL: <%= ENV.fetch("LLM_MODEL", "").inspect %>
   secret:
     - SECRET_KEY_BASE
     - DB_PASSWORD

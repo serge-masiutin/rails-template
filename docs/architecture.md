@@ -13,17 +13,22 @@ Version sources: [.ruby-version](../.ruby-version), [Gemfile.lock](../Gemfile.lo
 
 | Directory | Responsibility |
 | --- | --- |
-| `app/models` | Data and domain rules; complex operations in the model namespace |
+| `app/models` | Data, domain behavior, scopes, and request context (`Current`) |
 | `app/controllers` | HTTP, parameters, authorization, and responses |
 | `app/views`, `app/components` | Shared web and Android HTML |
 | `app/javascript/controllers` | Stimulus behavior and lifecycle cleanup |
 | `app/configs` | Typed and validated Anyway Config settings |
-| `app/jobs` | Background work |
+| `app/jobs` | Background entry points |
+| `app/agents` | Agent actions, prompts, and the direct LLM entry point |
+| `lib` | SDK adapters, telemetry, health snapshots, and transport integrations |
 | `app/policies` | Action Policy authorization |
 | `app/deliveries`, `app/mailers`, `app/notifiers` | Notification events, email, and other channels |
 | `native/android` | WebView, mobile navigation, and device capabilities |
 
-Add a layer only when it owns a concrete responsibility. Solid Queue and Solid Cache use PostgreSQL.
+Keep behavior and simple queries in methods of the model that owns the data. Extract a class only
+for an independent responsibility. `User` owns authentication and password reset; `Session` owns
+revocation. `Current < ActiveSupport::CurrentAttributes` follows the Rails authentication convention.
+Solid Queue and Solid Cache use PostgreSQL.
 [AnyCable](realtime.md) serves WebSocket connections through Rails HTTP RPC, a Go server,
 and one client shared by web and Android.
 
@@ -159,7 +164,10 @@ Sources: [Evil Martians concurrency](https://evilmartians.com/rails-startup-stac
 
 Rails authentication generator provides User, Session, a signed HttpOnly cookie, CSRF, and sign-in rate limits.
 Passwords require at least 12 characters; bcrypt sets the upper bound. Password reset revokes every session.
-Controllers require authentication by default.
+Controllers require authentication by default. Sign-in and reset forms accept HTML; unsupported formats return 406.
+Both operations lock the user row and recheck the current password or token before creating or revoking
+sessions. A reset token cannot be reused by concurrent requests, and a stale password cannot create a
+session after reset.
 
 Action Policy enforces `authorize!`; `ApplicationController` detects missing checks.
 `UserPolicy` permits only the user's own profile. Denial returns 403; an unknown rule raises.
@@ -186,7 +194,7 @@ The Evil Martians essential capabilities are configured. Versions are in `Gemfil
 | ViewComponent | UI components, Lookbook previews, and DOM tests |
 | N+1 Control | Minitest `assert_perform_constant_number_of_queries` across growing data sets |
 | Isolator | Rejects HTTP, email, or unsafe job enqueue inside development/test transactions |
-| After Commit Everywhere | Explicit callbacks outside models, tested for nested transactions and rollback |
+| After Commit Everywhere | Explicit after-commit effects for session revocation, notifications, and diagnostic updates |
 | Freezolite / Bootsnap | Frozen project string literals through `Bootsnap.enable_frozen_string_literal(app_only: true)` |
 | Active Agent / RubyLLM | ERB prompts, explicit provider/model, Solid Queue generation, usage, and errors without implicit retries |
 | Herb | HTML/ERB lint, formatter, and LSP; see [developer tools](development.md) |

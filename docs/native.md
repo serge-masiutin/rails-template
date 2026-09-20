@@ -70,7 +70,6 @@ FCM is not configured.
 
 Check sign-in, incorrect password, profile, modal dismissal, sign-out, password reset,
 system Back, and recovery after network loss. APK builds and Native User-Agent tests do not replace this pass.
-Recorded checks are in the [intent log](intent-log.md).
 
 Native strings live in `res/values/strings.xml`. Only English is shipped; the resource filter
 also excludes SDK translations. Coordinate additional languages with [Rails i18n](architecture.md#interface-languages).

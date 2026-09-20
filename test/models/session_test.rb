@@ -8,7 +8,7 @@ class SessionTest < ActiveJob::TestCase
 
   test "WebSocket disconnect enqueues only after revocation commits" do
     Session.transaction do
-      assert_no_enqueued_jobs { @session.revoke! }
+      assert_no_enqueued_jobs { @session.revoke }
       assert_not Session.exists?(@session.id)
     end
     assert_enqueued_with(job: DisconnectSessionsJob, args: [ [ @session.id ] ])
@@ -17,7 +17,7 @@ class SessionTest < ActiveJob::TestCase
   test "rollback preserves the session and cancels disconnect" do
     assert_no_enqueued_jobs do
       Session.transaction do
-        @session.revoke!
+        @session.revoke
         raise ActiveRecord::Rollback
       end
     end

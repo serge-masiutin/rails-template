@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Comparisons
+  short_description: Compose states, comparisons, maps, and evidence views
+  default_prompt: Use $lookbook-comparisons to compose states, comparisons, maps, and evidence views for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

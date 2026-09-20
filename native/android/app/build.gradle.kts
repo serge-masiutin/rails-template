@@ -24,7 +24,7 @@ android {
         versionCode = 1
         versionName = "0.1.0"
     }
-    // Include only published languages, including SDK resources.
+    // Restrict SDK resources to published languages too.
     androidResources { localeFilters += setOf("en") }
     buildFeatures { buildConfig = true }
     buildTypes {
@@ -52,7 +52,7 @@ dependencyLocking { lockAllConfigurations() }
 tasks.register("validateProductionUrl") {
     doLast {
         check(productionUrl.isPresent) { "Set -Pstarterapp.productionUrl=https://your-domain" }
-        check(URI(productionUrl.get()).scheme == "https") { "Release requires HTTPS" }
+        check(URI(productionUrl.get()).scheme == "https") { "Release builds require HTTPS" }
     }
 }
 tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn("validateProductionUrl") }
@@ -60,7 +60,7 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn("valid
 dependencies {
     constraints {
         implementation("com.google.errorprone:error_prone_annotations:2.50.0") {
-            because("Older annotations referencing javax.lang.model.element.Modifier break Android R8; google/error-prone#5386")
+            because("Older annotations reference javax.lang.model.element.Modifier and break Android R8; google/error-prone#5386")
         }
     }
     implementation("dev.hotwire:core:1.3.1")

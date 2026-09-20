@@ -17,7 +17,7 @@ html, body, button, input, optgroup, select, textarea, code, kbd, pre, samp,
   font-stretch: normal;
 }
 
-/* Preserve the variable font's standard width inside third-party panels. */
+/* Preserve the variable font's normal width inside vendor dashboards. */
 html {
   font-variation-settings: "wdth" 100;
 }

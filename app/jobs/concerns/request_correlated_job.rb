@@ -20,7 +20,7 @@ module RequestCorrelatedJob
   private
 
   def with_request_context(&block)
-    # Jobs receive the user explicitly, including perform_now calls from HTTP.
+    # Jobs receive users explicitly, including perform_now calls inside HTTP requests.
     Current.set(session: nil, request_id: request_id) do
       SemanticLogger.named_tagged(request_id: request_id, job_id: job_id, &block)
     end

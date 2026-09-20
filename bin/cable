@@ -13,7 +13,7 @@ Dir.chdir File.expand_path("..", __dir__) do
     end
     puts "Local AnyCable configured: #{path}. The secret is excluded from Git and Docker."
   when [ "start" ]
-    # Rails and Go share one local secret; its value stays out of process arguments.
+    # Rails and Go share a local secret; keep it out of process arguments.
     ENV["ANYCABLE_SECRET"] ||= YAML.safe_load_file("config/anycable.local.yml").fetch("secret")
     exec "docker", "compose", "run", "--rm", "--no-deps", "--service-ports", "anycable"
   else

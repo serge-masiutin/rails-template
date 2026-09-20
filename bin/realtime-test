@@ -29,7 +29,7 @@ Dir.chdir File.expand_path("..", __dir__) do
         begin
           break if Net::HTTP.get_response(URI("http://127.0.0.1:8180/health")).code == "200"
         rescue Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError
-          # Go has not opened its listener yet; the overall deadline bounds the wait.
+          # The listener is still starting; the shared deadline bounds this wait.
         end
         sleep 0.1
       end

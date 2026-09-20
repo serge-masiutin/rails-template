@@ -56,7 +56,6 @@
 /Dockerfile*
 
 /.agents
-/vendor/agent-skills
 /vendor/bundle
 /native
 /docs

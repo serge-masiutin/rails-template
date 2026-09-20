@@ -1,8 +1,79 @@
-# Extract an access rule
+# Extract Authorization to Policy
 
-Replace repeated ownership checks with a named ApplicationPolicy rule. Call authorize! before disclosure; UserPolicy#show? is the existing example. Keep verify_authorized and test foreign records and guests.
+Replace duplicated controller-side authorization checks with a policy object.
 
-Find all callers before changing the code. Update them together and test the public journey.
-The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
+## Before
 
-Behavior sources: [app/policies/user_policy.rb](../../../../app/policies/user_policy.rb), [app/controllers/accounts_controller.rb](../../../../app/controllers/accounts_controller.rb), [test/controllers/authorization_test.rb](../../../../test/controllers/authorization_test.rb).
+```ruby
+class PostsController < ApplicationController
+  def update
+    @post = Post.find(params[:id])
+
+    # Authorization scattered in controller
+    unless current_user.admin? || @post.author == current_user
+      redirect_to posts_path, alert: "Not authorized"
+      return
+    end
+
+    @post.update!(post_params)
+    redirect_to @post
+  end
+
+  def destroy
+    @post = Post.find(params[:id])
+
+    # Duplicated logic
+    unless current_user.admin?
+      redirect_to posts_path, alert: "Not authorized"
+      return
+    end
+
+    @post.destroy!
+    redirect_to posts_path
+  end
+end
+```
+
+## After
+
+```ruby
+# app/policies/post_policy.rb
+class PostPolicy < ApplicationPolicy
+  def update?
+    owner? || admin?
+  end
+
+  def destroy?
+    admin?
+  end
+
+  private
+
+  def owner?
+    record.author_id == user.id
+  end
+
+  def admin?
+    user.admin?
+  end
+end
+
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+  def update
+    @post = Post.find(params[:id])
+    authorize! @post
+
+    @post.update!(post_params)
+    redirect_to @post
+  end
+
+  def destroy
+    @post = Post.find(params[:id])
+    authorize! @post
+
+    @post.destroy!
+    redirect_to posts_path
+  end
+end
+```

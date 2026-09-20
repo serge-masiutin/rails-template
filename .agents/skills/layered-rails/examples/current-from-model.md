@@ -1,8 +1,63 @@
-# Pass the actor explicitly
+# Extract Current from Model
 
-Find domain Current.user calls and every consumer. Controllers pass the actor after authorization; jobs reload by ID. Keep Current for HTTP/log context and RequestCorrelatedJob session cleanup. Test execution without HTTP and concurrent job isolation.
+Remove `Current.user` access from a domain model by moving authorization to a policy and ownership to the controller.
 
-Find all callers before changing the code. Update them together and test the public journey.
-The linked files are actual examples; do not create fictional domain models merely to demonstrate a pattern.
+## Before
 
-Behavior sources: [app/models/current.rb](../../../../app/models/current.rb), [app/jobs/concerns/request_correlated_job.rb](../../../../app/jobs/concerns/request_correlated_job.rb), [test/lib/concurrency_test.rb](../../../../test/lib/concurrency_test.rb).
+```ruby
+class Post < ApplicationRecord
+  belongs_to :author, class_name: "User"
+
+  before_validation :set_author, on: :create
+
+  def can_edit?
+    author == Current.user || Current.user&.admin?
+  end
+
+  private
+
+  def set_author
+    self.author = Current.user
+  end
+end
+```
+
+## After
+
+```ruby
+# app/models/post.rb
+class Post < ApplicationRecord
+  belongs_to :author, class_name: "User"
+  # No Current access - domain is context-agnostic
+end
+
+# app/policies/post_policy.rb
+class PostPolicy < ApplicationPolicy
+  def edit?
+    owner? || admin?
+  end
+
+  private
+
+  def owner?
+    record.author_id == user.id
+  end
+
+  def admin?
+    user.admin?
+  end
+end
+
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+  def create
+    @post = current_user.posts.build(post_params)
+
+    if @post.save
+      redirect_to @post
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+end
+```

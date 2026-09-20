@@ -16,7 +16,7 @@ class AnyCableScenario < ApplicationSystemTestCase
   self.use_transactional_tests = false
 
   setup do
-    # Rails TestHelper replaces pubsub; restart restores the cable.yml adapter.
+    # Rails TestHelper replaces pubsub; restart restores the adapter from cable.yml.
     ActionCable.server.restart
     assert_instance_of ActionCable::SubscriptionAdapter::AnyCable, ActionCable.server.pubsub
   end
@@ -38,7 +38,6 @@ class AnyCableScenario < ApplicationSystemTestCase
     page.execute_script("window.realtimeProbe.connect()")
     assert_text "Update while disconnected"
 
-    # A correctly signed foreign stream must still reject the subscription.
     other_token = Turbo::StreamsChannel.signed_stream_name(users(:two).updates_stream_name)
     page.execute_script(<<~JS, other_token)
       const source = document.createElement('turbo-cable-stream-source')
@@ -57,7 +56,7 @@ class AnyCableScenario < ApplicationSystemTestCase
     assert_no_selector "body[data-before-history-loss]"
     assert_selector "turbo-cable-stream-source[connected]", visible: :all
 
-    perform_enqueued_jobs(only: DisconnectSessionsJob) { Session.revoke_all!(users(:one).sessions) }
+    perform_enqueued_jobs(only: DisconnectSessionsJob) { users(:one).sessions.revoke_all }
     assert_no_selector "turbo-cable-stream-source[connected]", visible: :all
     visit account_path
     assert_text "Sign in to StarterApp"
@@ -77,7 +76,7 @@ class AnyCableScenario < ApplicationSystemTestCase
     SolidQueue::ReadyExecution.claim([ "default" ], 1, 1).first.perform
     assert_selector '[data-queue-state="ready"]', text: "0", exact_text: true
 
-    # The fixed observation window checks absence of periodic HTTP rather than synchronizing DOM.
+    # This observation window detects periodic HTTP; it does not synchronize the DOM.
     requests = Capybara.using_wait_time(10) do
       page.evaluate_async_script(<<~JS)
       const done = arguments[0]

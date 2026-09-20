@@ -16,11 +16,10 @@ gem "bcrypt", "~> 3.1"
 gem "anyway_config", "~> 2.7"
 gem "action_policy", "~> 0.7.7"
 gem "active_delivery", "~> 1.2"
-# Abstract Notifier is included in active_delivery.
 gem "after_commit_everywhere", "~> 1.6"
 gem "ruby_llm", "~> 2.0"
 gem "activeagent", "~> 1.6"
-# Prometheus DirectFileStore uses CGI.parse, extracted from Ruby 4.
+# Prometheus DirectFileStore requires CGI.parse, removed from Ruby 4 stdlib.
 gem "cgi", "~> 0.5"
 gem "view_component", "~> 4.0"
 gem "solid_cache"
@@ -34,7 +33,7 @@ gem "bootsnap", ">= 1.24.4", require: false
 gem "kamal", "~> 2.12", require: false
 gem "thruster", require: false
 gem "image_processing", "~> 2.1"
-# ImageProcessing 2 requires an explicit adapter for Active Storage analysis.
+# ImageProcessing 2 requires an explicit Active Storage analysis adapter.
 gem "ruby-vips", "~> 2.3"
 gem "imgproxy-rails", "~> 0.3"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
@@ -48,7 +47,7 @@ group :development, :test do
   gem "rubocop-md", "~> 2.0", require: false
   gem "herb", require: false
   gem "isolator", "~> 1.2", require: false
-  # Sniffer (Isolator adapter) requires benchmark, extracted from Ruby 4 stdlib.
+  # Isolator's Sniffer adapter requires benchmark, removed from Ruby 4 stdlib.
   gem "benchmark", "~> 0.5", require: false
 end
 

@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Inventory
+  short_description: Inventory real components, usage, and preview coverage
+  default_prompt: Use $lookbook-inventory to inventory real components, usage, and preview coverage for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true

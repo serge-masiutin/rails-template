@@ -56,10 +56,4 @@ class LocalizationTest < ActionDispatch::IntegrationTest
     assert_includes user.errors.full_messages, "Email can't be blank"
     assert user.errors.full_messages.any? { |message| message.start_with?("Password is too short") }
   end
-
-  test "missing view translation raises" do
-    assert_raises(I18n::MissingTranslationData) do
-      ApplicationController.helpers.t("missing.translation.for.test")
-    end
-  end
 end

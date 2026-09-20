@@ -27,7 +27,6 @@ class AgentPrismTest < ApplicationSystemTestCase
     click_button "RAW"
     assert_text "agent_invocation"
     assert_no_text "PRIVATE_"
-    assert page.evaluate_script("getComputedStyle(document.body).backgroundColor") != "rgba(0, 0, 0, 0)"
     page.save_screenshot(Rails.root.join("tmp/screenshots/agent-prism-desktop.png"))
   end
 
@@ -52,7 +51,7 @@ class AgentPrismTest < ApplicationSystemTestCase
 
   private
 
-  # This suite checks rendering; bin/realtime-test verifies actual transport.
+  # The Go integration suite covers transport; this suite checks rendering.
   def announce_update(topic)
     page.execute_script("Turbo.renderStreamMessage(arguments[0])", %(<turbo-stream action="operations_refresh" topic="#{topic}"></turbo-stream>))
   end

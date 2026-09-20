@@ -1,0 +1,6 @@
+interface:
+  display_name: Lookbook — Previews
+  short_description: Document real component states in Lookbook
+  default_prompt: Use $lookbook-previews to document real component states in Lookbook for StarterApp, using actual Rails/ViewComponent sources and verified previews.
+policy:
+  allow_implicit_invocation: true
