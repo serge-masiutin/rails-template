@@ -34,7 +34,8 @@ and one client shared by web and Android.
 
 ## Interface languages
 
-The UI, email, documentation, comments, and working skills are English.
+The UI, email, documentation, comments, and working skills are English, except the reusable
+`clear-writing` skill, which stays in Russian and follows the requested language when producing text.
 Application translations live in `config/locales/en.yml`; `config/application.rb` lists supported locales.
 `Localization` accepts `?locale=en`, rejects unknown values with 400, and scopes the request with
 `I18n.with_locale`. Browser language is not selected automatically. Links preserve locale;

@@ -3,7 +3,7 @@
 ## Working with the project
 
 - This is a Rails/Hotwire and Android template. Run `bin/configure` before the first `bin/setup`; see [template setup](docs/template.md). Preserve the identity of an already configured app.
-- Write repository content in English: code, technical messages, comments, documentation, and skills. Reply in the user's preferred language. Preserve third-party licenses and notices.
+- Write repository content in English: code, technical messages, comments, documentation, and skills, except `clear-writing`, which stays in Russian. Reply in the user's preferred language. Preserve third-party licenses and notices.
 - Read related code, callers, configuration, and tests before planning a local change. Use manifests, lockfiles, routes, schemas, and code as sources of truth. Run pinned tools through `mise exec --`.
 - Preserve behavior outside the task. Update all consumers of a changed contract together; keep changes local and reversible.
 - Configure Git identity, SSH, and GitHub credentials only for this repository. Preserve the owner's account and other projects; never change global settings for this project.
