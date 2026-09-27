@@ -1,5 +1,7 @@
 # Architecture
 
+For data correctness reviews, use the bundled [data-systems-architecture](../.agents/skills/data-systems-architecture/SKILL.md) alongside `layered-rails`. Trace the authoritative write, transaction boundary, enqueue/acknowledgment, and recovery path; state the invariant before selecting a mechanism. Load only the relevant chapters. The complete skill includes worked examples, templates, and evaluation cases and runs without its source PDF or network access. [Sources and coverage](../.agents/skills/data-systems-architecture/SOURCES.md) describe its basis and limitations.
+
 The foundation follows the [Evil Martians Rails Startup Stack](https://evilmartians.com/rails-startup-stack):
 Rails, Turbo, Stimulus, importmap, Tailwind, ViewComponent, Anyway Config, and Overmind.
 Lookbook previews components; Minitest and Cuprite test behavior.
