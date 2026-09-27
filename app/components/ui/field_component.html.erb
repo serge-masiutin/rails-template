@@ -1,0 +1,10 @@
+<div>
+  <%= @form.label @attribute, @label, for: @id, class: "mb-2 block text-sm font-medium" %>
+  <%= @form.public_send @input_helper, @attribute, **@input_options %>
+  <% if @hint %>
+    <p id="<%= @id %>-hint" class="mt-2 text-sm text-muted"><%= @hint %></p>
+  <% end %>
+  <% if @error %>
+    <p id="<%= @id %>-error" class="mt-2 text-sm text-danger"><%= @error %></p>
+  <% end %>
+</div>

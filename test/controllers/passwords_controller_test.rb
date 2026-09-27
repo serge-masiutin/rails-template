@@ -78,6 +78,12 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
     assert Session.exists?(session.id)
     assert_select "[role=alert]"
+    %w[password password_confirmation].each do |attribute|
+      assert_select "label[for=?]", attribute
+      assert_select 'input[id=?][aria-invalid="true"][aria-describedby=?][required][minlength="12"][maxlength="72"][autocomplete="new-password"]', attribute, "#{attribute}-error"
+      assert_select "p[id=?]", "#{attribute}-error"
+    end
+    assert_select 'input[type="password"][value]', count: 0
   end
 
   private

@@ -91,11 +91,18 @@ The complete [design-system](../.agents/skills/design-system/SKILL.md) skill is 
 All 31 files are preserved unchanged, with [Yuri Mandrikov's MIT license](../vendor/licenses/ai-design-system.txt).
 
 Use `$design-system` for component selection, contracts, tokens, and source drift checks;
-choose `discovery`, `craft`, `use`, or `verify` for the task. Project connection is a separate
-`setup` workflow based on existing components and agreed design sources. Installing the
-skill does not create `DESIGN.md`, contracts, or Git hooks. Implementation uses the existing
-ViewComponent/Stimulus stack; `hotwire-ui-components` and Lookbook skills cover components
-and previews.
+choose `discovery`, `craft`, `use`, or `verify` for the task. Start at [DESIGN.md](../DESIGN.md)
+for component/layout/pattern contracts and token roles. Shared color values live in
+`app/assets/stylesheets/ui_tokens.css`; Tailwind exposes aliases, and administration,
+Mission Control, and AgentPrism load the same tokens independently of Tailwind.
+
+Authentication forms compose `Ui::FieldComponent`, `Ui::SubmitComponent`, and
+`Ui::NoticeComponent` through Rails form builders. Lookbook contains email, password,
+invalid-password, ready/disabled submission, and notice/alert examples. The preview
+layout is shared across development and tests; the catalog route remains development-only.
+Implementation uses the existing ViewComponent/Stimulus stack; `hotwire-ui-components`
+and Lookbook skills cover components and previews. Installing the upstream skill does
+not install Git hooks; project CI runs `bin/design-system-check` explicitly.
 
 ## Book-to-skill
 

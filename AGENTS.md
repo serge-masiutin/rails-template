@@ -1,5 +1,7 @@
 # StarterApp: agent contract
 
+- For design-system work, start at [DESIGN.md](DESIGN.md) and follow [design-system](.agents/skills/design-system/SKILL.md) for contracts and reuse.
+
 ## Working with the project
 
 - This is a Rails/Hotwire and Android template. Run `bin/configure` before the first `bin/setup`; see [template setup](docs/template.md). Preserve the identity of an already configured app.

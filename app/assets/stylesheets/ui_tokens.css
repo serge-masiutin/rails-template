@@ -1,0 +1,19 @@
+/* Shared light-theme colors for product, admin, and embedded operations surfaces. */
+:root {
+  --ui-canvas: #f7f7f2;
+  --ui-surface: #ffffff;
+  --ui-ink: #17251e;
+  --ui-muted: #536258;
+  --ui-accent: #276749;
+  --ui-line: #dce2d9;
+  --ui-success: #226c43;
+  --ui-danger: #b42318;
+  --ui-navigation-muted: #637168;
+  --ui-navigation-hover: #f0f4ef;
+  --ui-navigation-current: #eaf2e9;
+  --ui-navigation-current-ink: #1d563a;
+  --ui-status-live: #34845a;
+  --ui-status-paused: #a77616;
+  --ui-danger-line: #e5aea5;
+  --ui-danger-surface: #fff6f3;
+}

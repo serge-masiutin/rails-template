@@ -2,7 +2,6 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   config.enable_reloading = true
-  config.view_component.previews.default_layout = "component_preview"
   config.hosts << "host.docker.internal"
 
   config.eager_load = false

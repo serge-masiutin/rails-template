@@ -1,0 +1,3 @@
+<%= form_with url: "#", class: "max-w-md" do |form| %>
+  <%= render Ui::SubmitComponent.new(form: form, label: t("actions.save_password"), disabled: disabled) %>
+<% end %>

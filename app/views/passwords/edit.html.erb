@@ -5,14 +5,8 @@
     <%= render Ui::NoticeComponent.new(message: @user.errors.full_messages.to_sentence, variant: :alert) %>
   <% end %>
   <%= form_with url: password_path(params[:token]), method: :put, class: "space-y-5" do |form| %>
-    <div>
-      <%= form.label :password, t("fields.password"), class: "mb-2 block text-sm font-medium" %>
-      <%= form.password_field :password, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
-    </div>
-    <div>
-      <%= form.label :password_confirmation, t("fields.password_confirmation"), class: "mb-2 block text-sm font-medium" %>
-      <%= form.password_field :password_confirmation, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
-    </div>
-    <%= form.submit t("actions.save_password"), class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
+    <%= render Ui::FieldComponent.new(form: form, attribute: :password, label: t("fields.password"), type: :password, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", error: @user.errors.full_messages_for(:password).to_sentence) %>
+    <%= render Ui::FieldComponent.new(form: form, attribute: :password_confirmation, label: t("fields.password_confirmation"), type: :password, required: true, minlength: 12, maxlength: 72, autocomplete: "new-password", error: @user.errors.full_messages_for(:password_confirmation).to_sentence) %>
+    <%= render Ui::SubmitComponent.new(form: form, label: t("actions.save_password")) %>
   <% end %>
 </section>

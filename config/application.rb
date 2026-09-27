@@ -28,6 +28,7 @@ require_relative "../lib/realtime/operations_updates"
 module StarterApp
   class Application < Rails::Application
     config.load_defaults 8.1
+    config.view_component.previews.default_layout = "component_preview"
     # Add tests for behavior and risk rather than every generated file.
     config.generators do |generators|
       generators.test_framework nil

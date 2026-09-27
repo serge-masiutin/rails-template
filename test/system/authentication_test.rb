@@ -23,4 +23,18 @@ class AuthenticationTest < ApplicationSystemTestCase
     assert_link "Reset password"
     assert_selector "button[aria-expanded=true]"
   end
+
+  test "password validation keeps field feedback accessible on a narrow screen" do
+    page.current_window.resize_to(390, 844)
+    visit edit_password_path(users(:one).password_reset_token)
+    fill_in "password", with: "replacement-password"
+    fill_in "password_confirmation", with: "different-password"
+    click_button "Save password"
+
+    assert_selector '[role="alert"]', text: "Password confirmation doesn't match Password"
+    assert_selector '#password_confirmation[aria-invalid="true"][aria-describedby="password_confirmation-error"]'
+    assert_selector "#password_confirmation-error", text: "Password confirmation doesn't match Password"
+    assert_no_selector 'input[type="password"][value]'
+    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
+  end
 end

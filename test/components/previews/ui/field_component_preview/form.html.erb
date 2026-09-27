@@ -1,0 +1,3 @@
+<%= form_with url: "#", scope: :preview, class: "max-w-md" do |form| %>
+  <%= render Ui::FieldComponent.new(form: form, required: true, **field_options) %>
+<% end %>

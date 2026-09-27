@@ -37,6 +37,7 @@ concurrency, external API contracts, and known integration regressions observabl
 | Layer | Tool and command |
 | --- | --- |
 | Models, jobs, policies, HTTP and components | Minitest: `mise exec -- bin/rails test` |
+| Design contracts, source snapshots and indexes | `mise exec -- bin/design-system-check` |
 | Browser and Turbo | Capybara/Cuprite: `mise exec -- bin/rails test:system` |
 | Real AnyCable delivery | Chrome and Go: `mise exec -- bin/realtime-test` |
 | Real image transformations | imgproxy: `mise exec -- bin/image-test` |
@@ -147,6 +148,12 @@ hidden-tab cleanup, reconnects and the absence of idle polling. `Observability::
 real commits, rollbacks and bulk operations. The real AnyCable harness verifies live queue
 and AgentPrism changes, preserved selection and access revocation through Go and Chrome.
 Ordinary Rails system tests simulate signals; they cannot prove WebSocket delivery.
+
+Component tests render the same Field and Submit examples used by Lookbook, including
+invalid and disabled states. Authentication controller tests preserve successful control
+names, label/error associations, autocomplete, password constraints, and secret omission.
+Run `bin/rails test test/components test/controllers/sessions_controller_test.rb test/controllers/passwords_controller_test.rb`
+for focused form checks, then the authentication browser test and full CI for composition.
 
 AgentPrism system tests cover the call tree, attributes, RAW, empty/error states and narrow
 screens. Backend tests cover administrator access, pagination, retention and sensitive-field

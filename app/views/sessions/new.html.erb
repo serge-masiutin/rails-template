@@ -3,15 +3,9 @@
   <h1 class="text-3xl font-semibold tracking-tight"><%= t("sessions.new.heading", app: t("app.name")) %></h1>
   <p class="text-muted"><%= t("sessions.new.intro") %></p>
   <%= form_with url: session_path, class: "space-y-5" do |form| %>
-    <div>
-      <%= form.label :email_address, t("fields.email"), class: "mb-2 block text-sm font-medium" %>
-      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
-    </div>
-    <div>
-      <%= form.label :password, t("fields.password"), class: "mb-2 block text-sm font-medium" %>
-      <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
-    </div>
-    <%= form.submit t("actions.sign_in"), class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
+    <%= render Ui::FieldComponent.new(form: form, attribute: :email_address, label: t("fields.email"), type: :email, required: true, autofocus: true, autocomplete: "username", value: params[:email_address]) %>
+    <%= render Ui::FieldComponent.new(form: form, attribute: :password, label: t("fields.password"), type: :password, required: true, autocomplete: "current-password", maxlength: 72) %>
+    <%= render Ui::SubmitComponent.new(form: form, label: t("actions.sign_in")) %>
   <% end %>
   <div data-controller="disclosure">
     <button type="button" data-action="disclosure#toggle" data-disclosure-target="button" aria-expanded="false" aria-controls="login-help" class="text-sm font-medium text-accent"><%= t("sessions.new.help") %></button>

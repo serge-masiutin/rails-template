@@ -1,5 +1,6 @@
 CI.run do
   step "Dependencies", "bundle check"
+  step "Design system: contracts and indexes", "bin/design-system-check"
   step "Native contracts", "bin/native check"
   step "Style: Ruby and Markdown", "bin/rubocop"
   step "Style: Test tools", "bin/rubocop bin/configure bin/setup bin/load-test bin/test-profile bin/image-test bin/images"

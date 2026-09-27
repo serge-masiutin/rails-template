@@ -7,14 +7,14 @@
   --font-sans: var(--font-ui);
   --font-serif: var(--font-ui);
   --font-mono: var(--font-ui);
-  --color-canvas: #f7f7f2;
-  --color-surface: #ffffff;
-  --color-ink: #17251e;
-  --color-muted: #536258;
-  --color-accent: #276749;
-  --color-line: #dce2d9;
-  --color-success: #226c43;
-  --color-danger: #b42318;
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-ink: var(--ui-ink);
+  --color-muted: var(--ui-muted);
+  --color-accent: var(--ui-accent);
+  --color-line: var(--ui-line);
+  --color-success: var(--ui-success);
+  --color-danger: var(--ui-danger);
 }
 
 @layer base {

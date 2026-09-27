@@ -2,11 +2,8 @@
 <section class="mx-auto max-w-md space-y-6">
   <h1 class="text-3xl font-semibold"><%= t("passwords.new.heading") %></h1>
   <%= form_with url: passwords_path, class: "space-y-5" do |form| %>
-    <div>
-      <%= form.label :email_address, t("fields.email"), class: "mb-2 block text-sm font-medium" %>
-      <%= form.email_field :email_address, required: true, autocomplete: "username", class: "w-full rounded-xl border border-line bg-surface px-4 py-3" %>
-    </div>
-    <%= form.submit t("actions.send_reset"), class: "w-full cursor-pointer rounded-xl bg-accent px-5 py-3 font-medium text-white" %>
+    <%= render Ui::FieldComponent.new(form: form, attribute: :email_address, label: t("fields.email"), type: :email, required: true, autocomplete: "username") %>
+    <%= render Ui::SubmitComponent.new(form: form, label: t("actions.send_reset")) %>
   <% end %>
   <%= link_to t("actions.back_to_sign_in"), new_session_path, class: "text-sm text-accent" %>
 </section>

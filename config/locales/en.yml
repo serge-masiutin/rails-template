@@ -99,6 +99,9 @@ en:
         password: Password
         password_confirmation: Password confirmation
   components:
+    field:
+      email_hint: Use your work email address.
+      password_error: Password is too short (minimum is 12 characters).
     notice:
       saved: Changes saved.
       invalid: Check the values you entered.
