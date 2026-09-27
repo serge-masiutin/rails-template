@@ -83,3 +83,15 @@ keep npm packages, gem `herb`, and `.herb.yml` compatible.
 Sources: [Evil Martians stack](https://evilmartians.com/rails-startup-stack),
 [Ruby LSP](https://shopify.github.io/ruby-lsp/), [Herb](https://herb-tools.dev/configuration),
 [Lefthook](https://lefthook.dev/configuration/lefthook/).
+
+## Book-to-skill
+
+The complete [book-to-skill](../.agents/skills/book-to-skill/SKILL.md) package lives in `.agents/skills/book-to-skill`: instructions, Python extractor, tools, documentation, and tests. It is preserved unchanged from [virgiliojr94/book-to-skill, commit 80ae087](https://github.com/virgiliojr94/book-to-skill/tree/80ae087784ddbc21dbbfde355fe5509631e0e322), under the [MIT license](../.agents/skills/book-to-skill/LICENSE.md).
+
+In Codex, invoke `$book-to-skill` with a book or document path. The extractor requires Python 3.9+. Check available extractors from the project root:
+
+```sh
+mise exec -- python3 .agents/skills/book-to-skill/scripts/extract.py --check
+```
+
+Format-specific packages are installed as needed and are not part of the application runtime. MOBI/AZW requires Calibre; technical PDF extraction uses Docling. See the [upstream installation guide](../.agents/skills/book-to-skill/docs/install.md).

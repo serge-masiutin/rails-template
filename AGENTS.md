@@ -53,6 +53,7 @@ Load only the nested references needed for the task.
 | Slow Rails boot | [Architecture](docs/architecture.md) | `rails-boot-profiling` |
 | README | [README](README.md) | `good-readme`, `clear-writing` |
 | Copy, documentation, and user responses | — | `clear-writing` |
+| Books and documents into skills | [Development](docs/development.md#book-to-skill) | `book-to-skill` |
 | Public websites or docs for LLMs | — | `llms-visibility` |
 | Publishing and distributing skills | — | `skills-visibility` |
 | Publishing an npm package | — | `secure-npm-package` |
