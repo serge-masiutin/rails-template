@@ -170,7 +170,8 @@ Passwords require at least 12 characters; bcrypt sets the upper bound. Password 
 Controllers require authentication by default. Sign-in and reset forms accept HTML; unsupported formats return 406.
 Both operations lock the user row and recheck the current password or token before creating or revoking
 sessions. A reset token cannot be reused by concurrent requests, and a stale password cannot create a
-session after reset.
+session after reset. Revocation also writes a `SessionDisconnect` outbox entry in the
+same primary transaction. Delivery and recovery are described in [realtime](realtime.md).
 
 Action Policy enforces `authorize!`; `ApplicationController` detects missing checks.
 `UserPolicy` permits only the user's own profile. Denial returns 403; an unknown rule raises.

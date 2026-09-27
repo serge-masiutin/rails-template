@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_19_093000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_27_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_093000) do
     t.string "trace_id", null: false
     t.index ["started_at"], name: "index_agent_traces_on_started_at"
     t.index ["trace_id"], name: "index_agent_traces_on_trace_id", unique: true
+  end
+
+  create_table "session_disconnects", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "session_ids", null: false, array: true
+    t.check_constraint "cardinality(session_ids) > 0 AND array_position(session_ids, NULL::bigint) IS NULL AND (0 < ALL (session_ids))", name: "session_disconnects_valid_ids"
   end
 
   create_table "sessions", force: :cascade do |t|

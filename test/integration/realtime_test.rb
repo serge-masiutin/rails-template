@@ -19,7 +19,7 @@ class RealtimeTest < ActionDispatch::IntegrationTest
     other_session = users(:one).sessions.create!
     sign_in_as users(:one)
     session_id = users(:one).sessions.last.id
-    assert_enqueued_with(job: DisconnectSessionsJob, args: [ [ session_id ] ]) { delete session_path }
+    assert_enqueued_with(job: DisconnectSessionsJob, args: ->(args) { args == [ [ session_id ], { outbox_id: SessionDisconnect.sole.id } ] }) { delete session_path }
     assert_not Session.exists?(session_id)
     assert Session.exists?(other_session.id)
     assert_empty cookies[:session_id]

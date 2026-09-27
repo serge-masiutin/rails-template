@@ -5,7 +5,10 @@ class Session < ApplicationRecord
     transaction do
       session_ids = pluck(:id)
       where(id: session_ids).destroy_all
-      DisconnectSessionsJob.perform_later(session_ids) if session_ids.any?
+      if session_ids.any?
+        intent = SessionDisconnect.create!(session_ids: session_ids)
+        AfterCommitEverywhere.after_commit(without_tx: :raise) { intent.enqueue }
+      end
     end
   end
 

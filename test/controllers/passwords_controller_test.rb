@@ -53,7 +53,7 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
     session_ids = 2.times.map { @user.sessions.create!.id }
     other_session = users(:two).sessions.create!
     assert_changes -> { @user.reload.password_digest } do
-      assert_enqueued_with(job: DisconnectSessionsJob, args: [ session_ids ]) do
+      assert_enqueued_with(job: DisconnectSessionsJob, args: ->(args) { args == [ session_ids, { outbox_id: SessionDisconnect.sole.id } ] }) do
         put password_path(@user.password_reset_token), params: { password: "new-password-2026", password_confirmation: "new-password-2026" }
       end
     end

@@ -49,9 +49,27 @@ See the [admin contract](observability.md#admin).
 
 The connection identifies a Rails session; every reconnect validates the cookie again.
 Sign-out and password reset use `Session#revoke` / `user.sessions.revoke_all`:
-sessions are deleted immediately and `DisconnectSessionsJob` closes sockets after commit.
-On a network failure, that job retries after five seconds, up to three attempts.
-Final failure remains visible in the queue. New revocation operations must not delete sessions directly.
+session deletion and a `session_disconnects` outbox row commit together in the primary database.
+After commit, `DisconnectSessionsJob` publishes the disconnect. Failed enqueue is reported through
+`Rails.error` as `sessions.disconnect_enqueue`; the intent remains durable and does not turn a
+committed revocation into an HTTP error merely because the queue is unavailable.
+
+`DispatchSessionDisconnectsJob` enqueues pending intents every minute. It recovers queue rejection,
+a process stopping after commit, and exhausted network retries. Intent is deleted only after all
+its disconnect commands are published. A crash before deletion can repeat the commands; disconnecting
+an already revoked session is idempotent. New connections still authenticate against the primary
+database. HTTP publication acknowledgement does not confirm that every client processed the command.
+
+Connection failures and network timeouts retry after five seconds, up to three attempts per job.
+Final job failures remain visible in the queue and the next sweep can redispatch the outbox entry.
+The `sessions.disconnect_backlog` log event reports pending count and oldest creation time.
+Recovery requires the scheduler, worker, queue database, and AnyCable to become available. During a
+queue outage there is no one-minute delivery bound. Queue backlog may contain duplicates; a job whose
+outbox entry has already been acknowledged exits safely. New revocation operations must not delete
+sessions directly.
+
+Apply `CreateSessionDisconnects` before updating application processes. Previously queued jobs without
+`outbox_id` remain supported. Retain pending outbox rows when rolling back application code.
 
 ## Recovery and limits
 

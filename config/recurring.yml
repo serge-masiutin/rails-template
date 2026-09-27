@@ -1,4 +1,7 @@
 production:
+  dispatch_session_disconnects:
+    class: DispatchSessionDisconnectsJob
+    schedule: every minute
   prune_agent_traces:
     command: "AgentTrace.prune"
     schedule: every hour at minute 27
@@ -7,6 +10,9 @@ production:
     schedule: every hour at minute 12
 
 development:
+  dispatch_session_disconnects:
+    class: DispatchSessionDisconnectsJob
+    schedule: every minute
   prune_agent_traces:
     command: "AgentTrace.prune"
     schedule: every hour at minute 27
