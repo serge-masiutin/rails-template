@@ -21,6 +21,11 @@ The command updates source files, Kotlin paths, class/resource names, configurat
 tests, documentation, and working skills. Vendored sources, fonts, licenses, and their hashes stay intact.
 It does not change Git remotes, identity, keys, or machine settings.
 
+Before changing files, the command checks design contracts and indexes with the pinned
+Node runtime, including in `--dry-run`. Resolve any existing source drift first.
+After the identity replacement, it refreshes source snapshots and indexes and checks
+them again. This preserves the reviewed contracts across application renaming.
+
 Choices are saved in `config/template.json`. Repeating the same choices is a no-op.
 Renaming an already configured app is rejected: migrating databases and a published Android ID
 requires a separate plan.
