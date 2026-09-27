@@ -5,6 +5,7 @@ dependencies retain their authorship and licenses. The template does not imply e
 
 | Material | Source and notices |
 | --- | --- |
+| Design System skill | [Yuri Mandrikov / ai-design-system](https://github.com/ymandrikov/ai-design-system/tree/05e0a9ede21cd5e66f5293164e14f6cd3f441dd0), unchanged `skills/design-system`; [MIT license](vendor/licenses/ai-design-system.txt) |
 | Data Systems Architecture skill | Original standalone synthesis based on Martin Kleppmann and Chris Riccomini's *Designing Data-Intensive Applications*, second edition; [sources and coverage](.agents/skills/data-systems-architecture/SOURCES.md). The book and illustrations are not included, and the template license does not license the book. |
 | Evil Martians Agent Skills | [Repository](https://github.com/evilmartians/agent-skills), MIT; license in `vendor/licenses/evilmartians-agent-skills.txt` |
 | Layered Rails | [Vladimir Dementyev / palkan](https://github.com/palkan/skills), MIT |

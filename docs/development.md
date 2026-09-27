@@ -84,6 +84,19 @@ Sources: [Evil Martians stack](https://evilmartians.com/rails-startup-stack),
 [Ruby LSP](https://shopify.github.io/ruby-lsp/), [Herb](https://herb-tools.dev/configuration),
 [Lefthook](https://lefthook.dev/configuration/lefthook/).
 
+## Design system
+
+The complete [design-system](../.agents/skills/design-system/SKILL.md) skill is installed from
+[ymandrikov/ai-design-system, commit 05e0a9e](https://github.com/ymandrikov/ai-design-system/tree/05e0a9ede21cd5e66f5293164e14f6cd3f441dd0/skills/design-system).
+All 31 files are preserved unchanged, with [Yuri Mandrikov's MIT license](../vendor/licenses/ai-design-system.txt).
+
+Use `$design-system` for component selection, contracts, tokens, and source drift checks;
+choose `discovery`, `craft`, `use`, or `verify` for the task. Project connection is a separate
+`setup` workflow based on existing components and agreed design sources. Installing the
+skill does not create `DESIGN.md`, contracts, or Git hooks. Implementation uses the existing
+ViewComponent/Stimulus stack; `hotwire-ui-components` and Lookbook skills cover components
+and previews.
+
 ## Book-to-skill
 
 The complete [book-to-skill](../.agents/skills/book-to-skill/SKILL.md) package lives in `.agents/skills/book-to-skill`: instructions, Python extractor, tools, documentation, and tests. It is preserved unchanged from [virgiliojr94/book-to-skill, commit 80ae087](https://github.com/virgiliojr94/book-to-skill/tree/80ae087784ddbc21dbbfde355fe5509631e0e322), under the [MIT license](../.agents/skills/book-to-skill/LICENSE.md).

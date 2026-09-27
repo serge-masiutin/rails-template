@@ -35,6 +35,7 @@ Load only the nested references needed for the task.
 | Data invariants, transactions, retries, and failures | [Architecture](docs/architecture.md) | `data-systems-architecture`, then the relevant `layered-rails` guidance |
 | Controllers, forms, pages | [Hotwire](docs/hotwire.md) | `hotwire-rails-controllers`, `hotwire-rails-forms`, `hotwire-rails-pages` |
 | Components and Tailwind | [Development](docs/development.md) | `hotwire-ui-components`, `tailwind-best-practices` |
+| Design system contracts and UI reuse | [Development](docs/development.md#design-system) | `design-system`; implementation through `hotwire-ui-components` and the relevant `lookbook-*` |
 | Android, bridge, JSON | [Android](docs/native.md) | `hotwire-contracts`, `rails-serialization` |
 | Catalog diagnosis and next steps | [Development](docs/development.md) | `lookbook-hub` |
 | Lookbook installation and configuration | [Development](docs/development.md) | `lookbook-setup` |
