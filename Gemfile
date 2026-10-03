@@ -32,7 +32,7 @@ gem "yabeda-prometheus", "~> 0.9"
 gem "bootsnap", ">= 1.24.4", require: false
 gem "kamal", "~> 2.12", require: false
 gem "thruster", require: false
-gem "image_processing", "~> 2.1"
+gem "image_processing", "~> 2.2"
 # ImageProcessing 2 requires an explicit Active Storage analysis adapter.
 gem "ruby-vips", "~> 2.3"
 gem "imgproxy-rails", "~> 0.3"
