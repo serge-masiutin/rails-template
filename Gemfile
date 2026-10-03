@@ -18,7 +18,7 @@ gem "action_policy", "~> 0.7.7"
 gem "active_delivery", "~> 1.2"
 gem "after_commit_everywhere", "~> 1.6"
 gem "ruby_llm", "~> 2.0"
-gem "activeagent", "~> 1.6"
+gem "activeagent", "~> 1.7"
 # Prometheus DirectFileStore requires CGI.parse, removed from Ruby 4 stdlib.
 gem "cgi", "~> 0.5"
 gem "view_component", "~> 4.0"
