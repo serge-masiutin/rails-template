@@ -53,7 +53,7 @@ jobs:
           RAILS_ENV: production
           WEB_HOST: build.invalid
           SECRET_KEY_BASE_DUMMY: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: rails-test-artifacts
@@ -80,7 +80,7 @@ jobs:
       - name: Release compilation
         run: ./gradlew assembleRelease -Pstarterapp.productionUrl=https://build.invalid --no-daemon
         working-directory: native/android
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: starterapp-android-debug
           path: native/android/app/build/outputs/apk/debug/*.apk
