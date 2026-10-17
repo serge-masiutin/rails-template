@@ -2,7 +2,7 @@ buildscript {
     repositories { mavenCentral() }
     dependencies {
         // AGP 9 provides Kotlin compilation without the kotlin-android plugin.
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.21")
     }
 }
 
