@@ -6,7 +6,7 @@
 ARG RUBY_VERSION=4.0.7
 
 # Node only builds the AgentPrism viewer.
-FROM docker.io/library/node:24.21.0-slim AS agent-assets
+FROM docker.io/library/node:24.22.0-slim AS agent-assets
 WORKDIR /build
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
