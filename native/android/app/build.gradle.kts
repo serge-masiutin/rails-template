@@ -59,7 +59,7 @@ tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn("valid
 
 dependencies {
     constraints {
-        implementation("com.google.errorprone:error_prone_annotations:2.50.0") {
+        implementation("com.google.errorprone:error_prone_annotations:2.51.0") {
             because("Older annotations reference javax.lang.model.element.Modifier and break Android R8; google/error-prone#5386")
         }
     }
